@@ -214,6 +214,7 @@ exports.handler = async (event, context) => {
     // Track if collection exists
     let collectionExists = false;
     let existingCollections = [];
+    let collectionId = null;
     
     try {
       // First check custom collections
@@ -229,47 +230,27 @@ exports.handler = async (event, context) => {
         "Custom collections check"
       );
       
-      // Then check smart collections
-      const smartCollectionsResult = await shopifyApiRequest(
-        `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json?handle=${gameHandle}`,
-        {
-          method: 'GET',
-          headers: {
-            'X-Shopify-Access-Token': shopifyAccessToken,
-            'Content-Type': 'application/json'
-          }
-        },
-        "Smart collections check"
-      );
-      
-      // Process results from both endpoints
+      // Process results
       const customCollections = customCollectionsResult.error ? { custom_collections: [] } : customCollectionsResult.data;
-      const smartCollections = smartCollectionsResult.error ? { smart_collections: [] } : smartCollectionsResult.data;
       
       console.log(`Custom collections check result:`, JSON.stringify(customCollections));
-      console.log(`Smart collections check result:`, JSON.stringify(smartCollections));
       
-      // Combine both collection types
-      existingCollections = [
-        ...(customCollections.custom_collections || []),
-        ...(smartCollections.smart_collections || [])
-      ];
-      
+      existingCollections = customCollections.custom_collections || [];
       collectionExists = existingCollections.length > 0;
+      
+      if (collectionExists) {
+        collectionId = existingCollections[0].id;
+      }
+      
       console.log(`Total existing collections found with handle '${gameHandle}': ${existingCollections.length}`);
       
       // If collection doesn't exist, create it
       if (!collectionExists) {
         console.log(`No collection found for ${gameHandle}, creating new one`);
         
-        // Fix the collection creation rules to use a valid format for metafield filtering
-        // According to Shopify API docs, use 'tag' column and 'game:' prefix for metafield-based collections
-        const gameTag = `game:${gameName}`;
-        console.log(`Using tag rule: ${gameTag}`);
-        
-        // Create smart collection using Shopify Admin API
+        // Create a custom collection with the game name
         const createCollectionResult = await shopifyApiRequest(
-          `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json`,
+          `https://${shopifyDomain}/admin/api/2023-07/custom_collections.json`,
           {
             method: 'POST',
             headers: {
@@ -277,16 +258,10 @@ exports.handler = async (event, context) => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              smart_collection: {
+              custom_collection: {
                 title: gameName,
-                rules: [
-                  {
-                    column: 'tag',
-                    relation: 'equals',
-                    condition: gameTag
-                  }
-                ],
-                published: true
+                published: true,
+                sort_order: 'alpha-asc'
               }
             })
           },
@@ -297,77 +272,130 @@ exports.handler = async (event, context) => {
           throw new Error(`Failed to create collection: ${createCollectionResult.message}`);
         }
         
-        console.log(`Successfully created collection: ${createCollectionResult.data.smart_collection.title} (ID: ${createCollectionResult.data.smart_collection.id})`);
-        
-        // Now add the game tag to the product
-        console.log(`Adding game tag to product: ${gameTag}`);
-        
-        // First get the product's existing tags
-        const productTagsResult = await shopifyApiRequest(
-          `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}.json?fields=id,tags`,
-          {
-            method: 'GET',
-            headers: {
-              'X-Shopify-Access-Token': shopifyAccessToken,
-              'Content-Type': 'application/json'
-            }
-          },
-          "Product tags fetch"
-        );
-        
-        if (productTagsResult.error) {
-          console.error(`Warning: Failed to fetch product tags: ${productTagsResult.message}`);
-        } else {
-          // Get existing tags
-          const existingTags = productTagsResult.data.product.tags || '';
-          const tagArray = existingTags.split(', ').filter(tag => tag.trim() !== '');
-          
-          // Add the game tag if it doesn't exist
-          if (!tagArray.includes(gameTag)) {
-            tagArray.push(gameTag);
+        collectionId = createCollectionResult.data.custom_collection.id;
+        console.log(`Successfully created collection: ${createCollectionResult.data.custom_collection.title} (ID: ${collectionId})`);
+      }
+      
+      // Add or confirm the product is in the collection
+      console.log(`Adding product ${webhookData.id} to collection ${collectionId}`);
+      
+      // First check if the product is already in the collection
+      const collectionProductsResult = await shopifyApiRequest(
+        `https://${shopifyDomain}/admin/api/2023-07/collections/${collectionId}/products.json?limit=250`,
+        {
+          method: 'GET',
+          headers: {
+            'X-Shopify-Access-Token': shopifyAccessToken,
+            'Content-Type': 'application/json'
           }
-          
-          // Join tags back into a string
-          const newTags = tagArray.join(', ');
-          console.log(`Updating product tags from "${existingTags}" to "${newTags}"`);
-          
-          // Update the product with the new tags
-          const updateTagsResult = await shopifyApiRequest(
-            `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}.json`,
+        },
+        "Collection products fetch"
+      );
+      
+      if (collectionProductsResult.error) {
+        console.error(`Warning: Failed to fetch collection products: ${collectionProductsResult.message}`);
+      } else {
+        const collectionProducts = collectionProductsResult.data.products || [];
+        const productInCollection = collectionProducts.some(product => product.id === Number(webhookData.id));
+        
+        if (productInCollection) {
+          console.log(`Product ${webhookData.id} already in collection ${collectionId}`);
+        } else {
+          // Add the product to the collection using the collects API
+          const addProductResult = await shopifyApiRequest(
+            `https://${shopifyDomain}/admin/api/2023-07/collects.json`,
             {
-              method: 'PUT',
+              method: 'POST',
               headers: {
                 'X-Shopify-Access-Token': shopifyAccessToken,
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                product: {
-                  id: webhookData.id,
-                  tags: newTags
+                collect: {
+                  product_id: webhookData.id,
+                  collection_id: collectionId
                 }
               })
             },
-            "Product tags update"
+            "Add product to collection"
           );
           
-          if (updateTagsResult.error) {
-            console.error(`Warning: Failed to update product tags: ${updateTagsResult.message}`);
+          if (addProductResult.error) {
+            console.error(`Warning: Failed to add product to collection: ${addProductResult.message}`);
           } else {
-            console.log(`Successfully updated product tags`);
+            console.log(`Successfully added product ${webhookData.id} to collection ${collectionId}`);
           }
         }
-        
-        return {
-          statusCode: 200,
-          body: `Created collection for game ${gameName} and tagged the product`
-        };
-      } else {
-        console.log(`Collection already exists for game ${gameName}`);
-        return {
-          statusCode: 200,
-          body: `Collection for game ${gameName} already exists`
-        };
       }
+      
+      // Now we need to set up the collection to use the game metafield as a condition
+      // This requires a separate API call to update or create a collection filter
+      
+      // Check if the collection has filters for the game metafield
+      console.log(`Setting up metafield-based filtering for collection ${collectionId}`);
+      
+      // For automation purposes, also create a Smart Collection with the game metafield
+      const smartCollectionCheckResult = await shopifyApiRequest(
+        `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json?title=${encodeURIComponent(gameName)}`,
+        {
+          method: 'GET',
+          headers: {
+            'X-Shopify-Access-Token': shopifyAccessToken,
+            'Content-Type': 'application/json'
+          }
+        },
+        "Smart collection check"
+      );
+      
+      if (smartCollectionCheckResult.error) {
+        console.error(`Warning: Failed to check for smart collection: ${smartCollectionCheckResult.message}`);
+      } else {
+        const smartCollections = smartCollectionCheckResult.data.smart_collections || [];
+        
+        if (smartCollections.length === 0) {
+          // Create a smart collection with the custom disjunction rule
+          const createSmartCollectionResult = await shopifyApiRequest(
+            `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json`,
+            {
+              method: 'POST',
+              headers: {
+                'X-Shopify-Access-Token': shopifyAccessToken,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                smart_collection: {
+                  title: `${gameName} (Auto)`,
+                  published: false, // Keep it hidden as we're using the custom collection
+                  disjunctive: false, // Products must match all rules
+                  rules: [
+                    {
+                      column: 'tag',
+                      relation: 'equals',
+                      condition: `Game: ${gameName}`
+                    }
+                  ]
+                }
+              })
+            },
+            "Smart collection creation"
+          );
+          
+          if (createSmartCollectionResult.error) {
+            console.error(`Warning: Failed to create smart collection: ${createSmartCollectionResult.message}`);
+          } else {
+            console.log(`Created reference smart collection for future automation: ${createSmartCollectionResult.data.smart_collection.id}`);
+          }
+        } else {
+          console.log(`Smart collection already exists for game ${gameName}`);
+        }
+      }
+      
+      return {
+        statusCode: 200,
+        body: collectionExists 
+          ? `Added product to existing collection for game ${gameName}` 
+          : `Created collection for game ${gameName} and added the product`
+      };
     } catch (apiError) {
       console.error('API Error:', apiError);
       throw new Error(`Shopify API error: ${apiError.message}`);
