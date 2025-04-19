@@ -73,8 +73,50 @@ exports.handler = async (event, context) => {
     
     console.log(`Processing product: ${product.id} - ${product.title}`);
     
-    // Check if the product has a game metafield
-    if (!product.metafields || !product.metafields.find(m => m.namespace === 'custom' && m.key === 'game')) {
+    // Log metafields to understand structure
+    console.log("Metafields received:", JSON.stringify(product.metafields || []));
+    
+    // Check for metafields in different formats
+    let gameMetafield = null;
+    
+    // Look for metafields in array format
+    if (Array.isArray(product.metafields)) {
+      console.log("Checking metafields array format");
+      // Try namespace=custom, key=game
+      gameMetafield = product.metafields.find(m => m.namespace === 'custom' && m.key === 'game');
+      
+      // If not found, try different common namespace/key combinations
+      if (!gameMetafield) {
+        gameMetafield = product.metafields.find(m => 
+          (m.namespace === 'custom' && m.key === 'game') || 
+          (m.key === 'custom.game') ||
+          (m.namespace === 'global' && m.key === 'game')
+        );
+      }
+    } 
+    // Shopify sometimes nests metafields under a "metafields" property with namespace as keys
+    else if (product.metafields && typeof product.metafields === 'object') {
+      console.log("Checking metafields object format");
+      
+      // Check for custom.game format
+      if (product.metafields.custom && product.metafields.custom.game) {
+        gameMetafield = {
+          namespace: 'custom',
+          key: 'game',
+          value: product.metafields.custom.game
+        };
+      }
+    }
+    
+    // If still not found, check if there are any properties containing "game" for debugging
+    if (!gameMetafield && product.metafields) {
+      console.log("No standard game metafield found. Checking for any game-related fields for debugging");
+      const allKeys = getAllMetafieldKeys(product.metafields);
+      console.log("All available metafield keys:", allKeys);
+    }
+    
+    // Exit if no game metafield found
+    if (!gameMetafield) {
       console.log('No game metafield found for this product');
       return {
         statusCode: 200,
@@ -83,8 +125,7 @@ exports.handler = async (event, context) => {
     }
     
     // Get the game value
-    const gameMetafield = product.metafields.find(m => m.namespace === 'custom' && m.key === 'game');
-    const gameName = gameMetafield.value;
+    const gameName = typeof gameMetafield === 'object' ? gameMetafield.value : gameMetafield;
     
     if (!gameName || gameName.trim() === '') {
       console.log('Empty game metafield value');
@@ -182,4 +223,21 @@ exports.handler = async (event, context) => {
       body: `Error: ${error.message}`
     };
   }
-}; 
+};
+
+/**
+ * Helper function to get all metafield keys recursively for debugging
+ */
+function getAllMetafieldKeys(obj, prefix = '') {
+  if (!obj) return [];
+  
+  return Object.keys(obj).reduce((keys, key) => {
+    const currentKey = prefix ? `${prefix}.${key}` : key;
+    
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      return [...keys, currentKey, ...getAllMetafieldKeys(obj[key], currentKey)];
+    }
+    
+    return [...keys, currentKey];
+  }, []);
+} 
