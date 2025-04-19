@@ -180,7 +180,11 @@ exports.handler = async (event, context) => {
     console.log(`Checking if collection exists for handle: ${gameHandle}`);
     
     try {
-      const collectionsResponse = await fetch(`https://${shopifyDomain}/admin/api/2023-07/collections.json?handle=${gameHandle}`, {
+      // Fix: Use the correct API endpoint to check for collections
+      // The original query was incorrect. We need to use the custom_collections and smart_collections endpoints
+      
+      // First check custom collections
+      const customCollectionsResponse = await fetch(`https://${shopifyDomain}/admin/api/2023-07/custom_collections.json?handle=${gameHandle}`, {
         method: 'GET',
         headers: {
           'X-Shopify-Access-Token': shopifyAccessToken,
@@ -188,14 +192,40 @@ exports.handler = async (event, context) => {
         }
       });
       
-      if (!collectionsResponse.ok) {
-        throw new Error(`Failed to check collections: ${collectionsResponse.statusText}`);
+      if (!customCollectionsResponse.ok) {
+        console.log(`Error checking custom collections: ${customCollectionsResponse.statusText}`);
       }
       
-      const collections = await collectionsResponse.json();
+      // Then check smart collections
+      const smartCollectionsResponse = await fetch(`https://${shopifyDomain}/admin/api/2023-07/smart_collections.json?handle=${gameHandle}`, {
+        method: 'GET',
+        headers: {
+          'X-Shopify-Access-Token': shopifyAccessToken,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!smartCollectionsResponse.ok) {
+        console.log(`Error checking smart collections: ${smartCollectionsResponse.statusText}`);
+      }
+      
+      // Parse both responses
+      const customCollections = await customCollectionsResponse.json();
+      const smartCollections = await smartCollectionsResponse.json();
+      
+      console.log(`Custom collections check result:`, JSON.stringify(customCollections));
+      console.log(`Smart collections check result:`, JSON.stringify(smartCollections));
+      
+      // Combine both collection types
+      const existingCollections = [
+        ...(customCollections.custom_collections || []),
+        ...(smartCollections.smart_collections || [])
+      ];
+      
+      console.log(`Total existing collections found with handle '${gameHandle}': ${existingCollections.length}`);
       
       // If collection doesn't exist, create it
-      if (!collections.collections || collections.collections.length === 0) {
+      if (existingCollections.length === 0) {
         console.log(`No collection found for ${gameHandle}, creating new one`);
         
         // Create smart collection using Shopify Admin API
@@ -224,8 +254,14 @@ exports.handler = async (event, context) => {
         });
         
         if (!createResponse.ok) {
-          const errorData = await createResponse.json();
-          throw new Error(`Failed to create collection: ${JSON.stringify(errorData)}`);
+          const errorText = await createResponse.text();
+          console.error(`Failed to create collection, response: ${errorText}`);
+          try {
+            const errorData = JSON.parse(errorText);
+            throw new Error(`Failed to create collection: ${JSON.stringify(errorData)}`);
+          } catch (e) {
+            throw new Error(`Failed to create collection: ${errorText}`);
+          }
         }
         
         const createResult = await createResponse.json();
