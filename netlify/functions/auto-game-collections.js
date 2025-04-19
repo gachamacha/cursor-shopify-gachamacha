@@ -212,9 +212,9 @@ exports.handler = async (event, context) => {
     console.log(`Checking if collection exists for handle: ${gameHandle}`);
     
     try {
-      // Check smart collections first
-      const smartCollectionsResult = await shopifyApiRequest(
-        `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json?handle=${gameHandle}`,
+      // First try to find an existing collection with this handle
+      const collectionsResponse = await shopifyApiRequest(
+        `https://${shopifyDomain}/admin/api/2023-07/custom_collections.json?handle=${gameHandle}`,
         {
           method: 'GET',
           headers: {
@@ -222,198 +222,97 @@ exports.handler = async (event, context) => {
             'Content-Type': 'application/json'
           }
         },
-        "Smart collections check"
+        "Collections lookup"
       );
       
-      // Process results
-      const smartCollections = smartCollectionsResult.error ? { smart_collections: [] } : smartCollectionsResult.data;
-      console.log(`Smart collections check result:`, JSON.stringify(smartCollections));
+      // This isn't an error case - might just be an empty array
+      const collections = collectionsResponse.error ? 
+        { custom_collections: [] } : 
+        collectionsResponse.data;
       
-      const existingCollections = smartCollections.smart_collections || [];
-      const collectionExists = existingCollections.length > 0;
+      console.log(`Custom collections for ${gameHandle}:`, JSON.stringify(collections));
       
-      console.log(`Total existing collections found with handle '${gameHandle}': ${existingCollections.length}`);
-      
-      // If collection doesn't exist, create it
-      if (!collectionExists) {
-        console.log(`No collection found for ${gameHandle}, creating new one`);
+      let collectionId = null;
+      if (collections.custom_collections && collections.custom_collections.length > 0) {
+        // Collection already exists
+        collectionId = collections.custom_collections[0].id;
+        console.log(`Collection already exists for ${gameName} with ID: ${collectionId}`);
+      } else {
+        // Create a new collection since none exists
+        console.log(`No collection found for ${gameName}, creating a new one`);
         
-        // Get the GraphQL Admin API endpoint
-        const graphqlEndpoint = `https://${shopifyDomain}/admin/api/2023-07/graphql.json`;
-        
-        // This is the direct create smart collection with metafield condition approach
-        // However, there's a limitation: Shopify's REST API doesn't support metafield conditions directly
-        // We'll use a GraphQL mutation that can do this or fall back to using REST API with a different approach
-        
-        console.log(`Creating smart collection for game: ${gameName}`);
-        
-        // Construct query with proper indentation for readability in logs
-        const query = `
-          mutation {
-            collectionCreate(input: {
-              title: "${gameName}",
-              ruleSet: {
-                appliedDisjunctively: false,
-                rules: [
-                  {
-                    column: "VARIANT_METAFIELD",
-                    relation: "EQUALS",
-                    condition: "${gameName}",
-                    metafield: {
-                      namespace: "custom",
-                      key: "game"
-                    }
-                  }
-                ]
-              }
-            }) {
-              collection {
-                id
-                title
-                handle
-              }
-              userErrors {
-                field
-                message
-              }
-            }
-          }
-        `;
-        
-        console.log(`GraphQL query: ${query}`);
-        
-        const graphqlResult = await shopifyApiRequest(
-          graphqlEndpoint,
+        const createResult = await shopifyApiRequest(
+          `https://${shopifyDomain}/admin/api/2023-07/custom_collections.json`,
           {
             method: 'POST',
             headers: {
               'X-Shopify-Access-Token': shopifyAccessToken,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ query })
+            body: JSON.stringify({
+              custom_collection: {
+                title: gameName,
+                published: true,
+                sort_order: 'alpha-asc'
+              }
+            })
           },
-          "GraphQL collection creation"
+          "Create collection"
         );
         
-        // Check for GraphQL errors
-        if (graphqlResult.error || (graphqlResult.data && graphqlResult.data.errors)) {
-          console.error("GraphQL errors:", graphqlResult.data?.errors || graphqlResult.message);
-          console.log("Falling back to REST API approach...");
-          
-          // Fall back to creating a smart collection with REST API
-          const createCollectionResult = await shopifyApiRequest(
-            `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json`,
-            {
-              method: 'POST',
-              headers: {
-                'X-Shopify-Access-Token': shopifyAccessToken,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                smart_collection: {
-                  title: gameName,
-                  rules: [
-                    {
-                      column: "variant_metafield",
-                      relation: "equals",
-                      condition: gameName,
-                      metafield: {
-                        namespace: "custom",
-                        key: "game"
-                      }
-                    }
-                  ],
-                  published: true
-                }
-              })
-            },
-            "Collection creation fallback"
-          );
-          
-          if (createCollectionResult.error) {
-            console.error("REST API fallback also failed. Creating a manual collection instead.");
-            
-            // As a last resort, create a regular collection and manually add the product
-            const manualCollectionResult = await shopifyApiRequest(
-              `https://${shopifyDomain}/admin/api/2023-07/custom_collections.json`,
-              {
-                method: 'POST',
-                headers: {
-                  'X-Shopify-Access-Token': shopifyAccessToken,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  custom_collection: {
-                    title: gameName,
-                    published: true
-                  }
-                })
-              },
-              "Manual collection creation"
-            );
-            
-            if (manualCollectionResult.error) {
-              throw new Error(`Failed to create any type of collection: ${manualCollectionResult.message}`);
-            }
-            
-            const collectionId = manualCollectionResult.data.custom_collection.id;
-            console.log(`Created manual collection: ${collectionId}`);
-            
-            // Add the product to the manually created collection
-            const addProductResult = await shopifyApiRequest(
-              `https://${shopifyDomain}/admin/api/2023-07/collects.json`,
-              {
-                method: 'POST',
-                headers: {
-                  'X-Shopify-Access-Token': shopifyAccessToken,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  collect: {
-                    product_id: webhookData.id,
-                    collection_id: collectionId
-                  }
-                })
-              },
-              "Add product to manual collection"
-            );
-            
-            if (addProductResult.error) {
-              console.error(`Warning: Failed to add product to collection: ${addProductResult.message}`);
-            }
-            
-            return {
-              statusCode: 200,
-              body: `Created manual collection for ${gameName} as automatic collection creation failed`
-            };
-          } else {
-            console.log(`Successfully created collection via REST API: ${createCollectionResult.data.smart_collection.title}`);
-          }
-        } else {
-          // Check for user errors in the GraphQL response
-          const userErrors = graphqlResult.data.data.collectionCreate.userErrors;
-          if (userErrors && userErrors.length > 0) {
-            console.error("GraphQL user errors:", JSON.stringify(userErrors));
-            throw new Error(`Failed to create collection with GraphQL: ${userErrors[0].message}`);
-          }
-          
-          console.log(`Successfully created collection via GraphQL: ${graphqlResult.data.data.collectionCreate.collection.title}`);
+        if (createResult.error) {
+          throw new Error(`Failed to create collection: ${createResult.message}`);
         }
         
-        return {
-          statusCode: 200,
-          body: `Created collection for game ${gameName}`
-        };
-      } else {
-        console.log(`Collection already exists for game ${gameName}`);
-        return {
-          statusCode: 200,
-          body: `Collection for game ${gameName} already exists`
-        };
+        collectionId = createResult.data.custom_collection.id;
+        console.log(`Successfully created collection: ${createResult.data.custom_collection.title} (ID: ${collectionId})`);
       }
-    } catch (apiError) {
-      console.error('API Error:', apiError);
-      throw new Error(`Shopify API error: ${apiError.message}`);
+      
+      // Now add this product to the collection
+      console.log(`Adding product ${webhookData.id} to collection ${collectionId}`);
+      
+      const collectResult = await shopifyApiRequest(
+        `https://${shopifyDomain}/admin/api/2023-07/collects.json`,
+        {
+          method: 'POST',
+          headers: {
+            'X-Shopify-Access-Token': shopifyAccessToken,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            collect: {
+              product_id: webhookData.id,
+              collection_id: collectionId
+            }
+          })
+        },
+        "Add product to collection"
+      );
+      
+      if (collectResult.error) {
+        // This could happen if the product is already in the collection - not a fatal error
+        console.log(`Warning: Could not add product to collection: ${collectResult.message}`);
+      } else {
+        console.log(`Successfully added product ${webhookData.id} to collection ${collectionId}`);
+      }
+      
+      // Now we need to set up the collection to use Game metafield for conditions
+      // Since we can't do this via the API, we'll create a specific webhook URL that
+      // the store admin can visit to set up the correct conditions
+      
+      const setupUrl = `https://${shopifyDomain}/admin/collections/${collectionId}`;
+      console.log(`To set up the correct Game metafield condition, visit: ${setupUrl}`);
+      console.log(`IMPORTANT: Edit the collection and set condition to "Game" is equal to "${gameName}"`);
+      
+      return {
+        statusCode: 200,
+        body: `Success! ${collections.custom_collections && collections.custom_collections.length > 0 ? 
+          `Added product to existing collection for game ${gameName}` : 
+          `Created collection for game ${gameName} and added product`}`
+      };
+    } catch (error) {
+      console.error('API Error:', error);
+      throw new Error(`Shopify API error: ${error.message}`);
     }
   } catch (error) {
     console.error('Error processing webhook:', error);
