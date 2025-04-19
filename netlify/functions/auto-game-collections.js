@@ -262,6 +262,11 @@ exports.handler = async (event, context) => {
       if (!collectionExists) {
         console.log(`No collection found for ${gameHandle}, creating new one`);
         
+        // Fix the collection creation rules to use a valid format for metafield filtering
+        // According to Shopify API docs, use 'tag' column and 'game:' prefix for metafield-based collections
+        const gameTag = `game:${gameName}`;
+        console.log(`Using tag rule: ${gameTag}`);
+        
         // Create smart collection using Shopify Admin API
         const createCollectionResult = await shopifyApiRequest(
           `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json`,
@@ -276,15 +281,12 @@ exports.handler = async (event, context) => {
                 title: gameName,
                 rules: [
                   {
-                    column: 'metafield',
+                    column: 'tag',
                     relation: 'equals',
-                    condition: gameName,
-                    metafield: {
-                      namespace: 'custom',
-                      key: 'game'
-                    }
+                    condition: gameTag
                   }
-                ]
+                ],
+                published: true
               }
             })
           },
@@ -296,9 +298,68 @@ exports.handler = async (event, context) => {
         }
         
         console.log(`Successfully created collection: ${createCollectionResult.data.smart_collection.title} (ID: ${createCollectionResult.data.smart_collection.id})`);
+        
+        // Now add the game tag to the product
+        console.log(`Adding game tag to product: ${gameTag}`);
+        
+        // First get the product's existing tags
+        const productTagsResult = await shopifyApiRequest(
+          `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}.json?fields=id,tags`,
+          {
+            method: 'GET',
+            headers: {
+              'X-Shopify-Access-Token': shopifyAccessToken,
+              'Content-Type': 'application/json'
+            }
+          },
+          "Product tags fetch"
+        );
+        
+        if (productTagsResult.error) {
+          console.error(`Warning: Failed to fetch product tags: ${productTagsResult.message}`);
+        } else {
+          // Get existing tags
+          const existingTags = productTagsResult.data.product.tags || '';
+          const tagArray = existingTags.split(', ').filter(tag => tag.trim() !== '');
+          
+          // Add the game tag if it doesn't exist
+          if (!tagArray.includes(gameTag)) {
+            tagArray.push(gameTag);
+          }
+          
+          // Join tags back into a string
+          const newTags = tagArray.join(', ');
+          console.log(`Updating product tags from "${existingTags}" to "${newTags}"`);
+          
+          // Update the product with the new tags
+          const updateTagsResult = await shopifyApiRequest(
+            `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}.json`,
+            {
+              method: 'PUT',
+              headers: {
+                'X-Shopify-Access-Token': shopifyAccessToken,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                product: {
+                  id: webhookData.id,
+                  tags: newTags
+                }
+              })
+            },
+            "Product tags update"
+          );
+          
+          if (updateTagsResult.error) {
+            console.error(`Warning: Failed to update product tags: ${updateTagsResult.message}`);
+          } else {
+            console.log(`Successfully updated product tags`);
+          }
+        }
+        
         return {
           statusCode: 200,
-          body: `Created collection for game ${gameName}`
+          body: `Created collection for game ${gameName} and tagged the product`
         };
       } else {
         console.log(`Collection already exists for game ${gameName}`);
