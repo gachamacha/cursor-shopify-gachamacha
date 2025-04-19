@@ -1,0 +1,959 @@
+{% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+{{ 'component-collection-hero.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  /* Updated styling for modern game collection header with banner image */
+  .collection-hero {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    color: #ffffff;
+    /* Only set background color when displaying a banner */
+    background-color: var(--color-background-body);
+    min-height: {{ section.settings.banner_height }}px;
+    display: flex;
+    align-items: flex-end;
+    margin-top: -150px; /* Increase negative margin to cover the entire header including announcement bar */
+    padding-top: 150px; /* Match padding with margin for proper content positioning */
+    z-index: 1; /* Ensure proper stacking for the hero section */
+    pointer-events: auto; /* Restore pointer events for the content */
+  }
+  
+  /* Styling for banner-less mode */
+  .collection-hero--no-banner {
+    min-height: auto;
+    padding-top: 1.5rem;
+    margin-top: 0; /* Reset margin for no-banner mode */
+    /* Ensure no background color is set */
+  }
+  
+  /* Banner image with overlay effects */
+  .collection-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* This keeps it behind the content but above other elements */
+    pointer-events: none; /* Prevent banner from interfering with header clicks */
+  }
+  
+  .collection-banner__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    {% if section.settings.enable_zoom %}
+      transform: scale({{ section.settings.zoom_level | divided_by: 100.0 | plus: 1.0 }});
+      transform-origin: {{ section.settings.focal_point_x }}% {{ section.settings.focal_point_y }}%;
+      transition: transform 0.5s ease;
+    {% endif %}
+  }
+  
+  /* Overlay for dimming the banner image */
+  .collection-banner__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Adjust opacity to be less dark for better blending */
+    background-color: rgba(0, 0, 0, {{ section.settings.overlay_opacity | default: 40 | divided_by: 100.0 }});
+    z-index: 2;
+    /* Always display at least a minimal overlay for readability */
+    display: block;
+    opacity: {% if section.settings.enable_dimming %}1{% else %}0.15{% endif %};
+  }
+  
+  /* Make sure header elements remain on top of the banner */
+  .shopify-section-header-sticky,
+  .section-header {
+    z-index: 30; /* Match z-index with header.liquid */
+    /* Don't override the sticky behavior from header.liquid */
+  }
+  
+  /* Dynamic gradient effect that blends with website colors - only at bottom */
+  .collection-banner__gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: {{ section.settings.gradient_height | default: 60 }}%;
+    z-index: 3;
+    display: block;
+    opacity: {% if section.settings.enable_gradient %}1{% else %}0.7{% endif %};
+    
+    /* Apply the selected gradient style */
+    {% assign gradient_style = section.settings.gradient_style | default: 'classic' %}
+    {% assign website_bg = "var(--color-background-body)" %}
+    
+    /* Extract colors from the gradient stops for transparency */
+    {% assign primary_opacity = "0.98" %} /* Full opacity at bottom for perfect blending */
+    {% assign secondary_opacity = "0.80" %} /* Higher middle opacity for smoother transition */
+    {% assign tertiary_opacity = "0.50" %} /* Better transition point */
+    {% assign fourth_opacity = "0.20" %} /* Additional step for more gradual fade */
+    {% assign transparent_opacity = "0" %}
+    
+    /* Pure background color with mask for better blending */
+    background: {{ website_bg }};
+    
+    /* Enhanced blend effect with extended gradient */
+    {% case gradient_style %}
+      {% when 'classic' %}
+        /* Classic improved gradient (smoother than linear) */
+        mask-image: linear-gradient(to top, 
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%, 
+          rgba(0, 0, 0, {{ secondary_opacity }}) 20%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 40%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 70%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        -webkit-mask-image: linear-gradient(to top, 
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%, 
+          rgba(0, 0, 0, {{ secondary_opacity }}) 20%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 40%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 70%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        
+      {% when 'radial' %}
+        /* Radial blend for a more artistic focal point */
+        mask-image: radial-gradient(
+          ellipse at bottom,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 30%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 50%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 75%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        -webkit-mask-image: radial-gradient(
+          ellipse at bottom,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 30%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 50%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 75%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        
+      {% when 'diagonal' %}
+        /* Diagonal sweep for dynamic asymmetric effect */
+        mask-image: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 25%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 45%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 70%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        -webkit-mask-image: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 25%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 45%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 70%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        
+      {% when 'vignette' %}
+        /* Vignette effect that fades from all sides but stronger at bottom */
+        mask-image: radial-gradient(
+          ellipse at 50% 80%,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 30%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 50%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 75%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        -webkit-mask-image: radial-gradient(
+          ellipse at 50% 80%,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0%,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 30%,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 50%,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 75%,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 100%
+        );
+        
+      {% when 'conic' %}
+        /* Conic gradient for a sweeping effect */
+        mask-image: conic-gradient(
+          from 180deg at 50% 100%,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0deg,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 60deg,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 120deg,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 240deg,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 360deg
+        );
+        -webkit-mask-image: conic-gradient(
+          from 180deg at 50% 100%,
+          rgba(0, 0, 0, {{ primary_opacity }}) 0deg,
+          rgba(0, 0, 0, {{ secondary_opacity }}) 60deg,
+          rgba(0, 0, 0, {{ tertiary_opacity }}) 120deg,
+          rgba(0, 0, 0, {{ fourth_opacity }}) 240deg,
+          rgba(0, 0, 0, {{ transparent_opacity }}) 360deg
+        );
+    {% endcase %}
+  }
+  
+  /* Content container positioned over the banner */
+  .collection-hero__inner {
+    position: relative;
+    z-index: 4;
+    /* Increased padding for better text spacing */
+    padding: 2.5rem 2.5rem 3rem;
+    width: 100%;
+  }
+  
+  /* Additional styling for no-banner mode */
+  .collection-hero--no-banner .collection-hero__inner {
+    /* Ensure transparency */
+    background: transparent;
+    /* Adjusted padding without banner */
+    padding: 2rem 2rem 2.5rem;
+  }
+  
+  /* Text wrapper with increased left padding */
+  .collection-hero__text-wrapper {
+    padding: 0 1rem 0 3rem; /* Added left padding while maintaining other spacing */
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Adjust text wrapper for banner-less mode */
+  .collection-hero--no-banner .collection-hero__text-wrapper {
+    padding: 0 2rem 0 3rem;
+  }
+  
+  /* Game header with icon and title */
+  .game-header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    /* Add animation for the game header */
+    animation: fadeSlideUp 0.8s ease-out forwards;
+  }
+  
+  /* Game icon styling */
+  .game-header__icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    margin-right: 1.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #3278e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    /* Add animation for the icon with slight delay */
+    animation: fadeSlideIn 0.6s ease-out 0.2s both;
+    transform-origin: center center;
+  }
+
+  /* Larger icon for banner-less mode */
+  .collection-hero--no-banner .game-header__icon {
+    width: 100px;
+    height: 100px;
+    margin-right: 2rem;
+  }
+  
+  .game-header__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Game title styling */
+  .collection-hero__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.2;
+    /* Enhanced text shadow for better readability across all backgrounds */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.8);
+    /* Add animation for the title with delay */
+    animation: fadeSlideRight 0.7s ease-out 0.3s both;
+  }
+
+  /* Larger title for banner-less mode */
+  .collection-hero--no-banner .collection-hero__title {
+    font-size: 3rem;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Game metadata section */
+  .game-metadata {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    /* Add animation for the metadata */
+    animation: fadeIn 0.8s ease-out 0.5s both;
+  }
+  
+  .game-rating {
+    display: flex;
+    align-items: center;
+    margin-right: 1.5rem;
+  }
+  
+  .rating-stars {
+    color: #FFD700;
+    margin-right: 0.5rem;
+  }
+  
+  .game-developer {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+  }
+
+  /* Larger metadata for banner-less mode */
+  .collection-hero--no-banner .game-metadata {
+    margin-top: 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  .collection-hero--no-banner .game-developer {
+    font-size: 1.05rem;
+  }
+  
+  /* Blue divider line */
+  .divider {
+    height: 3px;
+    background: linear-gradient(90deg, #3278e0 0%, rgba(50, 120, 224, 0.3) 100%);
+    margin: 1.5rem 0;
+    border-radius: 3px;
+    width: 100%;
+    /* Add animation for the divider */
+    animation: expandWidth 0.8s ease-out 0.4s both;
+  }
+
+  /* Wider divider for banner-less mode */
+  .collection-hero--no-banner .divider {
+    height: 4px;
+    margin: 2rem 0;
+  }
+  
+  /* Game description styling */
+  .collection-hero__description {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.95); /* Increased opacity for better visibility */
+    margin-bottom: 1.8rem;
+    max-width: 800px;
+    /* Enhanced text shadow for better readability */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    /* Add animation for the description */
+    animation: fadeIn 0.8s ease-out 0.6s both;
+    /* Luxurious styling additions */
+    letter-spacing: 0.02em;
+    font-weight: 300; /* Light weight for elegance */
+    border-left: 3px solid rgba(212, 175, 55, 0.7); /* Gold accent border */
+    padding-left: 1.2rem;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
+    padding: 1.2rem 1.5rem 1.2rem 1.5rem;
+    border-radius: 3px;
+  }
+
+  /* Larger description for banner-less mode */
+  .collection-hero--no-banner .collection-hero__description {
+    font-size: 1.3rem;
+    line-height: 1.7;
+    max-width: 900px;
+    padding: 1.5rem 1.8rem 1.5rem 1.8rem;
+  }
+  
+  /* Game platform icons */
+  .game-platforms {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    /* Add animation for the platform icons */
+    animation: fadeIn 0.8s ease-out 0.7s both;
+  }
+  
+  .platform-icon {
+    width: 24px;
+    height: 24px;
+    opacity: 0.9;
+    filter: brightness(1.5);
+  }
+
+  /* Larger platform icons for banner-less mode */
+  .collection-hero--no-banner .platform-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .collection-hero--no-banner .game-platforms {
+    margin-top: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  /* Animation keyframes */
+  @keyframes fadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes fadeSlideRight {
+    from {
+      opacity: 0;
+      transform: translateX(-15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes expandWidth {
+    from {
+      width: 0;
+      opacity: 0;
+    }
+    to {
+      width: 100%;
+      opacity: 1;
+    }
+  }
+  
+  /* Responsive adjustments */
+  @media screen and (max-width: 749px) {
+    .collection-hero {
+      min-height: {{ section.settings.banner_height | times: 0.75 }}px;
+      margin-bottom: 0;
+      margin-top: -120px; /* Slightly smaller negative margin for mobile but still covers the header */
+      padding-top: 120px; /* Match padding with margin for proper content positioning */
+    }
+
+    .collection-hero--no-banner {
+      min-height: auto;
+      padding-top: 1.5rem;
+      margin-top: 0; /* Reset margin for no-banner mode */
+    }
+    
+    .collection-hero__inner {
+      /* Increased bottom padding on mobile for better text spacing */
+      padding: 1.5rem 1.5rem 2.5rem;
+    }
+    
+    .collection-hero__text-wrapper {
+      padding: 0 1rem 0 1.5rem; /* Reduced left padding on mobile */
+    }
+
+    .collection-hero--no-banner .collection-hero__text-wrapper {
+      padding: 0 1rem 0 1.5rem;
+    }
+    
+    .collection-hero__title {
+      font-size: 1.8rem;
+    }
+
+    .collection-hero--no-banner .collection-hero__title {
+      font-size: 2.2rem;
+    }
+    
+    .game-header__icon {
+      width: 60px;
+      height: 60px;
+      margin-right: 1rem;
+    }
+
+    .collection-hero--no-banner .game-header__icon {
+      width: 80px;
+      height: 80px;
+      margin-right: 1.25rem;
+    }
+    
+    .collection-hero__description {
+      font-size: 1.1rem;
+      padding: 1rem 1.2rem 1rem 1.2rem;
+    }
+
+    .collection-hero--no-banner .collection-hero__description {
+      font-size: 1.2rem;
+      padding: 1.2rem 1.5rem 1.2rem 1.5rem;
+    }
+
+    /* Ensure gradient is more extensive on mobile for better blending */
+    .collection-banner__gradient {
+      height: {{ section.settings.gradient_height | plus: 10 | default: 70 }}%;
+    }
+  }
+  
+  /* Remove the gap between banner and filter section */
+  .collection-hero-section,
+  .section-main-collection-banner,
+  .shopify-section-main-collection-banner {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+  
+  /* Remove any margin/padding from container that might create a gap */
+  .shopify-section + .shopify-section {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  .collection-hero + * {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Target the specific section-header class to ensure coverage */
+  .shopify-section-group-header-group.section-header {
+    position: relative; /* Don't change to position:sticky as it's set in header.liquid */
+    z-index: 30; /* Should be the same as shopify-section-header-sticky */
+  }
+  
+  /* Ensure the collection hero section comes visually before other elements */
+  .section-main-collection-banner {
+    position: relative;
+    z-index: 8; /* Lower than header but higher than other content */
+  }
+
+  /* Ensure the header's container is always above the collection banner */
+  .header-wrapper {
+    position: relative;
+    z-index: 30; /* Match the z-index of shopify-section-header-sticky */
+  }
+{%- endstyle -%}
+
+<div class="collection-hero {% if section.settings.show_banner_image != true %}collection-hero--no-banner{% endif %}">
+  {% comment %} Banner Image with Overlay Effects {% endcomment %}
+  {% if section.settings.show_banner_image %}
+    <div class="collection-banner">
+      {% if section.settings.banner_image %}
+        <img 
+          src="{{ section.settings.banner_image | image_url: width: 2000 }}"
+          class="collection-banner__image"
+          alt="{{ collection.title | escape }} banner"
+          width="2000"
+          loading="eager"
+        >
+      {% elsif collection.image %}
+        <img 
+          src="{{ collection.image | image_url: width: 2000 }}"
+          class="collection-banner__image"
+          alt="{{ collection.title | escape }} banner"
+          width="2000"
+          loading="eager"
+        >
+      {% endif %}
+      
+      {% comment %} Overlay elements outside of conditional to ensure they always render {% endcomment %}
+      <div class="collection-banner__overlay"></div>
+      <div class="collection-banner__gradient"></div>
+    </div>
+  {% endif %}
+  
+  {% comment %} Content Overlay {% endcomment %}
+  <div class="collection-hero__inner page-width {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}">
+    <div class="collection-hero__text-wrapper">
+      <div class="game-header">
+        <div class="game-header__icon">
+          {% if collection.image %}
+            <img
+              src="{{ collection.image | image_url: width: 160 }}"
+              alt="{{ collection.title | escape }}"
+              width="80"
+              height="80"
+              loading="lazy"
+            >
+          {% elsif collection.products.first.featured_image %}
+            <img
+              src="{{ collection.products.first.featured_image | image_url: width: 160 }}"
+              alt="{{ collection.title | escape }}"
+              width="80"
+              height="80"
+              loading="lazy"
+            >
+          {% endif %}
+        </div>
+        <div class="game-title-container">
+          <h1 class="collection-hero__title">
+            {{- collection.title | escape -}}
+          </h1>
+          
+          {% comment %} Game Metadata (Rating, Developer) {% endcomment %}
+          <div class="game-metadata">
+            {% if collection.metafields.custom.rating %}
+              <div class="game-rating">
+                <span class="rating-stars">★★★★½</span>
+                <span>{{ collection.metafields.custom.rating }} ({{ collection.metafields.custom.rating_count | default: '0' }})</span>
+              </div>
+            {% endif %}
+            {% if collection.metafields.custom.developer %}
+              <div class="game-developer">
+                {{ collection.metafields.custom.developer }}
+                {% if collection.metafields.custom.developer_region %}
+                  ({{ collection.metafields.custom.developer_region }})
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+          
+          {% comment %} Game Platform Icons {% endcomment %}
+          {% if collection.metafields.custom.platforms %}
+            <div class="game-platforms">
+              {% for platform in collection.metafields.custom.platforms.value %}
+                <img 
+                  src="{{ platform.icon | image_url }}"
+                  alt="{{ platform.name }}"
+                  class="platform-icon"
+                  width="24"
+                  height="24"
+                >
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="divider"></div>
+
+      {% comment %} Game Description {% endcomment %}
+      {%- if section.settings.show_collection_description and collection.description != blank -%}
+        <div class="collection-hero__description rte">{{ collection.description }}</div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Handle section settings changes in the Shopify editor
+  document.addEventListener('shopify:section:load', function(event) {
+    if (event.detail.sectionId.includes('main-collection-banner')) {
+      applyBannerEffects();
+    }
+  });
+  
+  document.addEventListener('shopify:section:select', function(event) {
+    if (event.detail.sectionId.includes('main-collection-banner')) {
+      applyBannerEffects();
+    }
+  });
+  
+  document.addEventListener('shopify:block:select', function(event) {
+    if (event.target.closest('[id^="shopify-section-main-collection-banner"]')) {
+      applyBannerEffects();
+    }
+  });
+  
+  // Update the JavaScript to handle banner visibility
+  function applyBannerEffects() {
+    const bannerVisible = {{ section.settings.show_banner_image | json }};
+    const overlayElement = document.querySelector('.collection-banner__overlay');
+    const gradientElement = document.querySelector('.collection-banner__gradient');
+    const bannerImage = document.querySelector('.collection-banner__image');
+    
+    // Only apply banner effects if the banner is visible
+    if (bannerVisible) {
+      if (overlayElement) {
+        overlayElement.style.display = {{ section.settings.enable_dimming | json }} ? 'block' : 'none';
+        overlayElement.style.backgroundColor = 'rgba(0, 0, 0, {{ section.settings.overlay_opacity | divided_by: 100.0 }})';
+        overlayElement.style.opacity = {{ section.settings.enable_dimming | json }} ? '1' : '0.15';
+      }
+      
+      if (gradientElement) {
+        gradientElement.style.display = {{ section.settings.enable_gradient | json }} ? 'block' : 'none';
+        gradientElement.style.height = '{{ section.settings.gradient_height }}%';
+        
+        // Set the background to website background color
+        gradientElement.style.background = 'var(--color-background-body)';
+        
+        // Apply the selected gradient style using mask-image
+        const gradientStyle = '{{ section.settings.gradient_style | default: "classic" }}';
+        const primaryOpacity = 0.98; // Full opacity at bottom for perfect blending
+        const secondaryOpacity = 0.80; // Higher middle opacity for smoother transition
+        const tertiaryOpacity = 0.50; // Better transition point
+        const fourthOpacity = 0.20; // Additional step for more gradual fade
+        const transparentOpacity = 0;
+        
+        let maskImage = '';
+        
+        switch (gradientStyle) {
+          case 'classic':
+            maskImage = `linear-gradient(to top, 
+              rgba(0, 0, 0, ${primaryOpacity}) 0%, 
+              rgba(0, 0, 0, ${secondaryOpacity}) 20%,
+              rgba(0, 0, 0, ${tertiaryOpacity}) 40%,
+              rgba(0, 0, 0, ${fourthOpacity}) 70%,
+              rgba(0, 0, 0, ${transparentOpacity}) 100%
+            )`;
+            break;
+            
+          case 'radial':
+            maskImage = `radial-gradient(
+              ellipse at bottom,
+              rgba(0, 0, 0, ${primaryOpacity}) 0%,
+              rgba(0, 0, 0, ${secondaryOpacity}) 30%,
+              rgba(0, 0, 0, ${tertiaryOpacity}) 50%,
+              rgba(0, 0, 0, ${fourthOpacity}) 75%,
+              rgba(0, 0, 0, ${transparentOpacity}) 100%
+            )`;
+            break;
+            
+          case 'diagonal':
+            maskImage = `linear-gradient(
+              135deg,
+              rgba(0, 0, 0, ${primaryOpacity}) 0%,
+              rgba(0, 0, 0, ${secondaryOpacity}) 25%,
+              rgba(0, 0, 0, ${tertiaryOpacity}) 45%,
+              rgba(0, 0, 0, ${fourthOpacity}) 70%,
+              rgba(0, 0, 0, ${transparentOpacity}) 100%
+            )`;
+            break;
+            
+          case 'vignette':
+            maskImage = `radial-gradient(
+              ellipse at 50% 80%,
+              rgba(0, 0, 0, ${primaryOpacity}) 0%,
+              rgba(0, 0, 0, ${secondaryOpacity}) 30%,
+              rgba(0, 0, 0, ${tertiaryOpacity}) 50%,
+              rgba(0, 0, 0, ${fourthOpacity}) 75%,
+              rgba(0, 0, 0, ${transparentOpacity}) 100%
+            )`;
+            break;
+            
+          case 'conic':
+            maskImage = `conic-gradient(
+              from 180deg at 50% 100%,
+              rgba(0, 0, 0, ${primaryOpacity}) 0deg,
+              rgba(0, 0, 0, ${secondaryOpacity}) 60deg,
+              rgba(0, 0, 0, ${tertiaryOpacity}) 120deg,
+              rgba(0, 0, 0, ${fourthOpacity}) 240deg,
+              rgba(0, 0, 0, ${transparentOpacity}) 360deg
+            )`;
+            break;
+            
+          default:
+            maskImage = `linear-gradient(to top, 
+              rgba(0, 0, 0, ${primaryOpacity}) 0%, 
+              rgba(0, 0, 0, ${secondaryOpacity}) 20%,
+              rgba(0, 0, 0, ${tertiaryOpacity}) 40%,
+              rgba(0, 0, 0, ${fourthOpacity}) 70%,
+              rgba(0, 0, 0, ${transparentOpacity}) 100%
+            )`;
+        }
+        
+        gradientElement.style.maskImage = maskImage;
+        gradientElement.style.webkitMaskImage = maskImage;
+      }
+      
+      if (bannerImage) {
+        if ({{ section.settings.enable_zoom | json }}) {
+          bannerImage.style.transform = 'scale({{ section.settings.zoom_level | divided_by: 100.0 | plus: 1.0 }})';
+          bannerImage.style.transformOrigin = '{{ section.settings.focal_point_x }}% {{ section.settings.focal_point_y }}%';
+        } else {
+          bannerImage.style.transform = 'scale(1)';
+        }
+      }
+    }
+  }
+  
+  // Apply effects on initial page load as well
+  window.addEventListener('DOMContentLoaded', function() {
+    applyBannerEffects();
+    
+    // Ensure header is properly sticky on collection pages
+    document.documentElement.style.setProperty('--header-position', 'sticky');
+    
+    // Add class to help target collection pages with CSS
+    document.documentElement.classList.add('is-collection-page');
+  });
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main-collection-banner.name",
+  "class": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-collection-banner.settings.paragraph.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_banner_image",
+      "default": false,
+      "label": "Show banner image",
+      "info": "When disabled, shows a seamless design that integrates directly with the website background"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Banner image",
+      "info": "Banner image for collection header"
+    },
+    {
+      "type": "header",
+      "content": "Image processing effects"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_dimming",
+      "default": true,
+      "label": "Dim banner image",
+      "info": "Applies a dark overlay to enhance text readability"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Dimming intensity",
+      "default": 40,
+      "info": "Controls how dark the dimming effect appears"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "default": true,
+      "label": "Apply gradient overlay",
+      "info": "Adds a gradient overlay that blends with your website colors"
+    },
+    {
+      "type": "select",
+      "id": "gradient_style",
+      "options": [
+        {
+          "value": "classic",
+          "label": "Classic (Bottom to Top)"
+        },
+        {
+          "value": "radial",
+          "label": "Radial Blend"
+        },
+        {
+          "value": "diagonal",
+          "label": "Diagonal Sweep"
+        },
+        {
+          "value": "vignette",
+          "label": "Vignette Effect"
+        },
+        {
+          "value": "conic",
+          "label": "Conic Sweep"
+        }
+      ],
+      "default": "classic",
+      "label": "Gradient Style",
+      "info": "Choose different artistic styles for the gradient overlay"
+    },
+    {
+      "type": "range",
+      "id": "gradient_height",
+      "min": 30,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Gradient height",
+      "default": 60,
+      "info": "Controls how far up the gradient extends"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "default": false,
+      "label": "Zoom banner image",
+      "info": "Apply a zoom effect to focus on specific areas of the image"
+    },
+    {
+      "type": "range",
+      "id": "zoom_level",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Zoom level",
+      "default": 20,
+      "info": "Controls how much to zoom in (higher = more zoom)"
+    },
+    {
+      "type": "range",
+      "id": "focal_point_x",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Focal point - horizontal",
+      "default": 50,
+      "info": "Controls which part of the image to focus on horizontally"
+    },
+    {
+      "type": "range",
+      "id": "focal_point_y",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Focal point - vertical",
+      "default": 50,
+      "info": "Controls which part of the image to focus on vertically"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_description",
+      "default": true,
+      "label": "t:sections.main-collection-banner.settings.show_collection_description.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "default": true,
+      "label": "t:sections.main-collection-banner.settings.show_collection_image.label",
+      "info": "t:sections.main-collection-banner.settings.show_collection_image.info"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "min": 200,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "label": "Banner height",
+      "default": 340
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.main-collection-banner.presets.name"
+    }
+  ]
+}
+{% endschema %}

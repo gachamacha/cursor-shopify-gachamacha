@@ -1,0 +1,16 @@
+/* Badge Positioning & Styling                       
+/* ================================================== */
+.card__badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  margin: 0;
+  background: rgba(39, 174, 96, 0.15);
+  color: #27AE60;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transform: translateZ(0); /* Ensure proper positioning */

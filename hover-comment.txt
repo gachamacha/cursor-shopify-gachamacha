@@ -1,0 +1,3 @@
+  /* REMOVED REDUNDANT HOVER EFFECTS - Now centralized in base.css
+   * See the "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" section in base.css 
+   */

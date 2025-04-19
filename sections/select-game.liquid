@@ -1,0 +1,251 @@
+{{ 'section-select-game.css' | asset_url | stylesheet_tag }}
+
+<style>
+  .select-game-grid {
+    display: grid;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    grid-template-columns: repeat({{ section.settings.items_per_row }}, minmax(0, 1fr)); /* Dynamic columns for desktop */
+  }
+
+  /* Glassmorphism search bar */
+  .search-bar {
+    max-width: 1200px;
+    margin: 0 auto 20px auto;
+    padding: 0 20px;
+    position: relative; /* For positioning the icon */
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 12px 40px 12px 16px; /* Add padding for the icon */
+    font-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Blur effect for glassmorphism */
+    color: #FFFFFF;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+  }
+
+  .search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.7); /* Placeholder text color */
+  }
+
+  /* Focus state with accent color */
+  .search-bar input:focus {
+    border: 1px solid #E0B36A; /* Accent color border on focus */
+    box-shadow: 0 0 0 2px rgba(224, 179, 106, 0.3); /* Subtle glow effect */
+  }
+
+  /* Magnifying glass icon */
+  .search-bar .search-icon {
+    position: absolute;
+    right: 32px; /* Adjust position */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none; /* Ensure the icon doesn't block clicks */
+  }
+
+  .search-bar .search-icon path {
+    fill: rgba(255, 255, 255, 0.7); /* Icon color */
+  }
+</style>
+
+<div class="select-game-section page-width">
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <input
+      type="text"
+      id="game-search"
+      placeholder="Search for a game..."
+    />
+    <!-- Magnifying glass icon -->
+    <svg class="search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 2a8 8 0 105.293 14.707l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
+    </svg>
+  </div>
+
+  <!-- Game Grid -->
+  <div class="select-game-grid">
+    {% for block in section.blocks %}
+      {% assign game_url = block.settings.game_title | handle %}
+      <a 
+        href="https://www.gachamacha.com/collections/{{ game_url }}" 
+        target="_blank" 
+        class="select-game-container {% if forloop.index > 8 %}hidden-game{% endif %}" 
+        data-game-title="{{ block.settings.game_title | downcase }}"
+      >
+        <div class="select-game-logo-wrapper">
+          <img
+            class="select-game-logo"
+            src="{{ block.settings.background_image | img_url: '128x128', scale: 2 }}"
+            alt="{{ block.settings.game_title }}"
+            width="128"
+            height="128"
+            loading="lazy"
+          />
+        </div>
+        <span class="select-game-title">{{ block.settings.game_title }}</span>
+      </a>
+    {% endfor %}
+  </div>
+  
+  <!-- Show More Button (only display if more than 8 games) -->
+  {% if section.blocks.size > 8 %}
+    <button class="show-more-button" id="show-more-button">Show More</button>
+  {% endif %}
+</div>
+
+<script>
+  // JavaScript for filtering games
+  const searchInput = document.getElementById('game-search');
+  const gameContainers = document.querySelectorAll('.select-game-container');
+  const showMoreButton = document.getElementById('show-more-button');
+  
+  // Search functionality
+  searchInput.addEventListener('input', function () {
+    const searchTerm = this.value.trim().toLowerCase(); // Get search term and convert to lowercase
+    let visibleCount = 0;
+    
+    gameContainers.forEach(container => {
+      const gameTitle = container.getAttribute('data-game-title'); // Get game title from data attribute
+      
+      // Remove hidden-game class during search
+      container.classList.remove('hidden-game');
+      
+      if (gameTitle.includes(searchTerm)) {
+        container.style.display = 'flex'; // Show matching games
+        visibleCount++;
+      } else {
+        container.style.display = 'none'; // Hide non-matching games
+      }
+    });
+    
+    // Hide the show more button during search
+    if (showMoreButton) {
+      showMoreButton.style.display = searchTerm ? 'none' : 'block';
+    }
+    
+    // If search is cleared, reapply original visibility
+    if (searchTerm === '' && showMoreButton) {
+      resetGameVisibility();
+    }
+  });
+  
+  // Show More functionality
+  if (showMoreButton) {
+    showMoreButton.addEventListener('click', function() {
+      const hiddenGames = document.querySelectorAll('.hidden-game');
+      
+      hiddenGames.forEach(game => {
+        game.classList.remove('hidden-game');
+      });
+      
+      // Hide the button after showing all games
+      this.style.display = 'none';
+    });
+  }
+  
+  // Function to reset game visibility when search is cleared
+  function resetGameVisibility() {
+    gameContainers.forEach((container, index) => {
+      if (index >= 8) {
+        container.classList.add('hidden-game');
+      }
+    });
+    
+    // Show the button again
+    if (showMoreButton) {
+      showMoreButton.style.display = 'block';
+    }
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Select Game",
+  "tag": "section",
+  "class": "select-game-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Select Game Settings"
+    },
+    {
+      "type": "range",
+      "id": "items_per_row",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "label": "Number of Items per Row (Desktop)",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "game",
+      "name": "Game",
+      "settings": [
+        {
+          "type": "text",
+          "id": "game_title",
+          "label": "Game Title",
+          "default": "Game Name"
+        },
+        {
+          "type": "image_picker",
+          "id": "background_image",
+          "label": "Game Logo Image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Select Game",
+      "blocks": [
+        {
+          "type": "game",
+          "settings": {
+            "game_title": "Wuthering Waves",
+            "background_image": "shopify://shop_images/wuthering_waves.jpg"
+          }
+        },
+        {
+          "type": "game",
+          "settings": {
+            "game_title": "Genshin Impact",
+            "background_image": "shopify://shop_images/genshin_impact.jpg"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

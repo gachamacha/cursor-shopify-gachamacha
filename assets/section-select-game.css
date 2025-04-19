@@ -1,0 +1,159 @@
+.select-game-grid {
+  display: grid;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr)); /* Default 4 columns */
+}
+
+.select-game-container {
+  display: flex;
+  flex-direction: column; /* Stack logo above title */
+  align-items: center; /* Center items */
+  text-decoration: none;
+  color: inherit;
+  padding: 16px; /* Equal padding all around */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+  border-radius: 12px;
+  transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+  text-align: center;
+  height: 100%;
+}
+
+.select-game-container:hover {
+  transform: translateY(-5px);
+  border-color: #E0B36A; /* Accent color on hover */
+  background-color: rgba(224, 179, 106, 0.05); /* Very subtle background on hover */
+}
+
+.select-game-logo-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px; /* Space between logo and title */
+  width: 64px;
+  height: 64px;
+}
+
+.select-game-logo {
+  width: 64px; /* Larger icon size */
+  height: 64px;
+  object-fit: contain;
+  margin-right: 0; /* No margin needed in column layout */
+}
+
+.select-game-title {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.4;
+  text-align: center;
+  width: 100%;
+}
+
+/* Hide games beyond the first 8 */
+.select-game-container.hidden-game {
+  display: none;
+}
+
+/* Show More Button */
+.show-more-button {
+  display: block;
+  width: 100%;
+  max-width: 200px; 
+  margin: 30px auto 0;
+  padding: 12px 24px;
+  background-color: rgba(224, 179, 106, 0.1);
+  border: 1px solid #E0B36A;
+  border-radius: 12px;
+  color: #E0B36A;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.show-more-button:hover {
+  background-color: rgba(224, 179, 106, 0.2);
+}
+
+/* Glassmorphism search bar */
+.search-bar {
+  max-width: 1200px;
+  margin: 0 auto 20px auto;
+  padding: 0 20px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* Blur effect for glassmorphism */
+  color: #FFFFFF;
+  outline: none;
+}
+
+.search-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.7); /* Placeholder text color */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .select-game-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two games per row on tablets/mobile */
+    gap: 16px; /* Slightly larger gap */
+  }
+
+  .select-game-container {
+    padding: 12px; /* Smaller padding on mobile */
+  }
+
+  .select-game-logo-wrapper {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 8px; /* Less space on mobile */
+  }
+
+  .select-game-logo {
+    width: 52px; /* Smaller on mobile but still prominent */
+    height: 52px;
+  }
+
+  .select-game-title {
+    font-size: 12px; /* Smaller font on mobile */
+  }
+}
+
+/* Very small screens */
+@media (max-width: 375px) {
+  .select-game-grid {
+    grid-template-columns: repeat(2, 1fr); /* Keep two per row even on small screens */
+    gap: 12px; /* Smaller gap */
+  }
+  
+  .select-game-container {
+    padding: 10px; /* Less padding */
+  }
+  
+  .select-game-logo-wrapper {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
+  }
+  
+  .select-game-logo {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .select-game-title {
+    font-size: 11px; /* Even smaller font */
+  }
+}

@@ -1,0 +1,92 @@
+{% comment %}
+  Renders a list of unique game values from product metafields.
+  This snippet is used by the hamburger menu to create dynamic game collection links.
+  
+  Usage:
+  {% render 'game-collections' %}
+{% endcomment %}
+
+{% liquid
+  assign unique_games = blank
+  assign unique_game_handles = blank
+  
+  for product in collections.all.products
+    if product.metafields.custom.game.value != blank
+      assign game_name = product.metafields.custom.game.value | strip
+      assign game_handle = game_name | handleize
+      
+      # Use a unique string pattern to later split into an array
+      if unique_games == blank
+        assign unique_games = game_name
+        assign unique_game_handles = game_handle
+      else
+        unless unique_games contains game_name
+          assign unique_games = unique_games | append: '|' | append: game_name
+          assign unique_game_handles = unique_game_handles | append: '|' | append: game_handle
+        endunless
+      endif
+    endif
+  endfor
+  
+  # Convert the pipe-separated strings to arrays
+  assign games_array = unique_games | split: '|'
+  assign handles_array = unique_game_handles | split: '|'
+%}
+
+{% if games_array.size > 0 %}
+  <details id="Details-menu-drawer-game-collections">
+    <summary
+      id="HeaderDrawer-game-collections"
+      class="menu-drawer__menu-item list-menu__item link link--text focus-inset"
+    >
+      Games
+      <span class="svg-wrapper">
+        {{- 'icon-arrow.svg' | inline_asset_content -}}
+      </span>
+      <span class="svg-wrapper">
+        {{- 'icon-caret.svg' | inline_asset_content -}}
+      </span>
+    </summary>
+    <div
+      id="link-game-collections"
+      class="menu-drawer__submenu has-submenu gradient motion-reduce"
+      tabindex="-1"
+    >
+      <div class="menu-drawer__inner-submenu">
+        <button class="menu-drawer__close-button link link--text focus-inset" aria-expanded="true">
+          <span class="svg-wrapper">
+            {{- 'icon-arrow.svg' | inline_asset_content -}}
+          </span>
+          Games
+        </button>
+        <ul class="menu-drawer__menu list-menu" role="list" tabindex="-1">
+          {% for game_title in games_array %}
+            {% assign game_index = forloop.index0 %}
+            {% assign game_handle = handles_array[game_index] %}
+            <li>
+              <a
+                id="HeaderDrawer-games-{{ game_handle }}"
+                href="/collections/{{ game_handle }}"
+                class="menu-drawer__menu-item link link--text list-menu__item focus-inset"
+              >
+                {% comment %}
+                  Try to load a collection image if available
+                  The convention used here assumes collection images follow: collection-[game-handle].jpg/png/webp
+                {% endcomment %}
+                {% capture collection_icon_url %}{{ game_handle }}_50x.{% endcapture %}
+                {% if collections[game_handle].image %}
+                  <img 
+                    src="{{ collections[game_handle].image | image_url: width: 50 }}" 
+                    alt="{{ game_title }}" 
+                    class="menu-drawer__collection-icon"
+                  >
+                {% endif %}
+                {{ game_title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </details>
+{% endif %} 

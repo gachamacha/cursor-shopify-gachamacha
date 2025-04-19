@@ -1,0 +1,12 @@
+{% comment %}
+  Renders the server.
+  Accepts:
+  - server: {String} The server from the product metafield.
+
+  Usage:
+  {% render 'server', server: product.metafields.custom.server.value %}
+{% endcomment %}
+
+<div class="server__wrapper">
+  <p class="server__text">{{ server }}</p>
+</div>

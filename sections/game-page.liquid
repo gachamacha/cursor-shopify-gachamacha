@@ -1,0 +1,7 @@
+{% assign game_handle = request.path | split: '/' | last %}
+{% assign game_title = game_handle | replace: '-', ' ' | capitalize %}
+
+<div class="game-page">
+  <h1>{{ game_title }}</h1>
+  <p>Waiting for accounts to be uploaded.</p>
+</div>

@@ -1,0 +1,1034 @@
+/* ================================================== */
+/* Card Container & Base Styles                       
+/* ================================================== */
+.card-wrapper {
+  color: inherit;
+  height: 100%;
+  position: relative;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-radius 0.3s ease, border-color 0.3s ease;
+}
+
+/* ================================================== */
+/* Card Link Wrapper                                   */
+/* ================================================== */
+.card-link-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: visible; /* Ensure content isn't cut off during hover */
+  position: relative; /* Add position relative from card-container */
+  padding-top: 4px; /* Add padding at top to prevent cutoff during hover */
+}
+
+/* Universal hover effects for all card types across all viewports */
+/* Moved to base.css as single source of truth for hover effects */
+/* See base.css section "HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+
+/* ================================================== */
+/* Media Section                                       
+/* ================================================== */
+.card__media,
+.card .media {
+  width: 100%;
+  bottom: 0;
+  position: absolute;
+  top: 0;
+  margin: var(--image-padding);
+  overflow: hidden;
+  z-index: 0;
+  border-radius: calc(var(--border-radius) - var(--border-width) - var(--image-padding));
+}
+
+.card--card .card__inner .card__media {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.card__media .media img {
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  width: 100%;
+}
+
+/* ================================================== */
+/* Inner Container Section                            
+/* ================================================== */
+.card__inner {
+  width: 100%;
+  position: relative;
+}
+
+.card--media .card__inner .card__content {
+  position: relative;
+  padding: calc(var(--image-padding) + 1rem);
+}
+
+.card__inner:not(.ratio) > .card__content {
+  height: 100%;
+}
+
+/* ================================================== */
+/* Card Content Section                               
+/* ================================================== */
+.card__content {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto; /* Fixed grid structure */
+  padding: 1rem;
+  width: 100%;
+  flex-grow: 1;
+  min-height: 150px; /* Keep existing min-height */
+}
+
+.card__information {
+  grid-row-start: 2;
+  padding: 1.5rem 1rem 0; /* Adjusted padding */
+  width: 100%;
+  display: grid;
+  grid-template-rows: 1fr auto auto; /* New grid structure */
+  min-height: 0; /* Fix for grid item sizing */
+}
+
+.card__content--auto-margins {
+  grid-template-rows: minmax(0, auto) max-content minmax(0, auto);
+}
+
+.card:not(.ratio) > .card__content {
+  grid-template-rows: max-content minmax(0, 1fr) max-content auto;
+}
+
+/* ================================================== */
+/* Card Information Section                           
+/* ================================================== */
+.card__information {
+  grid-row-start: 2;
+  padding: 0.5rem 0 0; /* Reduce vertical padding */
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto auto 1fr; /* Price > Attributes > Spacer */
+  align-content: start;
+  min-height: 0; /* Crucial for grid containment */
+}
+
+.card-information > * + * {
+  margin-top: 0.5rem;
+}
+
+.card-information > * {
+  line-height: calc(1 + 0.4 / var(--font-body-scale));
+  color: rgb(var(--color-foreground));
+}
+
+.card-information .card__information-volume-pricing-note {
+  margin-top: 0.6rem;
+  line-height: calc(0.5 + 0.4 / var(--font-body-scale));
+  color: rgba(var(--color-foreground), 0.75);
+}
+
+.card-information > .price {
+  color: #E0B36A; /* Changed from #BB86FC to gold */
+  font-size: 1.5rem;
+  font-weight: bold;
+  grid-row: 1;
+  margin: 0.2rem 0 0.8rem;
+}
+
+/* ================================================== */
+/* Price Container Updates                            */
+/* ================================================== */
+.price__container {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  gap: 0.5rem; /* Slightly increased gap for better separation */
+}
+
+.price-item--sale {
+  order: 1;
+  font-size: 1.6rem; /* Increased from 1.3rem */
+  font-weight: 600; /* Added semi-bold weight */
+  color: #E0B36A; /* Using your accent color */
+}
+
+.price-item--compare {
+  order: 2;
+  font-size: 0.9rem; /* Slightly increased from 0.75rem */
+  color: rgba(255, 255, 255, 0.6);
+  position: relative;
+  top: -0.15em; /* Slight vertical adjustment for better alignment */
+}
+
+.price-item--compare s {
+  text-decoration: line-through;
+  opacity: 0.8; /* More subtle strikethrough */
+}
+
+.card__information-volume-pricing-note--button {
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  text-align: var(--text-alignment);
+  min-width: auto;
+}
+
+/* Hover effect moved to base.css as single source of truth */
+/* See base.css section "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+
+.card__information-volume-pricing-note--button + .global-settings-popup.quantity-popover__info {
+  transform: initial;
+  top: auto;
+  bottom: 4rem;
+  max-width: 20rem;
+  width: calc(95% + 2rem);
+}
+
+.card__information-volume-pricing-note--button-right + .global-settings-popup.quantity-popover__info {
+  right: 0;
+  left: auto;
+}
+
+.card__information-volume-pricing-note--button-center + .global-settings-popup.quantity-popover__info {
+  left: 50%;
+  transform: translate(-50%);
+}
+
+/* ================================================== */
+/* Badge Positioning & Styling                       
+/* ================================================== */
+.card__badge {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 2;
+  margin: 0;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  transform: translateZ(0); /* Ensure proper positioning */
+}
+
+/* Add after line 225 */
+.card__hover-pill {
+  border-radius: 20px; /* Force pill shape */
+  padding: 4px 12px; /* Reduce vertical padding */
+  min-width: auto; /* Remove minimum width */
+  max-width: 200px; /* Prevent excessive width */
+  white-space: nowrap; /* Keep text in single line */
+  font-size: 0.75rem; /* Slightly smaller text */
+}
+
+.card__hover-pills {
+  bottom: 10px; /* Move closer to bottom */
+  gap: 6px; /* Reduce spacing between pills */
+  max-width: 90%; /* Prevent overflow */
+}
+
+.card__hover-pill svg {
+  width: 12px; /* Smaller icon */
+  height: 12px;
+  margin-right: -2px; /* Tighten icon-text spacing */
+}
+
+/* ================================================== */
+/* Typography & Text Styles                           
+/* ================================================== */
+.card__heading {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 15px; /* Reduced from 16px */
+  font-weight: 600; /* Changed from bold */
+  color: #FFFFFF;
+  line-height: 1.3; /* Tighter line height */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(15px * 1.3 * 2); /* font-size * line-height * 2 lines */
+  margin: 0 0 0.3rem 0; /* Reduce bottom margin */
+  word-break: break-word;
+  white-space: normal;
+}
+
+.card__heading:last-child {
+  margin-bottom: 0;
+}
+
+.card__attributes {
+  color: rgba(255, 255, 255, 0.8);
+  grid-row: 2;
+  margin: 0 0 0.5rem;
+}
+
+.attribute-label {
+  color: #E0B36A;
+}
+
+.card--horizontal .card__heading,
+.card--horizontal .price__container .price-item,
+.card--horizontal__quick-add {
+  font-size: calc(var(--font-heading-scale) * 1.2rem);
+}
+
+/* ================================================== */
+/* Responsive Adjustments                             
+/* ================================================== */
+@media screen and (min-width: 750px) {
+  .card__information {
+    padding-bottom: 1.7rem;
+    padding-top: 1.7rem;
+  }
+  
+  .card--horizontal .card__heading,
+  .card--horizontal .price__container .price-item,
+  .card--horizontal__quick-add {
+    font-size: calc(var(--font-heading-scale) * 1.3rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 12px;
+  }
+  
+  .card__heading {
+    font-size: 14px; /* Match original mobile size */
+    margin-bottom: 0.4rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    max-height: calc(14px * 1.3 * 2); /* font-size * line-height * 2 lines */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .card__media {
+    margin: 0;
+  }
+
+  .grid--2-col-tablet-down .card--card .card__information-volume-pricing-note--button + .global-settings-popup.quantity-popover__info,
+  .grid--2-col-tablet-down .card--standard .card__information-volume-pricing-note--button + .global-settings-popup.quantity-popover__info {
+    left: 50%;
+    transform: translate(-50%);
+  }
+
+  .grid--2-col-tablet-down .card--standard .card__information-volume-pricing-note--button + .global-settings-popup.quantity-popover__info {
+    width: 100%;
+  }
+
+  .grid--2-col-tablet-down .card--card .card__information-volume-pricing-note--button + .global-settings-popup.quantity-popover__info {
+    width: calc(100% + var(--border-width) + 4rem);
+  }
+}
+
+/* ================================================== */
+/* Interactive States & Effects                       
+/* ================================================== */
+.card--standard.card--text a::after,
+.card--card .card__heading a::after {
+  bottom: calc(var(--border-width) * -1);
+  left: calc(var(--border-width) * -1);
+  right: calc(var(--border-width) * -1);
+  top: calc(var(--border-width) * -1);
+}
+
+.card__heading a::after {
+  bottom: 0;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.card__heading a:after {
+  outline-offset: 0.3rem;
+}
+
+.card__heading a:focus:after {
+  box-shadow: 0 0 0 0.3rem rgb(var(--color-background)),
+    0 0 0.5rem 0.4rem rgba(var(--color-foreground), 0.3);
+  outline: 0.2rem solid rgba(var(--color-foreground), 0.5);
+}
+
+.card__heading a:focus-visible:after {
+  box-shadow: 0 0 0 0.3rem rgb(var(--color-background)),
+    0 0 0.5rem 0.4rem rgba(var(--color-foreground), 0.3);
+  outline: 0.2rem solid rgba(var(--color-foreground), 0.5);
+}
+
+.card__heading a:focus:not(:focus-visible):after {
+  box-shadow: none;
+  outline: 0;
+}
+
+.card__heading a:focus {
+  box-shadow: none;
+  outline: 0;
+}
+
+@media screen and (min-width: 990px) {
+  /* Hover effects moved to base.css as single source of truth */
+  /* See base.css section "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+}
+
+/* ================================================== */
+/* Specialized Components                            
+/* ================================================== */
+.card__server-info {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px 8px 0 0;
+}
+
+.card__server-label {
+  color: #FFFFFF;
+}
+
+.card__server-value {
+  color: #BB86FC;
+}
+
+.card__media img {
+  border-radius: 12px 12px 0 0;
+  border: 1px solid rgba(224, 179, 106, 0.1);
+}
+
+.card__purchase-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0 0 8px 8px;
+}
+
+.card__price-button {
+  background: #BB86FC;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* Hover effect moved to base.css as single source of truth */
+/* See base.css section "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+
+.card__price-button .icon {
+  width: 16px;
+  height: 16px;
+  color: #FFFFFF;
+}
+
+.compare-at-price {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 0.5rem;
+  font-size: 12px;
+}
+
+.card__sku {
+  font-size: 12px;
+  color: #BB86FC;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card__sku .icon {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  color: #FFFFFF;
+}
+
+/* Hover effect moved to base.css as single source of truth */
+/* See base.css section "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+
+.card__information .card__title-wrapper {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0.2rem;
+}
+
+.card__information .card__attributes {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  gap: 0.75rem;
+  margin: 0.75rem 0 0; /* Adjusted vertical spacing */
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+/* Hover effects moved to base.css as single source of truth */
+/* See base.css section "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+.card__information .attribute-server,
+.card__information .attribute-game {
+  display: inline-flex; /* Better for centering */
+  align-items: center;
+  vertical-align: middle; /* Ensure consistent baseline */
+  gap: 0.375rem; /* Reduced from 0.5rem */
+  background: rgba(224, 179, 106, 0.05); /* More subtle background */
+  padding: 0.4rem 0.8rem; /* Balanced padding */
+  border-radius: 4px; /* Smaller radius */
+  border: 1px solid rgba(224, 179, 106, 0.1); /* Lighter border */
+  backdrop-filter: blur(2px);
+  transition: all 0.3s ease;
+  font-size: 0.875rem; /* Added explicit font size */
+}
+
+/* Add icon sizing */
+.card__information .attribute-label {
+  color: #E0B36A;
+  font-weight: 500; /* Slightly lighter weight */
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+}
+
+/* Add icon sizing */
+.card__information .attribute-label svg {
+  width: 14px; /* Consistent icon size */
+  height: 14px;
+  margin-right: -1px; /* Tighter icon spacing */
+}
+
+/* ADD NEW RULE BELOW EXISTING ATTRIBUTE STYLES */
+.card__information .attribute-value {
+  color: rgba(255, 255, 255, 0.9); /* Brighter text */
+  font-weight: 400; /* Regular weight */
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px; /* Prevent overflow */
+}
+
+/* Hover effects moved to base.css as single source of truth */
+/* See base.css section "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+
+@media (max-width: 768px) {
+  .card__heading {
+    font-size: 14px; /* Match original mobile size */
+    margin-bottom: 0.4rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    max-height: calc(14px * 1.3 * 2); /* font-size * line-height * 2 lines */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Add after existing mobile styles */
+  .card__information {
+    padding-top: 0.2rem;
+  }
+  
+  .card-information > .price {
+    margin-bottom: 0.6rem;
+  }
+}
+
+  .price-item--sale {
+    font-size: 1.4rem; /* Slightly smaller on mobile */
+  }
+  
+  .price-item--compare {
+    font-size: 0.8rem;
+    top: -0.1em; /* Adjusted vertical alignment */
+  }
+  
+  .card__information .card__attributes {
+    gap: 0.5rem;
+    margin: 0.5rem 0 0;
+  }
+  
+  .card__information .attribute-server,
+  .card__information .attribute-game {
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .card__information .attribute-label svg {
+    width: 13px; /* Slightly smaller icons */
+    height: 13px;
+  }
+
+
+  .card__information .attribute-value {
+    max-width: 90px; /* Smaller max-width for mobile */
+  }
+
+
+/* ================================================== */
+/* Lazy Loading Image Effects                          */
+/* ================================================== */
+.lazy-img {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.lazy-img.loaded {
+  opacity: 1;
+}
+
+/* Add a subtle loading placeholder effect */
+.card__media .media .lazy-img:not(.loaded) {
+  background: linear-gradient(90deg, rgba(40, 40, 40, 0.3) 0%, rgba(60, 60, 60, 0.5) 50%, rgba(40, 40, 40, 0.3) 100%);
+  background-size: 200% 100%;
+  animation: loadingShimmer 1.5s infinite;
+}
+
+@keyframes loadingShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ================================================== */
+/* Card Container Structure                             */
+/* ================================================== */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  padding-top: 4px; /* Add padding at top to prevent cutoff during hover */
+}
+
+/* Enhanced Mobile-specific layout with award-winning design */
+@media screen and (max-width: 749px) {
+  /* Force single column layout for mobile products (only when using 1-col setting) */
+  .product-grid.grid--1-col-tablet-down {
+    display: grid;
+    grid-template-columns: 1fr !important; /* Force 1 column */
+    gap: 0; /* Remove the gap between grid items */
+  }
+  
+  /* But, for 2-column layout we need a different style */
+  .product-grid.grid--2-col-tablet-down {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.8rem !important;
+  }
+  
+  /* Adjust grid item width to take appropriate width */
+  .product-grid .grid__item {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  
+  /* Ensure hover effects work consistently for mobile */
+  /* Moved to base.css as single source of truth for hover effects */
+  /* See base.css section "HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+  
+  /* Change to horizontal layout for 1-column mobile */
+  .product-grid.grid--1-col-tablet-down .product-card-wrapper .card {
+    display: flex;
+    flex-direction: row;
+    background: linear-gradient(135deg, #0e0e1a 0%, #1a1a2d 100%); /* Subtle gradient background */
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 0; /* Remove bottom margin to eliminate spacing */
+    height: auto;
+    min-height: 130px; /* Base min-height */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1); /* Elevated shadow effect */
+    transform: translateZ(0); /* Force GPU acceleration */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth transitions */
+    border: 1px solid rgba(212, 175, 55, 0.1); /* Subtle gold border */
+    position: relative;
+  }
+  
+  /* But for 2-column layout, use vertical card */
+  .product-grid.grid--2-col-tablet-down .product-card-wrapper .card {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #0e0e1a 0%, #1a1a2d 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0.8rem;
+    height: 100%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.05);
+    transform: translateZ(0);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+    position: relative;
+  }
+  
+  /* Style the image container for single column layout with exact height */
+  .product-grid.grid--1-col-tablet-down .product-card-wrapper .mobile-image-container {
+    flex: 0 0 auto;
+    width: min(33vw, 130px); /* Responsive width up to maximum 130px */
+    aspect-ratio: 1/1 !important; /* Force perfect square */
+    height: auto !important; /* Let aspect-ratio control the height */
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px 0 0 12px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Style the image container for 2-column layout */
+  .product-grid.grid--2-col-tablet-down .product-card-wrapper .mobile-image-container {
+    width: 100%;
+    aspect-ratio: 1/1 !important; /* Force perfect square */
+    height: auto !important; /* Let aspect-ratio control the height */
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Fix image display inside container - for 1-column layout */
+  .product-grid.grid--1-col-tablet-down .product-card-wrapper .mobile-image-container .media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s ease-in-out;
+  }
+  
+  /* Fix image display inside container - for 2-column layout */
+  .product-grid.grid--2-col-tablet-down .product-card-wrapper .mobile-image-container .media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s ease-in-out;
+  }
+  
+  /* Style content container for 1-column layout */
+  .product-grid.grid--1-col-tablet-down .product-card-wrapper .mobile-content-container {
+    flex: 1 1 auto;
+    padding: 0.7rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    width: calc(100% - min(33vw, 130px));
+  }
+  
+  /* Style content container for 2-column layout */
+  .product-grid.grid--2-col-tablet-down .product-card-wrapper .mobile-content-container {
+    padding: 0.7rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+  }
+  
+  /* Add overlay gradient to images */
+  .product-card-wrapper .mobile-image-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.4) 0%, transparent 70%);
+    pointer-events: none;
+    opacity: 0.7;
+    z-index: 1;
+  }
+  
+  /* Force smaller screens to adjust image and content height proportionally */
+  @media screen and (max-width: 480px) {
+    .product-card-wrapper .mobile-image-container {
+      flex: 0 0 auto;
+      width: min(30vw, 100px);
+      /* No fixed height - let aspect-ratio control it */
+    }
+    
+    .product-card-wrapper .mobile-content-container {
+      /* Height will be set dynamically by JS */
+      padding: 0.6rem 0.8rem;
+    }
+    
+    .product-card-wrapper .card {
+      min-height: 0; /* Let content determine height */
+    }
+  }
+}
+
+/* No spacing between products on mobile */
+@media screen and (max-width: 749px) {
+  .no-spacing-mobile {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .no-spacing-mobile .grid__item {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Remove any border-radius from the bottom of cards except the last one */
+  .no-spacing-mobile .grid__item:not(:last-child) .card {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: none;
+  }
+  
+  /* Remove any border-radius from the top of cards except the first one */
+  .no-spacing-mobile .grid__item:not(:first-child) .card {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  
+  /* Adjust card style for connected appearance */
+  .no-spacing-mobile .grid__item .card {
+    box-shadow: none;
+    margin: 0;
+  }
+}
+
+/* Additional fixes for mobile zero-spacing */
+.product-grid {
+  margin: 0 !important;
+}
+
+@media screen and (max-width: 749px) {
+  /* Target the page-width container to remove any horizontal padding */
+  .product-grid.grid--1-col-tablet-down .page-width,
+  .no-spacing-mobile .page-width {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+  }
+  
+  /* For 2-column layout, keep some padding */
+  .product-grid.grid--2-col-tablet-down + .page-width {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Target the collection and product-grid-container classes */
+  .collection, .product-grid-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Remove any section padding that might create vertical spacing */
+  .section-template-collection,
+  [class*="section-"][class*="-padding"] {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure inner container doesn't add spacing */
+  .product-card-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Create a seamless connected card look by removing borders */
+  .product-card-wrapper .card {
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Add subtle separator between items while preserving zero spacing */
+  .no-spacing-mobile .grid__item:not(:last-child) .card::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: rgba(224, 179, 106, 0.1);
+    z-index: 2;
+  }
+
+  /* Only add radius to first and last cards */
+  .no-spacing-mobile .grid__item:first-child .card {
+    border-top-left-radius: 16px !important;
+    border-top-right-radius: 16px !important;
+  }
+  
+  .no-spacing-mobile .grid__item:last-child .card {
+    border-bottom-left-radius: 16px !important;
+    border-bottom-right-radius: 16px !important;
+  }
+  
+  /* Fix the height of the image container to ensure no vertical gaps */
+  .mobile-image-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    aspect-ratio: 1/1;
+  }
+  
+  .mobile-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  .mobile-content-container {
+    /* Height will be set by JavaScript */
+  }
+  
+  /* Fix grid layout to eliminate vertical gaps */
+  .product-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+  
+  .product-grid .grid__item {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Ensure proper title truncation in mobile layouts */
+/* 1-column horizontal layout */
+.product-grid.grid--1-col-tablet-down .product-card-wrapper .mobile-content-container .card__heading {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-height: calc(14px * 1.3 * 2); /* font-size * line-height * 2 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: normal;
+  /* !important flags to override any conflicting styles */
+  line-height: 1.3 !important;
+  margin-bottom: 0.3rem !important;
+}
+
+/* 2-column vertical layout */
+.product-grid.grid--2-col-tablet-down .product-card-wrapper .mobile-content-container .card__heading {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-height: calc(13px * 1.2 * 2); /* font-size * line-height * 2 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: normal;
+  /* !important flags to override any conflicting styles */
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0.3rem !important;
+}
+
+/* Fix grid layout for 1-column to eliminate vertical gaps */
+.product-grid.grid--1-col-tablet-down {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+/* Fix grid layout for 2-column to use grid display */
+.product-grid.grid--2-col-tablet-down {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 0.8rem !important;
+  padding: 0.8rem !important; /* Increased padding for better spacing */
+}
+
+/* Adjust grid items for 1-column layout */
+.product-grid.grid--1-col-tablet-down .grid__item {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Adjust grid items for 2-column layout */
+.product-grid.grid--2-col-tablet-down .grid__item {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Collection container adjustments for 2-column layout */
+.product-grid.grid--2-col-tablet-down {
+  margin: 0 !important;
+}
+
+/* Collection container spacing for each layout type */
+@media screen and (max-width: 749px) {
+  /* For 1-column layout - zero spacing */
+  .product-grid.grid--1-col-tablet-down + .collection, 
+  .no-spacing-mobile + .collection {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* For 2-column layout - maintain padding */
+  .product-grid.grid--2-col-tablet-down {
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .grid--2-col-tablet-down .mobile-image-container {
+    aspect-ratio: 1/1;
+  }
+  
+  .card-wrapper .card-information .card__text {
+    margin-top: 0.5rem;
+  }
+}
+
+.card__heading {
+  transition: color 0.3s ease;
+}
+
+.card {
+  position: relative;
+  box-sizing: border-box;
+  border: var(--border-width) solid rgba(var(--color-foreground), var(--border-opacity));
+  border-radius: var(--border-radius);
+  box-shadow: none;
+  padding-top: 4px; /* Add padding at top to prevent cutoff during hover */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, border-radius 0.3s ease;
+}
+
+/* Ensure hover effects work on touch-enabled devices */
+/* Moved to base.css as single source of truth for hover effects */
+/* See base.css section "HOVER-EFFECT FOR ALL PRODUCT CARDS" */
+
+/* Ensure transitions are applied to the base state for smooth animations */
+/* Moved to base.css as single source of truth for hover effects */
+/* See base.css section "HOVER-EFFECT FOR ALL PRODUCT CARDS" */

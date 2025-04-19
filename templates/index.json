@@ -1,0 +1,116 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "select-game": {
+      "type": "select-game",
+      "blocks": {
+        "game_zdmWrB": {
+          "type": "game",
+          "settings": {
+            "game_title": "Wuthering Waves",
+            "background_image": "shopify://shop_images/wuwa-logo.webp"
+          }
+        },
+        "game_BdwYR6": {
+          "type": "game",
+          "settings": {
+            "game_title": "Reverse: 1999",
+            "background_image": "shopify://shop_images/reverse1999-logo.png"
+          }
+        },
+        "game_nFKkcx": {
+          "type": "game",
+          "settings": {
+            "game_title": "Zenless Zone Zero",
+            "background_image": "shopify://shop_images/zzz-logo.png"
+          }
+        },
+        "game_aFGABB": {
+          "type": "game",
+          "settings": {
+            "game_title": "Honkai: Star Rail",
+            "background_image": "shopify://shop_images/hsr-logo.png"
+          }
+        },
+        "game_PTmeHD": {
+          "type": "game",
+          "settings": {
+            "game_title": "Brown Dust 2",
+            "background_image": "shopify://shop_images/bd2_app_logo.png"
+          }
+        },
+        "game_pEeg34": {
+          "type": "game",
+          "settings": {
+            "game_title": "Girls Frontline 2: EXELIUM",
+            "background_image": "shopify://shop_images/gf2-logo.png"
+          }
+        },
+        "game_yB8gGi": {
+          "type": "game",
+          "settings": {
+            "game_title": "AFK Journey",
+            "background_image": "shopify://shop_images/afkjourney_logo.jpg"
+          }
+        },
+        "game_GMCBrw": {
+          "type": "game",
+          "settings": {
+            "game_title": "AFK Arena",
+            "background_image": "shopify://shop_images/afk-arena-logo.jpg"
+          }
+        },
+        "game_VnkgYA": {
+          "type": "game",
+          "settings": {
+            "game_title": "Limbus Company",
+            "background_image": "shopify://shop_images/limbus-company-logo.png"
+          }
+        }
+      },
+      "block_order": [
+        "game_zdmWrB",
+        "game_BdwYR6",
+        "game_nFKkcx",
+        "game_aFGABB",
+        "game_PTmeHD",
+        "game_pEeg34",
+        "game_yB8gGi",
+        "game_GMCBrw",
+        "game_VnkgYA"
+      ],
+      "custom_css": [],
+      "settings": {
+        "items_per_row": 4,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "featured-collection": {
+      "type": "featured-collection",
+      "settings": {
+        "products_to_show": 6,
+        "image_ratio": "adapt",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": false,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "select-game",
+    "featured-collection"
+  ]
+}

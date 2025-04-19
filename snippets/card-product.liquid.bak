@@ -1,0 +1,2950 @@
+{%- unless skip_styles -%}
+  {{ 'component-rating.css' | asset_url | stylesheet_tag }}
+  {{ 'component-volume-pricing.css' | asset_url | stylesheet_tag }}
+  {{ 'component-price.css' | asset_url | stylesheet_tag }}
+  {{ 'quick-order-list.css' | asset_url | stylesheet_tag }}
+  {{ 'quantity-popover.css' | asset_url | stylesheet_tag }}
+{%- endunless -%}
+
+{%- if card_product and card_product != empty -%}
+  {%- liquid
+    assign ratio = 1
+    if card_product.featured_media and media_aspect_ratio == 'portrait'
+      assign ratio = 0.8
+    elsif card_product.featured_media and media_aspect_ratio == 'adapt'
+      assign ratio = card_product.featured_media.aspect_ratio
+    endif
+    if ratio == 0 or ratio == null
+      assign ratio = 1
+    endif
+  -%}
+  {% assign product_url = card_product.collections.first.url | default: collections.all.url | append: card_product.url %}
+  
+  <!-- Merged structure: card-wrapper and card-link-wrapper combined to reduce nesting -->
+  <a href="{{ product_url }}" class="card-wrapper card-link-wrapper" aria-label="View details for {{ card_product.title | escape }}" role="article" aria-roledescription="Product Card" aria-labelledby="title-{{ section_id }}-{{ card_product.id }}">
+    <div
+      class="
+        card card--{{ settings.card_style }}
+        {% if card_product.featured_media %} card--media{% else %} card--text{% endif %}
+        {% if settings.card_style == 'card' %} color-{{ settings.card_color_scheme }}{% endif %}
+        {% if image_shape and image_shape != 'default' %} card--shape{% endif %}
+        {% if extend_height %} card--extend-height{% endif %}
+        {% if card_product.featured_media == nil and settings.card_style == 'card' %} ratio{% endif %}
+        {% if horizontal_class %} card--horizontal{% endif %}
+        card--app-style
+      "
+      style="--ratio-percent: {{ 1 | divided_by: ratio | times: 100 }}%;"
+    >
+      <div
+        class="card__inner mobile-image-container {% if card_product.featured_media or settings.card_style == 'standard' %} ratio{% endif %}"
+        style="--ratio-percent: {{ 1 | divided_by: ratio | times: 100 }}%;"
+      >
+        {% comment %} Badge container positioned at top of the image container {% endcomment %}
+        <div class="card__badge-container">
+          <div class="card__badge card__badge--left">
+            {% comment %} Server badge removed as requested {% endcomment %}
+          </div>
+          
+          <div class="card__badge card__badge--right">
+            {%- if card_product.available == false -%}
+              <span class="product-badge sold-out-badge">
+                {{- 'products.product.sold_out' | t -}}
+              </span>
+            {%- endif -%}
+            
+            {%- if card_product.compare_at_price > card_product.price and card_product.available -%}
+              <span class="product-badge sale-badge">
+                {{- 'products.product.on_sale' | t -}}
+              </span>
+            {%- endif -%}
+          </div>
+        </div>
+        
+        {%- if card_product.featured_media -%}
+          <div class="card__media{% if image_shape and image_shape != 'default' %} shape--{{ image_shape }}{% endif %}">
+            <div class="media media--transparent{% if card_product.media[1] != null and show_secondary_image %} media--hover-effect{% endif %}">
+              {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+              <img
+                srcset="
+                  {%- if card_product.featured_media.width >= 165 -%}{{ card_product.featured_media | image_url: width: 165 }} 165w,{%- endif -%}
+                  {%- if card_product.featured_media.width >= 360 -%}{{ card_product.featured_media | image_url: width: 360 }} 360w,{%- endif -%}
+                  {%- if card_product.featured_media.width >= 533 -%}{{ card_product.featured_media | image_url: width: 533 }} 533w,{%- endif -%}
+                  {%- if card_product.featured_media.width >= 720 -%}{{ card_product.featured_media | image_url: width: 720 }} 720w,{%- endif -%}
+                  {%- if card_product.featured_media.width >= 940 -%}{{ card_product.featured_media | image_url: width: 940 }} 940w,{%- endif -%}
+                  {%- if card_product.featured_media.width >= 1066 -%}{{ card_product.featured_media | image_url: width: 1066 }} 1066w,{%- endif -%}
+                  {{ card_product.featured_media | image_url }} {{ card_product.featured_media.width }}w
+                "
+                src="{{ card_product.featured_media | image_url: width: 533 }}"
+                sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 130 | divided_by: 4 }}px, (min-width: 990px) calc((100vw - 130px) / 4), (min-width: 750px) calc((100vw - 120px) / 3), calc((100vw - 35px) / 2)"
+                alt="{{ card_product.featured_media.alt | escape }}"
+                class="motion-reduce{% if lazy_load %} lazy-img{% endif %}"
+                {% unless lazy_load == false %}
+                  loading="lazy"
+                {% endunless %}
+                width="{{ card_product.featured_media.width }}"
+                height="{{ card_product.featured_media.height }}"
+              >
+              {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+
+              {%- if card_product.media[1] != null and show_secondary_image -%}
+                <img
+                  srcset="
+                    {%- if card_product.media[1].width >= 165 -%}{{ card_product.media[1] | image_url: width: 165 }} 165w,{%- endif -%}
+                    {%- if card_product.media[1].width >= 360 -%}{{ card_product.media[1] | image_url: width: 360 }} 360w,{%- endif -%}
+                    {%- if card_product.media[1].width >= 533 -%}{{ card_product.media[1] | image_url: width: 533 }} 533w,{%- endif -%}
+                    {%- if card_product.media[1].width >= 720 -%}{{ card_product.media[1] | image_url: width: 720 }} 720w,{%- endif -%}
+                    {%- if card_product.media[1].width >= 940 -%}{{ card_product.media[1] | image_url: width: 940 }} 940w,{%- endif -%}
+                    {%- if card_product.media[1].width >= 1066 -%}{{ card_product.media[1] | image_url: width: 1066 }} 1066w,{%- endif -%}
+                    {{ card_product.media[1] | image_url }} {{ card_product.media[1].width }}w
+                  "
+                  src="{{ card_product.media[1] | image_url: width: 533 }}"
+                  sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 130 | divided_by: 4 }}px, (min-width: 990px) calc((100vw - 130px) / 4), (min-width: 750px) calc((100vw - 120px) / 3), calc((100vw - 35px) / 2)"
+                  alt=""
+                  class="motion-reduce{% if lazy_load %} lazy-img{% endif %}"
+                  loading="lazy"
+                  width="{{ card_product.media[1].width }}"
+                  height="{{ card_product.media[1].height }}"
+                >
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+            </div>
+            
+      <!-- Product information section positioned below the image -->
+      <div class="card__content">
+        <div class="card__information">
+            {% if card_product.metafields.custom.game.value != blank %}
+            <div class="card__game_title-container">
+              <div class="game-title">{{ card_product.metafields.custom.game.value }}</div>
+            </div>
+            {% endif %}
+            
+            <h3
+              class="card__heading{% if card_product.featured_media or settings.card_style == 'standard' %} h5{% endif %}"
+              {% if card_product.featured_media or settings.card_style == 'card' %}
+                id="title-{{ section_id }}-{{ card_product.id }}"
+              {% endif %}
+            >
+              <span class="full-unstyled-link card__title">
+                {{ card_product.title | escape }}
+              </span>
+            </h3>
+            
+            <div class="card__price-container">
+              {% render 'price', product: card_product, price_class: '', show_compare_at_price: true %}
+            </div>
+            
+          <div class="card__attributes--inline">
+            <!-- Game attribute removed as it's already shown above the product title -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </a>
+  
+  <!-- Quick add UI and other elements remain outside the link wrapper -->
+  {% assign product_form_id = 'quick-add-' | append: section_id | append: card_product.id %}
+  {% if quick_add == 'standard' %}
+    <div class="quick-add no-js-hidden">
+      {%- liquid
+        assign qty_rules = false
+        if card_product.selected_or_first_available_variant.quantity_rule.min > 1 or card_product.selected_or_first_available_variant.quantity_rule.max != null or card_product.selected_or_first_available_variant.quantity_rule.increment > 1
+          assign qty_rules = true
+        endif
+      -%}
+      {%- if card_product.variants.size > 1 or qty_rules -%}
+        <modal-opener data-modal="#QuickAdd-{{ card_product.id }}">
+          <button
+            id="{{ product_form_id }}-submit"
+            type="submit"
+            name="add"
+            class="quick-add__submit button button--full-width button--secondary{% if horizontal_quick_add %} card--horizontal__quick-add animate-arrow{% endif %}"
+            aria-haspopup="dialog"
+            aria-labelledby="{{ product_form_id }}-submit title-{{ section_id }}-{{ card_product.id }}"
+            data-product-url="{% assign default_collection = card_product.collections.first | default: collections.all %}{{ default_collection.url }}{{ card_product.url }}"
+          >
+            {{ 'products.product.choose_options' | t }}
+            {%- if horizontal_quick_add -%}
+              <span class="icon-wrap">
+                {{- 'icon-arrow.svg' | inline_asset_content -}}
+              </span>
+            {%- endif -%}
+            {%- render 'loading-spinner' -%}
+          </button>
+        </modal-opener>
+
+        <quick-add-modal id="QuickAdd-{{ card_product.id }}" class="quick-add-modal">
+          <div
+            role="dialog"
+            aria-label="{{ 'products.product.choose_product_options' | t: product_name: card_product.title | escape }}"
+            aria-modal="true"
+            class="quick-add-modal__content global-settings-popup"
+            tabindex="-1"
+          >
+            <button
+              id="ModalClose-{{ card_product.id }}"
+              type="button"
+              class="quick-add-modal__toggle"
+              aria-label="{{ 'accessibility.close' | t }}"
+            >
+              {{- 'icon-close.svg' | inline_asset_content -}}
+            </button>
+            <div id="QuickAddInfo-{{ card_product.id }}" class="quick-add-modal__content-info"></div>
+          </div>
+        </quick-add-modal>
+      {%- else -%}
+        <product-form data-section-id="{{ section.id }}">
+          {%- form 'product',
+            card_product,
+            id: product_form_id,
+            class: 'form',
+            novalidate: 'novalidate',
+            data-type: 'add-to-cart-form'
+          -%}
+            <input
+              type="hidden"
+              name="id"
+              value="{{ card_product.selected_or_first_available_variant.id }}"
+              class="product-variant-id"
+              {% if card_product.selected_or_first_available_variant.available == false %}
+                disabled
+              {% endif %}
+            >
+            <button
+              id="{{ product_form_id }}-submit"
+              type="submit"
+              name="add"
+              class="quick-add__submit button button--full-width button--secondary{% if horizontal_quick_add %} card--horizontal__quick-add{% endif %}"
+              aria-haspopup="dialog"
+              aria-labelledby="{{ product_form_id }}-submit title-{{ section_id }}-{{ card_product.id }}"
+              aria-live="polite"
+              data-sold-out-message="true"
+              {% if card_product.selected_or_first_available_variant.available == false %}
+                disabled
+              {% endif %}
+            >
+              <span>
+                {%- if card_product.selected_or_first_available_variant.available -%}
+                  {{ 'products.product.add_to_cart' | t }}
+                {%- else -%}
+                  {{ 'products.product.sold_out' | t }}
+                {%- endif -%}
+              </span>
+              <span class="sold-out-message hidden">
+                {{ 'products.product.sold_out' | t }}
+              </span>
+              {%- if horizontal_quick_add -%}
+                <span class="icon-wrap">
+                  {{- 'icon-plus.svg' | inline_asset_content -}}
+                </span>
+              {%- endif -%}
+              {%- render 'loading-spinner' -%}
+            </button>
+          {%- endform -%}
+        </product-form>
+      {%- endif -%}
+    </div>
+  {% elsif quick_add == 'bulk' %}
+    {% if card_product.variants.size == 1 %}
+      <quick-add-bulk
+        data-min="{{ card_product.selected_or_first_available_variant.quantity_rule.min }}"
+        id="quick-add-bulk-{{ card_product.selected_or_first_available_variant.id }}-{{ section.id }}"
+        class="quick-add-bulk"
+        data-index="{{ card_product.selected_or_first_available_variant.id }}"
+      >
+      {% if card_product.selected_or_first_available_variant.available == false %}
+        <button
+          id="{{ product_form_id }}-submit"
+          type="submit"
+          name="add"
+          class="quick-add__submit button button--full-width button--secondary"
+          aria-labelledby="{{ product_form_id }}-submit title-{{ section_id }}-{{ card_product.id }}"
+          data-sold-out-message="true"
+          disabled
+        >
+          <span>{{ 'products.product.sold_out' | t }}</span>
+          <span class="sold-out-message hidden">
+            {{ 'products.product.sold_out' | t }}
+          </span>
+        </button>
+      {% else %}
+        {% render 'quantity-input', variant: card_product.selected_or_first_available_variant, min: 0 %}
+      {% endif %}
+      </quick-add-bulk>
+    {% else %}
+      <div class="quick-add no-js-hidden">
+        {%- liquid
+          assign product_form_id = 'quick-add-' | append: section_id | append: card_product.id
+          assign qty_rules = false
+          if card_product.selected_or_first_available_variant.quantity_rule.min > 1 or card_product.selected_or_first_available_variant.quantity_rule.max != null or card_product.selected_or_first_available_variant.quantity_rule.increment > 1
+            assign qty_rules = true
+          endif
+        -%}
+        <modal-opener
+          id="QuickBulk-{{ card_product.id }}-{{ section_id }}"
+          data-modal="#QuickAddBulk-{{ card_product.id }}-{{ section.id }}"
+        >
+          <button
+            id="{{ product_form_id }}-submit"
+            type="submit"
+            name="add"
+            class="quick-add__submit button button--full-width button--secondary"
+            aria-haspopup="dialog"
+            aria-labelledby="{{ product_form_id }}-submit title-{{ section_id }}-{{ card_product.id }}"
+            data-product-url="{% assign default_collection = card_product.collections.first | default: collections.all %}{{ default_collection.url }}{{ card_product.url }}"
+          >
+            {{ 'products.product.choose_options' | t }}
+            {%- render 'loading-spinner' -%}
+          </button>
+        </modal-opener>
+        
+        <modal-dialog
+          id="QuickAddBulk-{{ card_product.id }}-{{ section_id }}"
+          class="quick-add-modal color-{{ section.settings.color_scheme }}"
+        >
+          <div
+            role="dialog"
+            aria-label="{{ 'products.product.choose_product_options' | t: product_name: card_product.title | escape }}"
+            aria-modal="true"
+            class="quick-add-modal__content quick-add-modal__content--bulk global-settings-popup"
+            tabindex="-1"
+          >
+            <button
+              id="ModalClose-{{ card_product.id }}"
+              type="button"
+              class="quick-add-modal__toggle"
+              aria-label="{{ 'accessibility.close' | t }}"
+            >
+              {{- 'icon-close.svg' | inline_asset_content -}}
+            </button>
+            
+            <div
+              id="QuickAddInfo-{{ card_product.id }}"
+              class="quick-add-modal__content-info quick-add-modal__content-info--bulk"
+            >
+              <div class="quick-add__content-info__media">
+                <div class="quick-add__info">
+                  {%- if card_product.featured_media -%}
+                    <div
+                      class="quick-add__product-media"
+                    >
+                      <div class="quick-add__product-container global-media-settings">
+                        {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+                        <img
+                          srcset="
+                            {%- if card_product.featured_media.width >= 165 -%}{{ card_product.featured_media | image_url: width: 165 }} 165w,{%- endif -%}
+                            {%- if card_product.featured_media.width >= 360 -%}{{ card_product.featured_media | image_url: width: 360 }} 360w,{%- endif -%}
+                            {%- if card_product.featured_media.width >= 533 -%}{{ card_product.featured_media | image_url: width: 533 }} 533w,{%- endif -%}
+                            {%- if card_product.featured_media.width >= 720 -%}{{ card_product.featured_media | image_url: width: 720 }} 720w,{%- endif -%}
+                            {%- if card_product.featured_media.width >= 940 -%}{{ card_product.featured_media | image_url: width: 940 }} 940w,{%- endif -%}
+                            {%- if card_product.featured_media.width >= 1066 -%}{{ card_product.featured_media | image_url: width: 1066 }} 1066w,{%- endif -%}
+                            {{ card_product.featured_media | image_url }} {{ card_product.featured_media.width }}w
+                          "
+                          src="{{ card_product.featured_media | image_url: width: 533 }}"
+                          sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 130 | divided_by: 4 }}px, (min-width: 990px) calc((100vw - 130px) / 4), (min-width: 750px) calc((100vw - 120px) / 3), calc((100vw - 35px) / 2)"
+                          alt="{{ card_product.featured_media.alt | escape }}"
+                          class="motion-reduce{% if lazy_load %} lazy-img{% endif %}"
+                          {% unless lazy_load == false %}
+                            loading="lazy"
+                          {% endunless %}
+                          width="{{ card_product.featured_media.width }}"
+                          height="{{ card_product.featured_media.height }}"
+                        >
+                        {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+                      </div>
+                    </div>
+                  {%- endif -%}
+                  <a
+                    {% if card_product == blank %}
+                      role="link" aria-disabled="true"
+                    {% else %}
+                      href="{% assign default_collection = card_product.collections.first | default: collections.all %}{{ default_collection.url }}{{ card_product.url }}"
+                    {% endif %}
+                    class="link product__view-details animate-arrow small-hide medium-hide"
+                  >
+                    {{ 'products.product.view_full_details' | t -}}
+                    {{- 'icon-arrow.svg' | inline_asset_content -}}
+                  </a>
+                </div>
+              
+              <div class="quick-add-modal__content-info--bulk-details large-up-hide">
+                <a href="{% assign default_collection = card_product.collections.first | default: collections.all %}{{ default_collection.url }}{{ card_product.url }}" class="full-unstyled-link">
+                  <h3>
+                    {%- if card_product.metafields.custom.game.value != blank -%}
+                      <div class="game-title">{{ card_product.metafields.custom.game.value }}</div>
+                    {%- endif -%}
+                    {{ card_product.title | escape }}
+                  </h3>
+                </a>
+                {% render 'price', product: card_product, price_class: '', show_compare_at_price: true %}
+                {%- if card_product.quantity_price_breaks_configured? -%}
+                  <div class="card__information-volume-pricing-note">
+                    <span class="caption">{{ 'products.product.volume_pricing.note' | t }}</span>
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+            <div>
+              <div class="quick-add-modal__content-info--bulk-details small-hide medium-hide">
+                <a href="{% assign default_collection = card_product.collections.first | default: collections.all %}{{ default_collection.url }}{{ card_product.url }}" class="full-unstyled-link">
+                  <h3 class="h2">
+                    {%- if card_product.metafields.custom.game.value != blank -%}
+                      <div class="game-title">{{ card_product.metafields.custom.game.value }}</div>
+                    {%- endif -%}
+                    {{ card_product.title | escape }}
+                  </h3>
+                </a>
+                {% render 'price', product: card_product, price_class: '', show_compare_at_price: true %}
+                {%- if card_product.quantity_price_breaks_configured? -%}
+                  <div class="card__information-volume-pricing-note">
+                    <span class="caption">{{ 'products.product.volume_pricing.note' | t }}</span>
+                  </div>
+                {%- endif -%}
+              </div>
+              <bulk-modal
+                id="QuickBulkModal-{{ card_product.id }}-{{ section_id }}"
+                data-url="{% assign default_collection = card_product.collections.first | default: collections.all %}{{ default_collection.url }}{{ card_product.url }}"
+                data-section-id="{{ section_id }}"
+                data-product-id="{{ card_product.id }}"
+              >
+              </bulk-modal>
+            </div>
+          </div>
+        </modal-dialog>
+      </div>
+    {% endif %}
+  {% endif %}
+{%- else -%}
+  {%- liquid
+    assign ratio = 1
+    assign placeholder = true
+    if media_aspect_ratio == 'portrait'
+      assign ratio = 0.8
+    endif
+  -%}
+  <div class="card-wrapper underline-links-hover">
+    <div
+      class="
+        card card--{{ settings.card_style }}
+        {% if extend_height %} card--extend-height{% endif %}
+        {% if image_shape and image_shape != 'default' %} card--shape{% endif %}
+        {% if settings.card_style == 'card' %} color-{{ settings.card_color_scheme }}{% endif %}
+        {% if card_product.featured_media == nil and settings.card_style == 'card' %} ratio{% endif %}
+        {% if horizontal_class %} card--horizontal{% endif %}
+      "
+      style="--ratio-percent: {{ 1 | divided_by: ratio | times: 100 }}%;"
+    >
+      <div
+        class="card__inner{% if settings.card_style == 'standard' %} color-{{ settings.card_color_scheme }} gradient{% endif %} ratio"
+      >
+        {% comment %} Add placeholder badge container for consistent styling {% endcomment %}
+        <div class="card__badge">
+          {% comment %} Badges would appear here when needed (placeholder for styling purposes) {% endcomment %}
+        </div>
+        
+        <div
+          class="card__media {% if image_shape and image_shape != 'default' %} shape--{{ image_shape }}{% endif %}"
+        >
+          <div class="media media--transparent media--hover-effect">
+            {%- if placeholder_image -%}
+              {{ placeholder_image | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- else -%}
+              {{ 'product-apparel-2' | placeholder_svg_tag: 'placeholder-svg' }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="card__content">
+        <div class="card__information">
+          <h3 class="card__heading card__heading--placeholder{% if settings.card_style == 'standard' %} h5{% endif %}">
+            <a role="link" aria-disabled="true" class="full-unstyled-link">
+              {{ 'onboarding.product_title' | t }}
+            </a>
+          </h3>
+          <div class="card-information">
+            {%- if show_vendor -%}
+              <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>
+              <div class="caption-with-letter-spacing light">{{ 'products.product.vendor' | t }}</div>
+            {%- endif -%}
+            {% render 'price', placeholder: placeholder, show_compare_at_price: true %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+<style>
+  /* Fix card layout text overflow and spacing issues */
+  .card__heading {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 1.5rem; /* Increased from 1.4rem */
+    margin-bottom: 0.7rem; /* Increased bottom margin */
+    line-height: 1.4;
+    padding: 0.5rem 0 0;
+    color: white;
+    min-height: 4.5rem; /* Guarantee space for 2 lines plus a bit of padding */
+  }
+  
+  /* Game title styling - visible but not prominent */
+  .game-title {
+    font-size: 0.85rem;
+    color: rgba(212, 175, 55, 0.9); /* Increased opacity for better visibility */
+    font-weight: 500; /* Slightly more weight for better readability */
+    margin-bottom: 0.3rem; /* Increased spacing between game title and product title */
+    line-height: 1.2;
+    display: block;
+    width: 100%;
+    letter-spacing: 0.02em; /* Subtle letter spacing for better readability */
+    text-transform: uppercase; /* Make it look more like a category */
+    font-size: 0.8rem; /* Slightly smaller */
+  }
+
+  @media screen and (max-width: 749px) {
+    .game-title {
+      font-size: 0.7rem;
+      margin-bottom: 0.25rem; /* Less spacing on mobile */
+    }
+    
+    .card__heading {
+      min-height: 4rem; /* Adjusted for smaller font on mobile */
+      font-size: 1.3rem; /* Slightly smaller on mobile */
+    }
+  }
+  
+  /* Hide only comparison prices, not regular prices */
+  .price--on-sale .price-item--regular,
+  .price-item--compare,
+  .variant-item__old-price {
+    display: none !important;
+  }
+  
+  /* Card container structure - using flexbox for dynamic layout */
+  .card-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    padding-top: 4px; /* Add padding at top to prevent cutoff during hover */
+  }
+  
+  .card-link-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-decoration: none;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: visible; /* Ensure content isn't cut off during hover */
+    position: relative; /* Added from card-container */
+    padding-top: 4px; /* Added from card-container to prevent cutoff during hover */
+  }
+  
+  /* Universal title display for all screen sizes - key fix */
+  .card__heading .full-unstyled-link,
+  .card__heading span,
+  .card__heading a {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.4 !important; /* Improved line height for readability */
+    min-height: 3.2em !important; /* Increased to accommodate larger font size */
+    max-height: 3.2em !important; /* Increased to match min-height */
+    width: 100%;
+    word-break: break-word;
+    color: white;
+    font-size: 1.7rem !important; /* Increased from 1.5rem for better visibility */
+    font-weight: 600; /* Medium bold for better distinction */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow for better contrast */
+    letter-spacing: 0.01em; /* Slight letter spacing for readability */
+  }
+  
+  /* CRITICAL FIX: Ensure card structure is properly laid out */
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+  }
+  
+  /* CRITICAL FIX: Ensure image container doesn't cover content */
+  .card__inner {
+    flex: 0 0 auto !important; /* Don't allow inner to flex and take all space */
+    position: relative !important;
+    height: 0 !important; /* Allow padding-bottom to set height */
+    padding-bottom: 100% !important; /* Create 1:1 aspect ratio */
+    width: 100% !important;
+    overflow: hidden !important;
+    border-radius: 12px 12px 0 0 !important; /* Ensure top corners are rounded but bottom corners are square */
+  }
+
+  /* CRITICAL FIX: Ensure content area appears and is visible */
+  .card__content {
+    flex: 0 0 auto !important;
+    position: relative !important;
+    display: block !important;
+    visibility: visible !important;
+    padding: 1rem !important;
+    background-color: #1a1a1a !important;
+    border-radius: 0 0 12px 12px !important;
+    width: 100% !important;
+    z-index: 2 !important;
+    margin-top: -1px !important; /* Ensure seamless connection to image */
+  }
+
+  .card__information {
+    display: block !important;
+    visibility: visible !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  
+  /* Dynamic card layout with proper spacing */
+  .card__content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    background-color: #1a1a1a;
+    border-radius: 0 0 12px 12px;
+    min-height: 160px; /* Increased from 140px to accommodate larger title */
+  }
+  
+  .card__information {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    min-height: 130px; /* Added min-height to ensure proper spacing */
+  }
+  
+  .card__title-wrapper {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    display: block;
+    min-height: 3em; /* Increased to accommodate larger font size */
+  }
+  
+  /* Product metadata handling */
+  .card-information {
+    padding: 0.25rem 0;
+    width: 100%;
+  }
+  
+  .price {
+    margin: 0.5rem 0 0.7rem; /* Slightly increased bottom margin */
+    width: 100%;
+  }
+  
+  .price .price-item {
+    margin-top: 0;
+    font-size: 1.6rem; /* Increased from 1.5rem */
+    color: #d4af37; /* Gold color for price */
+    font-weight: 700; /* Make it bold */
+    letter-spacing: 0.02em; /* Better readability */
+    transition: color 0.2s ease, transform 0.2s ease; /* Smooth transition for hover effect */
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* Add subtle underline to price */
+  .price .price-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: rgba(212, 175, 55, 0.3);
+    border-radius: 2px;
+  }
+  
+  /* Responsive attributes layout - ensure left alignment */
+  .card__attributes--inline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem; /* Increased gap for pill design */
+    margin-top: 0.75rem; /* Add top margin to push it to the bottom */
+    margin-bottom: 0; /* Remove bottom margin */
+    font-size: 0.65rem; /* Small font size for less prominence */
+    color: rgba(212, 175, 55, 0.6); /* Reduced opacity for less prominence */
+    flex-wrap: wrap !important; /* Allow wrapping for long tags */
+    width: 100%;
+    overflow: hidden;
+    text-align: left;
+    justify-content: flex-start;
+  }
+  
+  /* Individual attribute elements - convert to pill design */
+  .attribute-tag {
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(30, 30, 30, 0.7); /* Dark subtle background */
+    border: 1px solid rgba(212, 175, 55, 0.15); /* Very subtle gold border */
+    border-radius: 12px; /* Pill shape */
+    padding: 0.15rem 0.4rem;
+    max-width: fit-content; /* Adjust width to content */
+    overflow: hidden;
+    transition: all 0.2s ease-in-out; /* Smooth transition for all properties */
+    cursor: pointer;
+  }
+  
+  /* Hover effect for attributes */
+  .attribute-tag:hover {
+    background-color: rgba(40, 40, 40, 0.8); /* Slightly darker background */
+    border-color: rgba(212, 175, 55, 0.25); /* Slightly more visible border */
+    transform: translateY(-1px); /* Subtle lift effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  }
+  
+  /* Style the actual text values */
+  .attribute-label {
+    text-align: left;
+    flex-shrink: 0;
+    margin-right: 0.2rem; /* Slightly more space between icon and text */
+    min-width: 10px; /* Small icon size */
+    opacity: 0.6; /* Add slight transparency to the icon */
+  }
+  
+  .attribute-value {
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    font-size: 0.65rem; /* Small font for less prominence */
+    font-weight: 400; /* Lighter font weight for a more minimalistic look */
+  }
+  
+  /* Remove separator and use gap between pills instead */
+  .attribute-separator {
+    display: none; /* Hide separator in pill design */
+  }
+  
+  /* Mobile optimization - using relative units rather than fixed breakpoints */
+  @media screen and (max-width: 749px) {
+    /* Force 2-column layout for mobile products */
+    .product-grid.grid--2-col-tablet-down {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0.8rem;
+    }
+    
+    /* Fluid grid items */
+    .product-grid .grid__item {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+    }
+    
+    /* Card styles now applied directly to .card-wrapper .card */
+    
+    /* Dynamic image container */
+    .card-wrapper .card__inner {
+      width: 100%;
+      height: 180px;
+      margin: 0;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px 12px 0 0 !important; /* Force consistent top border radius */
+      background: transparent !important;
+      background-image: none !important;
+      background-color: transparent !important;
+      z-index: 0; /* Ensure proper stacking */
+    }
+    
+    .card-wrapper .media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: none !important;
+      mix-blend-mode: normal !important;
+      opacity: 1 !important;
+      display: block;
+      padding: 0;
+      margin: 0;
+      border: none;
+    }
+    
+    /* Content area - responsive padding that works on all screen sizes */
+    .card-wrapper .card__content {
+      padding: 0.75rem 0.5rem;
+      background: transparent !important; /* Make background transparent */
+      border-radius: 0 0 12px 12px !important; /* Force consistent bottom border radius */
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left !important;
+      width: 100%;
+      position: relative; /* Prevent background from leaking upward */
+      z-index: 1; /* Ensure proper stacking */
+    }
+    
+    /* Title wrapper with consistent height for 2 lines */
+    .card-wrapper .card__title-wrapper {
+      min-height: 2.6em;
+      margin-bottom: 0.3rem;
+      display: block;
+      width: 100%;
+    }
+    
+    /* Standardized heading styling for all mobile sizes */
+    .card-wrapper .card__heading {
+      font-size: 1.25rem; /* Increased from 1.1rem */
+      width: 100%;
+      display: block;
+      overflow: hidden;
+      text-align: left;
+      margin-bottom: 0.2rem;
+      line-height: 1.3;
+    }
+    
+    /* Universal title styling for all screen widths - with !important to override any conflicting styles */
+    .card-wrapper .card__heading a,
+    .card-wrapper .card__heading .full-unstyled-link {
+      font-size: 1.25rem; /* Increased from 1.1rem */
+      line-height: 1.3 !important;
+      font-weight: 700;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      min-height: 2.6em !important; /* Ensure minimum 2 lines of height */
+      max-height: 2.6em !important;
+      color: white;
+      text-align: left;
+      word-break: break-word;
+      width: 100%;
+    }
+    
+    /* Reorder card information display */
+    .card-wrapper .card__information {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      gap: 0.3rem;
+      width: 100%;
+    }
+    
+    /* Title first layout */
+    .card-wrapper .card-title-first .card__title-wrapper {
+      order: 1;
+      margin-bottom: 0.2rem;
+    }
+    
+    .card-wrapper .card-title-first .card__price-container {
+      order: 2;
+      margin-top: 0.2rem;
+      margin-bottom: 0.25rem;
+      width: 100%;
+    }
+    
+    .card-wrapper .card-title-first .card__attributes--inline {
+      order: 3;
+      width: 100%;
+      margin-top: 0.5rem; /* Add top margin */
+    }
+    
+    /* Mobile-specific attribute styling - forcing left alignment */
+    .card-wrapper .card__attributes--inline {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left !important;
+      width: 100%;
+      flex-wrap: wrap !important; /* Allow wrapping for long tags */
+      overflow: hidden;
+      margin-top: 0.5rem; /* Add top margin in mobile view */
+      font-size: 0.6rem; /* Even smaller for less prominence */
+      color: rgba(212, 175, 55, 0.6); /* Reduced opacity for less prominence */
+      gap: 0.25rem; /* Consistent gap for pills */
+    }
+    
+    .card-wrapper .attribute-tag {
+      text-align: center !important;
+      justify-content: center !important;
+      display: inline-flex;
+      align-items: center;
+      background-color: rgba(30, 30, 30, 0.7); /* Dark subtle background */
+      border: 1px solid rgba(212, 175, 55, 0.15); /* Very subtle gold border */
+      border-radius: 12px; /* Pill shape */
+      padding: 0.15rem 0.4rem;
+      max-width: fit-content;
+      overflow: hidden;
+      transition: all 0.2s ease-in-out; /* Smooth transition for all properties */
+      cursor: pointer;
+    }
+    
+    .card-wrapper .attribute-separator {
+      display: none; /* Hide separator in pill design */
+    }
+    
+    .card-wrapper .attribute-label {
+      text-align: left !important;
+      flex-shrink: 0;
+      margin-right: 0.15rem; /* Consistent smaller margin */
+      min-width: 9px; /* Even smaller for mobile */
+    }
+    
+    .card-wrapper .attribute-value {
+      text-align: left !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      font-size: 0.6rem; /* Reduced for mobile */
+    }
+    
+    /* Price styling - consistent across all screen sizes */
+    .card-wrapper .price {
+      margin: 0.1rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .card-wrapper .price .price-item {
+      font-size: 1.6rem; /* Increased from 1.4rem */
+      font-weight: 700;
+      color: #d4af37;
+      white-space: nowrap;
+      display: block;
+      letter-spacing: 0.02em;
+    }
+  }
+
+  /* Add this to the top level outside the media query to ensure it applies to all cards */
+  /* Base card styling - consistent across all products regardless of variants */
+  .card-wrapper .card {
+    border-radius: 12px !important; /* Force consistent border radius with higher specificity */
+    border: none !important; /* Ensure no border on the card */
+  }
+
+  .card-wrapper .card__inner {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0 !important; /* Ensure bottom corners are square to eliminate gap */
+    padding: 0;
+    margin: 0;
+    border: none !important; /* Ensure no border on inner container */
+  }
+
+  .card-wrapper .card__content {
+    border-radius: 0 0 12px 12px !important; /* Force consistent bottom border radius */
+    margin-top: -1px !important; /* Ensure seamless connection to image */
+  }
+
+  /* Ensure no overlay on media containers, especially for sold-out products */
+  .card-wrapper .card__media,
+  .card-wrapper .media {
+    background: none !important; /* Force no background with higher specificity */
+    background-image: none !important;
+    background-color: transparent !important;
+  }
+
+  /* Ensure images display without overlay but preserve original styling */
+  .card-wrapper .media img {
+    filter: none !important; /* Prevent any filter effects */
+    mix-blend-mode: normal !important; /* Prevent any blend mode effects */
+    opacity: 1 !important; /* Ensure full opacity */
+  }
+
+  /* More explicit selectors for media containers to prevent any overlay */
+  .card__inner.mobile-image-container {
+    background: none !important;
+    background-image: none !important;
+    background-color: transparent !important;
+  }
+
+  /* For sold-out products, maintain visibility of the badge without affecting image */
+  .card-wrapper .card__badge {
+    z-index: 5; /* Ensure badge is visible */
+  }
+
+  .quick-add-modal__content {
+    border-radius: 12px !important; /* Force consistent border radius */
+  }
+
+  .quick-add__submit {
+    border-radius: 12px !important; /* Force consistent border radius */
+  }
+
+  .quantity-popover {
+    border-radius: 12px !important; /* Force consistent border radius */
+  }
+
+  /* Ensure consistent border radius for all interactive elements */
+  .button, button, [type="button"], [type="submit"] {
+    border-radius: 12px !important;
+  }
+
+  /* Modal dialog styling */
+  modal-dialog {
+    border-radius: 12px !important;
+  }
+
+  quick-add-modal {
+    border-radius: 12px !important;
+  }
+
+  .modal__toggle {
+    border-radius: 12px !important;
+  }
+
+  /* Ensure product-form elements maintain consistent styling */
+  product-form, quick-add-bulk {
+    border-radius: 12px !important;
+  }
+
+  product-form .form, quick-add-bulk .form {
+    border-radius: 12px !important;
+  }
+
+  /* Additional global selectors to normalize styling */
+  .card, .card__inner, .card__content {
+    border-radius: 12px !important;
+  }
+
+  .card__inner {
+    border-radius: 12px 12px 0 0 !important;
+  }
+
+  .card__content {
+    border-radius: 0 0 12px 12px !important;
+    margin-top: -1px !important; /* Ensure seamless connection to image */
+  }
+
+  /* Badge styling */
+  .card__badge {
+    position: absolute;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+
+  .card__badge--left {
+    top: 0.75rem;
+    left: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .card__badge--right {
+    top: 0.75rem;
+    right: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .product-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.25rem;
+  }
+
+  .sale-badge {
+    background-color: #e53e3e;
+    color: white;
+  }
+
+  .sold-out-badge {
+    background-color: #718096;
+    color: white;
+  }
+
+  /* Responsive badge sizing */
+  @media screen and (max-width: 480px) {
+    .card__badge--left, 
+    .card__badge--right {
+      top: 0.5rem;
+      gap: 0.3rem;
+    }
+    
+    .card__badge--left {
+      left: 0.5rem;
+    }
+    
+    .card__badge--right {
+      right: 0.5rem;
+    }
+    
+    .product-badge {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Larger badge on larger screens */
+  @media screen and (min-width: 990px) {
+    .product-badge {
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  /* App-style card design - REVISED to fix content visibility */
+  .card--app-style {
+    position: relative;
+    overflow: visible; /* Change from 'hidden' to 'visible' to prevent cutoff during hover */
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateZ(0);
+    transition: transform 0.25s cubic-bezier(0.2, 0, 0.3, 1), box-shadow 0.25s cubic-bezier(0.2, 0, 0.3, 1);
+    height: 100%;
+    width: 100%;
+    background: transparent !important;
+    padding: 0;
+    margin: 0;
+    border: none; /* Remove border from container */
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .card--app-style:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 0 0 2px rgba(224, 179, 106, 0.8), 0 10px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    z-index: 1; /* Ensure hovered card appears above others */
+  }
+  
+  /* Add subtle glow effect to media container on hover */
+  .card--app-style:hover .card__media {
+    border-color: rgba(224, 179, 106, 0.4);
+    box-shadow: 0 0 15px rgba(224, 179, 106, 0.15);
+  }
+  
+  /* Price emphasis on hover */
+  .card--app-style:hover .price .price-item {
+    color: #FFCC80; /* Lighter gold on hover, consistent with component-card.css */
+    transition: color 0.3s ease;
+  }
+  
+  /* Fix for mobile hover states */
+  @media (hover: hover) {
+    .card--app-style:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 0 0 2px rgba(224, 179, 106, 0.8), 0 10px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 12px;
+    }
+    
+    .card--app-style:hover .card__media {
+      border-color: rgba(224, 179, 106, 0.4);
+      box-shadow: 0 0 15px rgba(224, 179, 106, 0.15);
+    }
+    
+    .card--app-style:hover .price .price-item {
+      color: #FFCC80;
+      transition: color 0.3s ease;
+    }
+  }
+  
+  /* Ensure card__inner doesn't take all space - REVISED */
+  .card--app-style .card__inner {
+    flex: 0 0 auto !important; /* Don't allow inner to take all space */
+    overflow: hidden !important; /* Change to hidden for image container */
+    height: 0 !important;
+    padding-bottom: 100% !important; /* Create a 1:1 aspect ratio */
+    position: relative !important;
+    width: 100% !important;
+    border-radius: 12px 12px 0 0 !important; /* Ensure bottom corners are square */
+    display: block !important;
+  }
+
+  /* Content area - REVISED critical fix */
+  .card--app-style .card__content {
+    flex: 0 0 auto !important;
+    position: relative !important;
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    padding: 1rem !important;
+    background-color: #1a1a1a !important;
+    border-radius: 0 0 12px 12px !important;
+    z-index: 2 !important;
+    margin-top: -1px !important; /* Ensure seamless connection to image */
+  }
+
+  /* Information area - REVISED critical fix */
+  .card--app-style .card__information {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    padding: 0 !important;
+    color: white !important;
+  }
+
+  /* Heading text - REVISED critical fix */
+  .card--app-style .card__heading {
+    display: block !important;
+    visibility: visible !important;
+    color: white !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Attributes area - REVISED critical fix */
+  .card--app-style .card__attributes--inline {
+    display: flex !important;
+    visibility: visible !important;
+    color: rgba(212, 175, 55, 0.6) !important; /* Reduced opacity for less prominence - reduced from 0.7 */
+    margin-top: 0.75rem !important; /* Add top margin to push to bottom */
+    margin-bottom: 0 !important; /* Remove bottom margin */
+    font-size: 0.65rem !important; /* Smaller font size for less prominence - reduced from 0.7rem */
+  }
+
+  /* Price container - REVISED critical fix */
+  .card--app-style .card__price-container {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+  }
+
+  /* Price text - REVISED critical fix */
+  .card--app-style .price .price-item {
+    display: inline-block !important;
+    visibility: visible !important;
+    color: #d4af37 !important;
+    font-size: 1.5rem !important; /* Increased from 1.3rem */
+    font-weight: 700 !important; /* Make it bold */
+  }
+
+  /* Critical fix for content visibility - ensure content area appears below the image */
+  .card--app-style .card__content {
+    position: relative;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 2;
+    background-color: #1a1a1a !important;
+    padding: 1rem;
+    border-radius: 0 0 12px 12px !important;
+    display: block !important;
+    visibility: visible !important;
+    margin-top: -1px !important; /* Ensure no gap between image and content */
+  }
+
+  /* Fix content display */
+  .card--app-style .card__information {
+    display: block !important;
+    visibility: visible !important;
+    color: white !important;
+    width: 100%;
+  }
+
+  /* Ensure heading is visible */
+  .card--app-style .card__heading {
+    color: white !important;
+    display: block !important;
+    visibility: visible !important;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Ensure price is visible */
+  .card--app-style .price .price-item {
+    color: #d4af37 !important;
+    display: block !important;
+    visibility: visible !important;
+    font-size: 1.5rem !important; /* Increased from 1.3rem */
+    font-weight: 700 !important; /* Make it bold */
+  }
+
+  /* Badge container positioning */
+  .card__badge-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .card__badge--left, 
+  .card__badge--right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card__badge--left {
+    align-items: flex-start;
+  }
+
+  .card__badge--right {
+    align-items: flex-end;
+  }
+
+  /* Modified badge styling for app-style */
+  .card--app-style .product-badge {
+    display: inline-flex;
+    padding: 0.4rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+    min-width: max-content;
+    transform: translateZ(0);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card--app-style .sale-badge {
+    background-color: #2ecc71;
+    background-image: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+  }
+
+  .card--app-style .sold-out-badge {
+    background-color: #e74c3c;
+    background-image: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+  }
+  
+  /* Add hover effect to badges */
+  .card--app-style:hover .product-badge {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Text overlay styling */
+  .card__overlay {
+    display: none; /* Hide the overlay as we're no longer using it */
+  }
+
+  /* Responsive sizing */
+  @media screen and (max-width: 749px) {
+    .card__overlay {
+      padding: 2rem 0.75rem 0.4rem;
+    }
+
+    .card__overlay .card__heading {
+      font-size: 1rem;
+      margin-bottom: 0;
+    }
+    
+    .card__overlay .price .price-item {
+      font-size: 1.1rem;
+    }
+
+    .card__overlay .card__attributes--inline {
+      font-size: 0.65rem;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .card__overlay .card__heading {
+      font-size: 1.2rem;
+    }
+    
+    .card__overlay .price .price-item {
+      font-size: 1.3rem;
+    }
+
+    .card__overlay {
+      padding: 3.25rem 1rem 0.6rem;
+    }
+  }
+
+  /* Remove background from all containers that might have it */
+  .card, 
+  .card__inner, 
+  .card__media, 
+  .media, 
+  .card--app-style, 
+  .card--app-style .card__inner {
+    background: transparent !important;
+    background-image: none !important;
+    background-color: transparent !important;
+  }
+
+  .card__content {
+    background-color: #1a1a1a !important;
+  }
+
+  /* Reset all potential spacing on parent elements */
+  .card-wrapper {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    padding-top: 4px; /* Add space at the top for hover effect */
+    overflow: visible !important; /* Ensure content isn't cut off during hover */
+    position: relative;
+  }
+  
+  /* Remove any padding in product grid items */
+  .product-grid .grid__item {
+    padding: 0;
+  }
+
+  /* Fix grid spacing to allow cards to fully extend */
+  .product-grid,
+  .product-grid-container {
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Fix for parent elements that might be restricting the grid container padding */
+  .page-width .product-grid-container,
+  .page-width .product-grid,
+  .collection .product-grid-container,
+  .collection .product-grid {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Ensure grid-container and its items have proper spacing */
+  .grid__item > .product-grid-container,
+  .grid > .product-grid-container,
+  section > .product-grid-container,
+  .shopify-section > .product-grid-container {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Apply proper spacing at collection level */
+  .collection-wrapper,
+  .collection__view-all,
+  .collection {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Mobile-specific adjustments for parent elements */
+  @media screen and (max-width: 749px) {
+    .page-width .product-grid-container,
+    .page-width .product-grid,
+    .collection .product-grid-container,
+    .collection .product-grid,
+    .grid__item > .product-grid-container,
+    .grid > .product-grid-container,
+    section > .product-grid-container,
+    .shopify-section > .product-grid-container {
+      padding: 1.25rem !important; /* Even padding on all sides */
+    }
+  }
+
+  /* Consolidated responsive styles for product grid containers */
+  @media screen and (max-width: 749px) {
+    /* Mobile-specific grid styling */
+    .product-grid,
+    .product-grid-container,
+    #ProductGridContainer.product-grid-container,
+    .page-width .product-grid-container,
+    .page-width .product-grid,
+    .collection .product-grid-container,
+    .collection .product-grid,
+    .grid__item > .product-grid-container,
+    .grid > .product-grid-container,
+    section > .product-grid-container,
+    .shopify-section > .product-grid-container {
+      padding: 1.25rem !important; /* Even padding on all sides */
+      gap: 1.25rem !important; /* Match gap to padding */
+    }
+    
+    /* Mobile-specific 2-column layout */
+    .product-grid.grid--2-col-tablet-down,
+    .product-grid-container.grid--2-col-tablet-down {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 1.25rem !important; /* Match gap to padding */
+    }
+  }
+  
+  /* Tablet-specific styling */
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .product-grid,
+    .product-grid-container,
+    #ProductGridContainer.product-grid-container,
+    .page-width .product-grid-container,
+    .page-width .product-grid,
+    .collection .product-grid-container,
+    .collection .product-grid,
+    .grid__item > .product-grid-container,
+    .grid > .product-grid-container,
+    section > .product-grid-container,
+    .shopify-section > .product-grid-container {
+      padding: 1.75rem !important; /* Even padding on all sides */
+      gap: 1.75rem !important; /* Match gap to padding */
+    }
+  }
+  
+  /* Desktop-specific styling */
+  @media screen and (min-width: 990px) {
+    .product-grid,
+    .product-grid-container,
+    #ProductGridContainer.product-grid-container,
+    .page-width .product-grid-container,
+    .page-width .product-grid,
+    .collection .product-grid-container,
+    .collection .product-grid,
+    .grid__item > .product-grid-container,
+    .grid > .product-grid-container,
+    section > .product-grid-container,
+    .shopify-section > .product-grid-container {
+      padding: 2rem !important; /* Even padding on all sides */
+      gap: 2rem !important; /* Match gap to padding */
+    }
+  }
+
+  /* Add border to media container that floats with card */
+  .card-wrapper .card__media {
+    border-radius: 12px 12px 0 0 !important; /* Ensure bottom corners are square */
+    border: 1px solid rgba(212, 175, 55, 0.3) !important; /* Force border on media container */
+    overflow: hidden;
+  }
+
+  /* Ensure media container has proper border radius */
+  .card-wrapper .media {
+    border-radius: 12px 12px 0 0 !important; /* Ensure bottom corners are square */
+    overflow: hidden;
+  }
+
+  .card-wrapper .card-container {
+    padding-top: 0;
+  }
+  
+  /* Medium screens - improved responsive flow */
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .product-grid,
+    .product-grid-container,
+    #ProductGridContainer.product-grid-container,
+    .page-width .product-grid-container,
+    .page-width .product-grid,
+    .collection .product-grid-container,
+    .collection .product-grid,
+    .grid__item > .product-grid-container,
+    .grid > .product-grid-container,
+    section > .product-grid-container,
+    .shopify-section > .product-grid-container {
+      padding: 1.75rem !important; /* Even padding on all sides */
+      gap: 1.75rem !important; /* Match gap to padding */
+    }
+  }
+
+  .attribute-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(30, 30, 30, 0.7);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 12px;
+    padding: 0.15rem 0.4rem;
+    max-width: fit-content;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .attribute-tag:hover {
+    background-color: rgba(40, 40, 40, 0.8); /* Slightly darker background */
+    border-color: rgba(212, 175, 55, 0.25); /* Slightly more visible border */
+    transform: translateY(-1px); /* Subtle lift effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  }
+  
+  .attribute-label {
+    opacity: 0.6;
+    margin-right: 0.2rem;
+  }
+  
+  @media screen and (max-width: 749px) {
+    .attribute-label {
+      min-width: 9px;
+      margin-right: 0.15rem;
+    }
+  }
+  
+  @media screen and (min-width: 750px) {
+    .attribute-label {
+      min-width: 10px;
+      margin-right: 0.2rem;
+    }
+  }
+  
+  .attribute-value {
+    font-weight: 400;
+  }
+  
+  @media screen and (max-width: 749px) {
+    .attribute-value {
+      font-size: 0.6rem;
+    }
+  }
+  
+  @media screen and (min-width: 750px) {
+    .attribute-value {
+      font-size: 0.65rem;
+    }
+  }
+
+  /* Add focus state styling for accessibility */
+  .card-wrapper.card-link-wrapper:focus {
+    outline: none;
+  }
+  
+  .card-wrapper.card-link-wrapper:focus .card--app-style {
+    outline: 3px solid rgba(212, 175, 55, 0.7);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.8), 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Ensure proper focus visibility for keyboard navigation */
+  .card-wrapper.card-link-wrapper:focus:not(:focus-visible) .card--app-style {
+    outline: none;
+  }
+  
+  .card-wrapper.card-link-wrapper:focus-visible .card--app-style {
+    outline: 3px solid rgba(212, 175, 55, 0.7);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.8), 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Updated card title styling for consistent 2-line display */
+  .card__heading .full-unstyled-link,
+  .card__heading span,
+  .card__heading a {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important; 
+    max-height: 3.4rem !important; /* Updated to match our new styling */
+    min-height: 3.4rem !important; /* Updated to match our new styling */
+    width: 100%;
+    word-break: break-word;
+    color: white;
+    font-size: 1.8rem !important; /* Updated to our new larger size */
+    font-weight: 600; 
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Updated to match our new styling */
+    letter-spacing: -0.01em !important; /* Updated to match our new styling */
+    margin-bottom: 0.5rem; /* Consistent spacing after title */
+  }
+  
+  /* Card heading container height management */
+  .card__heading {
+    min-height: 4.8rem !important; /* Updated to match our new styling */
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+  
+  /* Consistent spacing for card information */
+  .card__information {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 7.5rem; /* Ensure minimum height for information section */
+  }
+  
+  /* Small screen adjustments */
+  @media screen and (max-width: 749px) {
+    .card__heading .full-unstyled-link,
+    .card__heading span,
+    .card__heading a {
+      font-size: 1.5rem !important; /* Updated to match our new mobile styling */
+      min-height: 3rem !important; /* Updated to match our new mobile styling */
+      max-height: 3rem !important; /* Updated to match our new mobile styling */
+      line-height: 1.25 !important; /* Updated to match our new mobile styling */
+    }
+    
+    .card__heading {
+      min-height: 4rem !important; /* Updated to match our new mobile styling */
+    }
+    
+    .card__information {
+      min-height: 8.5rem !important; /* Updated to match our new mobile styling */
+    }
+  }
+
+  /* Card Title Styling */
+  .card__heading {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    min-height: 4.8rem !important; /* Updated to match our new styling */
+  }
+
+  .card__heading .full-unstyled-link,
+  .card__heading span,
+  .card__heading a {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    min-height: 3.4rem !important; /* Updated to match our new styling */
+    max-height: 3.4rem !important; /* Updated to match our new styling */
+    width: 100%;
+    word-break: break-word;
+    color: white;
+    font-size: 1.8rem !important; /* Updated to our new larger size */
+    font-weight: 600;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Updated to match our new styling */
+    letter-spacing: -0.01em !important; /* Updated to match our new styling */
+  }
+
+  .card__information {
+    min-height: 8rem; /* Increased from 7.2rem to accommodate taller title */
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media screen and (max-width: 749px) {
+    .card__heading {
+      min-height: 3.6rem; /* Increased from 2.8rem for mobile */
+    }
+    
+    .card__heading .full-unstyled-link,
+    .card__heading span,
+    .card__heading a {
+      font-size: 1.4rem !important; /* Increased from 0.85rem for better visibility on mobile */
+      min-height: 2.8rem !important; /* Increased from 2.2rem for mobile */
+      max-height: 2.8rem !important; /* Increased to match min-height */
+    }
+    
+    .card__information {
+      min-height: 7rem; /* Increased from 6rem for mobile */
+    }
+  }
+
+  /* Critical fix for title content visibility */
+  .card--app-style .card__heading {
+    min-height: 4.8rem !important; /* Updated to match our new styling */
+    margin-bottom: 0.7rem !important;
+    margin-top: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .card--app-style .card__heading .full-unstyled-link,
+  .card--app-style .card__heading span,
+  .card--app-style .card__heading a {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    min-height: 3.4rem !important; /* Updated to match our new styling */
+    max-height: 3.4rem !important; /* Updated to match our new styling */
+    width: 100% !important;
+    word-break: break-word !important;
+    color: white !important;
+    font-size: 1.8rem !important; /* Updated to our new larger size */
+    font-weight: 600 !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Updated to match our new styling */
+    letter-spacing: -0.01em !important; /* Updated to match our new styling */
+  }
+
+  .game-title {
+    font-size: 0.85rem !important;
+    color: rgba(212, 175, 55, 0.9) !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.3rem !important;
+    line-height: 1.2 !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .card--app-style .card__content {
+    padding: 1.2rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    background-color: #1a1a1a !important;
+    border-radius: 0 0 12px 12px !important;
+  }
+
+  .card--app-style .card__information {
+    min-height: 9rem !important; /* Adjusted to fit both game title and product title containers */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 0 !important;
+    justify-content: flex-start !important; /* Changed from space-between to ensure proper flow */
+  }
+
+  /* Game title styling */
+  .card.card--app-style .game-title {
+    font-size: 0.85rem !important;
+    color: rgba(212, 175, 55, 0.9) !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.3rem !important;
+    line-height: 1.2 !important;
+    display: block !important;
+  }
+
+  /* Add spacing between card elements */
+  .card.card--app-style .card__attributes--inline {
+    margin-top: auto !important; /* Push attributes to bottom */
+    padding-top: 0.5rem !important;
+  }
+
+  @media screen and (max-width: 749px) {
+    .card.card--app-style .card__content {
+      padding: 1rem !important; /* Slightly reduced padding for mobile */
+    }
+    
+    .card.card--app-style .card__information {
+      min-height: 8rem !important; /* Adjusted for mobile */
+    }
+    
+    .card.card--app-style .game-title {
+      font-size: 0.75rem !important;
+      margin-bottom: 0.25rem !important;
+    }
+    
+    .card.card--app-style .card__attributes--inline {
+      padding-top: 0.3rem !important;
+    }
+  }
+
+  /* Ensure price remains the same size */
+  .card--app-style .card__price-container {
+    margin-top: 0.3rem !important;
+    width: 100% !important;
+  }
+
+  .card--app-style .price .price-item {
+    font-size: 1.5rem !important; /* Preserved price size */
+    font-weight: 700 !important;
+    color: #d4af37 !important;
+  }
+
+  /* Reset conflicting styles */
+  .card__heading {
+    min-height: unset;
+    max-height: unset;
+  }
+
+  .card__heading .full-unstyled-link,
+  .card__heading span,
+  .card__heading a {
+    min-height: unset;
+    max-height: unset;
+  }
+
+  .card__information {
+    min-height: unset;
+  }
+
+  @media screen and (max-width: 749px) {
+    .card--app-style .card__heading {
+      min-height: 4.2rem !important; /* Increased for mobile */
+    }
+    
+    .card--app-style .card__heading .full-unstyled-link,
+    .card--app-style .card__heading span,
+    .card--app-style .card__heading a {
+      font-size: 1.25rem !important; /* Slightly increased for better readability */
+      min-height: 3.3rem !important; /* Increased from previous value */
+    }
+    
+    .game-title {
+      font-size: 0.75rem !important;
+      margin-bottom: 0.25rem !important;
+    }
+    
+    .card--app-style .card__content {
+      padding: 1rem !important; /* Slightly reduced padding for mobile */
+    }
+    
+    .card--app-style .card__information {
+      min-height: 7.5rem !important; /* Adjusted for mobile */
+    }
+    
+    .card--app-style .price .price-item {
+      font-size: 1.5rem !important; /* Keep price size consistent */
+    }
+  }
+
+  /* Most specific selectors to override any other styles */
+  .card.card--app-style .card__heading {
+    min-height: 4.2rem !important; /* Exact space for 2 rows of title */
+    margin-bottom: 0.7rem !important;
+    margin-top: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .card.card--app-style .card__heading .full-unstyled-link,
+  .card.card--app-style .card__heading span,
+  .card.card--app-style .card__heading a {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    height: 2.6rem !important; /* Fixed height for exactly 2 lines */
+    max-height: 2.6rem !important; /* Enforces 2 line maximum */
+    width: 100% !important;
+    word-break: break-word !important;
+    color: white !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Game title styling */
+  .card.card--app-style .game-title {
+    font-size: 0.85rem !important;
+    color: rgba(212, 175, 55, 0.9) !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.3rem !important;
+    line-height: 1.2 !important;
+    display: block !important;
+  }
+
+  .card.card--app-style .card__content {
+    padding: 1.2rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+    width: 100% !important;
+    background-color: #1a1a1a !important;
+    border-radius: 0 0 12px 12px !important;
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  .card.card--app-style .card__information {
+    min-height: 9.2rem !important; /* Increased to accommodate taller title */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+
+  /* Ensure price remains the same size */
+  .card.card--app-style .card__price-container {
+    margin-top: 0.5rem !important;
+    width: 100% !important;
+    position: relative !important;
+  }
+
+  .card.card--app-style .price .price-item {
+    font-size: 1.5rem !important; /* Preserved price size */
+    font-weight: 700 !important;
+    color: #d4af37 !important;
+    display: inline-block !important;
+  }
+
+  @media screen and (max-width: 749px) {
+    .card.card--app-style .card__heading {
+      min-height: 4.5rem !important; /* Increased for mobile */
+    }
+    
+    .card.card--app-style .card__heading .full-unstyled-link,
+    .card.card--app-style .card__heading span,
+    .card.card--app-style .card__heading a {
+      font-size: 1.25rem !important; /* Slightly increased for better readability */
+      min-height: 3.5rem !important; /* Increased from previous value */
+    }
+    
+    .card.card--app-style .game-title {
+      font-size: 0.75rem !important;
+      margin-bottom: 0.25rem !important;
+    }
+    
+    .card.card--app-style .card__content {
+      padding: 1rem !important; /* Slightly reduced padding for mobile */
+    }
+    
+    .card.card--app-style .card__information {
+      min-height: 8rem !important; /* Adjusted for mobile */
+    }
+  }
+
+  /* Card title and price styling improvements */
+  .card.card--app-style .card__heading {
+    min-height: 4.8rem !important; /* Updated to match our new styling */
+    margin-bottom: 0.7rem !important;
+    margin-top: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .card.card--app-style .card__heading .full-unstyled-link,
+  .card.card--app-style .card__heading span,
+  .card.card--app-style .card__heading a {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            line-height: 1.3 !important;
+    height: 3.4rem !important; /* Updated to match our new styling */
+    max-height: 3.4rem !important; /* Updated to match our new styling */
+    width: 100% !important;
+    word-break: break-word !important;
+    color: white !important;
+    font-size: 1.8rem !important; /* Updated to match our new styling */
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important; /* Updated to match our new styling */
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Updated to match our new styling */
+  }
+
+  @media screen and (max-width: 749px) {
+    .card.card--app-style .card__heading {
+      min-height: 4rem !important; /* Updated to match our new mobile styling */
+    }
+    
+    .card.card--app-style .card__heading .full-unstyled-link,
+    .card.card--app-style .card__heading span,
+    .card.card--app-style .card__heading a {
+      font-size: 1.5rem !important; /* Updated to match our new mobile styling */
+      height: 3rem !important; /* Updated to match our new mobile styling */
+      max-height: 3rem !important; /* Updated to match our new mobile styling */
+      line-height: 1.25 !important; /* Updated to match our new mobile styling */
+    }
+  }
+
+  /* Enhanced price display */
+  .card.card--app-style .card__price-container {
+    margin-top: 0.5rem !important;
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  .card.card--app-style .price .price-item {
+    font-size: 2.2rem !important; /* Significantly larger price */
+    font-weight: 700 !important;
+    color: #d4af37 !important; /* Gold color for prominence */
+    display: inline-block !important;
+    line-height: 1.2 !important;
+  }
+
+  .card.card--app-style .price-item--regular {
+    font-size: 1.8rem !important; /* Secondary price size */
+  }
+
+  .card.card--app-style .price {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .card.card--app-style .price--on-sale .price-item--regular {
+    text-decoration: line-through !important;
+    font-size: 1.5rem !important;
+    opacity: 0.8 !important;
+  }
+
+  .card.card--app-style .price--on-sale .price-item--sale {
+    color: #ff6b6b !important; /* Highlight sale price */
+  }
+
+  @media screen and (max-width: 749px) {
+    .card.card--app-style .card__heading {
+      min-height: 3.6rem !important;
+    }
+    
+    .card.card--app-style .card__heading .full-unstyled-link,
+    .card.card--app-style .card__heading span,
+    .card.card--app-style .card__heading a {
+      font-size: 0.9rem !important;
+      height: 2.3rem !important;
+      max-height: 2.3rem !important;
+    }
+    
+    .card.card--app-style .price .price-item {
+      font-size: 1.8rem !important; /* Still prominent but smaller for mobile */
+    }
+    
+    .card.card--app-style .price-item--regular {
+      font-size: 1.5rem !important;
+    }
+  }
+
+  /* UPDATED STYLES BELOW */
+  /* Enhanced price for maximum visibility */
+  .card.card--app-style .price .price-item {
+    font-size: 2.5rem !important; /* Further increased for maximum prominence */
+    font-weight: 800 !important; /* Extra bold */
+    color: #d4af37 !important; /* Gold color */
+    display: inline-block !important;
+    line-height: 1.2 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; /* Add slight shadow for emphasis */
+  }
+
+  /* Minor style adjustment for "From" prefix */
+  .card.card--app-style .price__prefix {
+    font-size: 1.8rem !important;
+    font-weight: 600 !important;
+    color: #d4af37 !important;
+    margin-right: 0.2rem !important;
+  }
+
+  /* Fix spacing for all product cards */
+  .product-grid {
+    row-gap: 1.5rem !important;
+  }
+
+  /* Support for "SALE" and "SOLD OUT" badges */
+  .card.card--app-style .badge {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    padding: 0.3rem 0.8rem !important;
+    border-radius: 2rem !important;
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    z-index: 5 !important;
+  }
+
+  @media screen and (max-width: 749px) {
+    .card.card--app-style .price .price-item {
+      font-size: 2rem !important; /* Still prominent but smaller for mobile */
+    }
+    
+    .card.card--app-style .price__prefix {
+      font-size: 1.5rem !important;
+    }
+  }
+
+  /* Card title styling with increased size but still smaller than price */
+  .card.card--app-style .card__heading .full-unstyled-link,
+  .card.card--app-style .card__heading span,
+  .card.card--app-style .card__heading a {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    height: 3.4rem !important; /* Increased for larger font size */
+    max-height: 3.4rem !important; /* Enforces 2 line maximum */
+    width: 100% !important;
+    word-break: break-word !important;
+    color: white !important;
+    font-size: 1.8rem !important; /* Significantly increased, but smaller than price (2.5rem) */
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important; /* Slightly tighter for better fit */
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Subtle shadow for better readability */
+  }
+
+  /* Card heading container update for larger title */
+  .card.card--app-style .card__heading {
+    min-height: 4.8rem !important; /* Increased to accommodate larger font */
+    margin-bottom: 0.7rem !important;
+    margin-top: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Adjust card information height */
+  .card.card--app-style .card__information {
+    min-height: 10rem !important; /* Increased to accommodate larger title */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 0 !important;
+    justify-content: space-between !important;
+  }
+
+  /* Responsive adjustments for mobile */
+  @media screen and (max-width: 749px) {
+    .card.card--app-style .card__heading {
+      min-height: 4rem !important; /* Adjusted for mobile */
+    }
+    
+    .card.card--app-style .card__heading .full-unstyled-link,
+    .card.card--app-style .card__heading span,
+    .card.card--app-style .card__heading a {
+      font-size: 1.5rem !important; /* Increased for mobile but still smaller than price (2rem) */
+      height: 3rem !important; /* Adjusted for mobile */
+      max-height: 3rem !important; /* Matched with height */
+      line-height: 1.25 !important; /* Slightly tighter line height for mobile */
+    }
+    
+    .card.card--app-style .card__information {
+      min-height: 8.5rem !important; /* Adjusted for mobile */
+    }
+  }
+
+  /* Card layout and structure */
+  /* ... existing styles ... */
+  
+  /* Game title container styling */
+  /* ... existing styles ... */
+  
+  /* Game title styling - keep existing styles */
+  .game-title {
+    font-size: 0.85rem !important;
+    color: rgba(212, 175, 55, 0.9) !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+    display: block !important;
+    width: 100% !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Product title styling */
+  .card__title {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    height: 3.4rem !important;
+    max-height: 3.4rem !important;
+    width: 100% !important;
+    word-break: break-word !important;
+    color: white !important;
+    font-size: 1.8rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important;
+  }
+  
+  /* Maintain card heading spacing but don't set height constraints on it */
+  .card.card--app-style .card__heading {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.7rem !important;
+    padding: 0 !important;
+  }
+  
+  /* Media queries */
+  @media screen and (max-width: 749px) {
+    .game-title {
+      font-size: 0.75rem !important;
+    }
+    
+    .card__title {
+      font-size: 1.5rem !important;
+      height: 3rem !important;
+      max-height: 3rem !important;
+      line-height: 1.25 !important;
+    }
+  }
+  
+  /* ... existing styles ... */
+
+  /* Game title container styling */
+  .card__game_title-container {
+    width: 100%;
+    margin-bottom: 0.3rem;
+    position: relative;
+    display: block;
+  }
+
+  /* Card content and information layout */
+  .card.card--app-style .card__content {
+    padding: 1.2rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+    width: 100% !important;
+    background-color: #1a1a1a !important;
+    border-radius: 0 0 12px 12px !important;
+  }
+
+  .card.card--app-style .card__information {
+    min-height: 9rem !important; /* Adjusted to fit both game title and product title containers */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    padding: 0 !important;
+    justify-content: flex-start !important; /* Changed from space-between to ensure proper flow */
+  }
+
+  /* Card heading (contains product title) */
+  .card.card--app-style .card__heading {
+    margin-bottom: 0.7rem !important;
+    margin-top: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  /* Full card title styles */
+  .card.card--app-style .card__title {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+    height: 3.4rem !important;
+    max-height: 3.4rem !important;
+    width: 100% !important;
+    word-break: break-word !important;
+    color: white !important;
+    font-size: 1.8rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important;
+  }
+
+  /* Game title styles */
+  .card.card--app-style .game-title {
+    font-size: 0.85rem !important;
+    color: rgba(212, 175, 55, 0.9) !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.3rem !important;
+    line-height: 1.2 !important;
+    display: block !important;
+  }
+
+  /* Mobile adjustments */
+  @media screen and (max-width: 749px) {
+    .card.card--app-style .card__information {
+      min-height: 8rem !important; /* Adjusted for mobile */
+    }
+    
+    .card.card--app-style .card__content {
+      padding: 1rem !important; /* Slightly reduced padding for mobile */
+    }
+    
+    .card.card--app-style .card__title {
+      font-size: 1.5rem !important;
+      height: 3rem !important;
+      max-height: 3rem !important;
+      line-height: 1.25 !important;
+    }
+    
+    .card.card--app-style .game-title {
+      font-size: 0.75rem !important;
+      margin-bottom: 0.25rem !important;
+    }
+  }
+
+    }
+  }
+
+  /* 
+   * HOVER EFFECTS: All hover effects have been consolidated to base.css
+   * See the "IMPORTANT: HOVER-EFFECT FOR ALL PRODUCT CARDS" section in base.css
+   * Do not add hover effects here to maintain a single source of truth.
+   */
+</style>
+
+<script>
+  }
+</style>
+
+<script>
+  // Single consolidated script for all card styling and fixes
+  document.addEventListener('DOMContentLoaded', function() {
+    // Immediately run badge setup for all cards
+    setupBadges();
+    
+    // Apply all card styling functions with a single pass to reduce DOM reflows
+    initializeCardStyles();
+    
+    // Apply title height adjustments
+    adjustTitleHeights();
+    
+    // Add window event listeners with debounce for performance
+    const resizeHandler = debounce(function() {
+      initializeCardStyles();
+      adjustTitleHeights();
+    }, 250);
+    
+    window.addEventListener('resize', resizeHandler);
+    window.addEventListener('load', function() {
+      initializeCardStyles();
+      adjustTitleHeights();
+    });
+    
+    // Helper function to debounce resize events
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+    
+    // Adjust card title heights to ensure consistent 2-line display
+    function adjustTitleHeights() {
+      // Style game title containers
+      document.querySelectorAll('.card__game_title-container').forEach(container => {
+        const gameTitle = container.querySelector('.game-title');
+        if (gameTitle) {
+          // Apply consistent styling
+          gameTitle.style.fontSize = window.innerWidth <= 749 ? '0.75rem' : '0.85rem';
+          gameTitle.style.color = 'rgba(212, 175, 55, 0.9)';
+          gameTitle.style.fontWeight = '500';
+          gameTitle.style.lineHeight = '1.2';
+          gameTitle.style.display = 'block';
+          gameTitle.style.width = '100%';
+          gameTitle.style.whiteSpace = 'nowrap';
+          gameTitle.style.overflow = 'hidden';
+          gameTitle.style.textOverflow = 'ellipsis';
+        }
+      });
+      
+      // Style product titles
+      document.querySelectorAll('.card__heading').forEach(heading => {
+        const titleElement = heading.querySelector('.card__title');
+        if (titleElement) {
+          // Set font size based on screen width
+          const isMobile = window.innerWidth <= 749;
+          
+          // Apply styling directly to ensure consistency
+          if (isMobile) {
+            titleElement.style.fontSize = '1.5rem';
+            titleElement.style.lineHeight = '1.25';
+            titleElement.style.height = '3rem';
+            titleElement.style.maxHeight = '3rem';
+          } else {
+            titleElement.style.fontSize = '1.8rem';
+            titleElement.style.lineHeight = '1.3';
+            titleElement.style.height = '3.4rem';
+            titleElement.style.maxHeight = '3.4rem';
+          }
+          
+          // Ensure proper text truncation for 2 lines
+          titleElement.style.display = '-webkit-box';
+          titleElement.style.webkitLineClamp = '2';
+          titleElement.style.webkitBoxOrient = 'vertical';
+          titleElement.style.overflow = 'hidden';
+          titleElement.style.textOverflow = 'ellipsis';
+          titleElement.style.letterSpacing = '-0.01em';
+          titleElement.style.textShadow = '0 1px 1px rgba(0,0,0,0.2)';
+          titleElement.style.wordBreak = 'break-word';
+          titleElement.style.width = '100%';
+        }
+      });
+    }
+    
+    // Set up badge containers
+    function setupBadges() {
+      document.querySelectorAll('.card').forEach(card => {
+        // Ensure badge container is set up correctly
+        const cardInner = card.querySelector('.card__inner');
+        if (cardInner) {
+          let badgeContainer = card.querySelector('.card__badge-container');
+          if (!badgeContainer) {
+            badgeContainer = document.createElement('div');
+            badgeContainer.className = 'card__badge-container';
+            cardInner.prepend(badgeContainer);
+          }
+          
+          // Ensure left badge container exists
+          let leftBadge = badgeContainer.querySelector('.card__badge--left');
+          if (!leftBadge) {
+            leftBadge = document.createElement('div');
+            leftBadge.className = 'card__badge card__badge--left';
+            badgeContainer.appendChild(leftBadge);
+          }
+          
+          // Ensure right badge container exists
+          let rightBadge = badgeContainer.querySelector('.card__badge--right');
+          if (!rightBadge) {
+            rightBadge = document.createElement('div');
+            rightBadge.className = 'card__badge card__badge--right';
+            badgeContainer.appendChild(rightBadge);
+          }
+        }
+      });
+    }
+    
+    // Move metatags to bottom of card
+    function moveMetatagsToBottom() {
+      document.querySelectorAll('.card__information').forEach(cardInfo => {
+        const attributes = cardInfo.querySelector('.card__attributes--inline');
+        if (attributes) {
+          // Move attributes to end of card info
+          cardInfo.appendChild(attributes);
+          
+          // Style attributes container
+          attributes.style.display = 'flex';
+          attributes.style.flexWrap = 'wrap';
+          attributes.style.gap = '0.25rem';
+          attributes.style.marginTop = '0.75rem';
+          attributes.style.marginBottom = '0';
+          attributes.style.fontSize = window.innerWidth < 749 ? '0.6rem' : '0.65rem';
+          attributes.style.color = 'rgba(212, 175, 55, 0.6)';
+          
+          // Game tag styling removed as it's no longer needed
+        }
+      });
+    }
+    
+    // Apply all card styling in a single pass to minimize DOM reflows
+    function initializeCardStyles() {
+      // Get shared values that depend on viewport width to avoid recomputation
+      const isMobile = window.innerWidth < 749;
+      const isDesktop = window.innerWidth >= 990;
+      
+      const mobilePadding = '0.75rem 0.75rem 1rem';
+      const tabletPadding = '0.9rem 0.9rem 1.1rem';
+      const desktopPadding = '1rem 1rem 1.25rem';
+      
+      const mobileHeadingSize = '1.3rem';
+      const tabletHeadingSize = '1.4rem';
+      const desktopHeadingSize = '1.5rem';
+      
+      const mobilePriceSize = '1.5rem';
+      const tabletPriceSize = '1.55rem';
+      const desktopPriceSize = '1.6rem';
+      
+      document.querySelectorAll('.card').forEach(cardElement => {
+        // Apply app-style class
+        cardElement.classList.add('card--app-style');
+        
+        // Process the card's complete styling in a single pass
+        applyCardContainerStyles(cardElement, isMobile, isDesktop);
+        applyMediaStyles(cardElement);
+        applyBadgeStyles(cardElement, isMobile);
+        applyContentStyles(cardElement, isMobile, isDesktop, mobilePadding, tabletPadding, desktopPadding);
+        applyTextStyles(cardElement, isMobile, isDesktop, mobileHeadingSize, tabletHeadingSize, desktopHeadingSize);
+        applyPriceStyles(cardElement, isMobile, isDesktop, mobilePriceSize, tabletPriceSize, desktopPriceSize);
+        
+        // Process badges
+        const cardWrapper = cardElement.closest('.card-wrapper.card-link-wrapper') || cardElement.closest('.card-link-wrapper');
+        if (cardWrapper) {
+          processBadges(cardElement, cardWrapper);
+        }
+      });
+      
+      // Move metatags to the bottom in a separate pass (if needed)
+      moveMetatagsToBottom();
+    }
+    
+    // Apply styles to the card container
+    function applyCardContainerStyles(cardElement, isMobile, isDesktop) {
+      cardElement.style.display = 'flex';
+      cardElement.style.flexDirection = 'column';
+      cardElement.style.height = '100%';
+      cardElement.style.borderRadius = '12px';
+              cardElement.style.overflow = 'visible';
+      
+      const cardInner = cardElement.querySelector('.card__inner');
+      if (cardInner) {
+        cardInner.style.flex = '0 0 auto';
+        cardInner.style.position = 'relative';
+        cardInner.style.height = '0';
+        cardInner.style.paddingBottom = '100%';
+        cardInner.style.width = '100%';
+        cardInner.style.overflow = 'hidden';
+        cardInner.style.borderRadius = '12px 12px 0 0';
+      }
+    }
+    
+    // Apply media container styles
+    function applyMediaStyles(cardElement) {
+      const mediaContainer = cardElement.querySelector('.card__media');
+            if (mediaContainer) {
+        mediaContainer.style.height = '100%';
+        mediaContainer.style.position = 'absolute';
+        mediaContainer.style.top = '0';
+        mediaContainer.style.left = '0';
+        mediaContainer.style.width = '100%';
+        mediaContainer.style.borderRadius = '12px 12px 0 0';
+        mediaContainer.style.overflow = 'hidden';
+        mediaContainer.style.border = '1px solid rgba(212, 175, 55, 0.3)';
+        mediaContainer.style.borderBottom = 'none';
+        mediaContainer.style.transition = 'border-color 0.25s ease, box-shadow 0.25s ease';
+      }
+    }
+    
+    // Apply badge styling
+    function applyBadgeStyles(cardElement, isMobile) {
+      const badgeContainers = cardElement.querySelectorAll('.card__badge--left, .card__badge--right');
+      badgeContainers.forEach(badgeContainer => {
+        badgeContainer.style.top = isMobile ? '0.5rem' : '0.75rem';
+        badgeContainer.style.gap = isMobile ? '0.3rem' : '0.5rem';
+        
+        if (badgeContainer.classList.contains('card__badge--left')) {
+          badgeContainer.style.left = isMobile ? '0.5rem' : '0.75rem';
+        } else {
+          badgeContainer.style.right = isMobile ? '0.5rem' : '0.75rem';
+        }
+      });
+      
+      // Apply styling to badges
+      const badges = cardElement.querySelectorAll('.product-badge');
+      badges.forEach(badge => {
+        styleBadge(badge, isMobile);
+      });
+    }
+    
+    // Apply content area styles
+    function applyContentStyles(cardElement, isMobile, isDesktop, mobilePadding, tabletPadding, desktopPadding) {
+      const contentElement = cardElement.querySelector('.card__content');
+      if (contentElement) {
+        contentElement.style.flex = '0 0 auto';
+        contentElement.style.position = 'relative';
+        contentElement.style.display = 'block';
+        contentElement.style.visibility = 'visible';
+        contentElement.style.backgroundColor = '#1a1a1a';
+        contentElement.style.padding = isMobile 
+          ? mobilePadding 
+          : (isDesktop ? desktopPadding : tabletPadding);
+        contentElement.style.borderRadius = '0 0 12px 12px';
+        contentElement.style.width = '100%';
+        contentElement.style.zIndex = '2';
+        contentElement.style.marginTop = '-1px';
+        contentElement.style.border = '1px solid rgba(212, 175, 55, 0.3)';
+        contentElement.style.borderTop = 'none';
+      }
+      
+        }
+        
+        // Fix media container corners
+        const mediaContainer = card.querySelector('.card__media');
+        if (mediaContainer) {
+          mediaContainer.style.borderRadius = '12px 12px 0 0';
+          mediaContainer.style.overflow = 'hidden';
+          mediaContainer.style.border = '1px solid rgba(212, 175, 55, 0.3)';
+          mediaContainer.style.borderBottom = 'none'; // Remove bottom border to eliminate gap
+        }
+        
+        // Fix content area corners and connection
+        const contentElement = card.querySelector('.card__content');
+        if (contentElement) {
+          contentElement.style.borderRadius = '0 0 12px 12px';
+          contentElement.style.marginTop = '-1px'; // Critical for removing the gap
+          contentElement.style.border = '1px solid rgba(212, 175, 55, 0.3)';
+          contentElement.style.borderTop = 'none'; // Remove top border to eliminate gap
+        }
+        
+        // Fix media element corners
+        const mediaElement = card.querySelector('.media');
+        if (mediaElement) {
+          mediaElement.style.borderRadius = '12px 12px 0 0';
+          mediaElement.style.overflow = 'hidden';
+        }
+      });
+    }
+    
+    // Apply app-style card design to all products
+    function applyAppStyleCardDesign() {
+      document.querySelectorAll('.card').forEach(card => {
+        // Add app-style class to all cards
+        card.classList.add('card--app-style');
+        
+        // Ensure image container maintains aspect ratio and fills
+        const imageContainer = card.querySelector('.card__media');
+        if (imageContainer) {
+          imageContainer.style.height = '100%';
+          imageContainer.style.position = 'absolute';
+          imageContainer.style.top = '0';
+          imageContainer.style.left = '0';
+          imageContainer.style.width = '100%';
+          imageContainer.style.borderRadius = '12px 12px 0 0'; // Ensure bottom corners are square
+        }
+        
+        // Create badge containers and overlays if they don't exist
+        const cardInner = card.querySelector('.card__inner');
+        if (cardInner) {
+          cardInner.style.borderRadius = '12px 12px 0 0'; // Ensure bottom corners are square
+          
+          let badgeContainer = card.querySelector('.card__badge-container');
+          if (!badgeContainer) {
+            badgeContainer = document.createElement('div');
+            badgeContainer.className = 'card__badge-container';
+            cardInner.prepend(badgeContainer);
+            
+            // Create left and right badge containers
+            const leftBadge = document.createElement('div');
+            leftBadge.className = 'card__badge card__badge--left';
+            badgeContainer.appendChild(leftBadge);
+            
+            const rightBadge = document.createElement('div');
+            rightBadge.className = 'card__badge card__badge--right';
+            badgeContainer.appendChild(rightBadge);
+          }
+        }
+        
+        // Ensure content area is visible and properly styled
+        const contentElement = card.querySelector('.card__content');
+        if (contentElement) {
+          contentElement.style.display = 'block';
+          contentElement.style.visibility = 'visible';
+          contentElement.style.backgroundColor = '#1a1a1a';
+          contentElement.style.color = 'white';
+          contentElement.style.padding = window.innerWidth < 749 
+            ? '0.75rem 0.75rem 1rem' 
+            : (window.innerWidth >= 990 ? '1rem 1rem 1.25rem' : '0.9rem 0.9rem 1.1rem');
+          contentElement.style.borderRadius = '0 0 12px 12px';
+          contentElement.style.zIndex = '2';
+          contentElement.style.position = 'relative';
+          contentElement.style.width = '100%';
+          contentElement.style.marginTop = '-1px'; // Ensure seamless connection to image
+        }
+        
+        // Make sure heading is visible and font size is larger
+        const headingElement = card.querySelector('.card__heading');
+        if (headingElement) {
+          headingElement.style.display = 'block';
+          headingElement.style.visibility = 'visible';
+          headingElement.style.color = 'white';
+          headingElement.style.fontSize = window.innerWidth < 749 
+            ? '1.25rem' // Increased from 1.1rem for mobile
+            : (window.innerWidth >= 990 
+              ? '1.4rem' // Increased from 1.2rem for desktop
+              : '1.3rem'); // Increased from 1.15rem for tablet
+          headingElement.style.marginBottom = window.innerWidth < 749 ? '0.3rem' : '0.5rem';
+          headingElement.style.lineHeight = '1.3';
+          
+          const titleLink = headingElement.querySelector('.full-unstyled-link');
+          if (titleLink) {
+            titleLink.style.color = 'white';
+            titleLink.style.display = 'block';
+            titleLink.style.visibility = 'visible';
+            titleLink.style.fontSize = window.innerWidth < 749 
+              ? '1.25rem' // Increased from 1.1rem for mobile
+              : (window.innerWidth >= 990 
+                ? '1.4rem' // Increased from 1.2rem for desktop
+                : '1.3rem'); // Increased from 1.15rem for tablet
+            titleLink.style.lineHeight = '1.3';
+          }
+        }
+        
+        // Make sure price font size is larger
+        const priceElement = card.querySelector('.price .price-item');
+        if (priceElement) {
+          priceElement.style.fontSize = window.innerWidth < 749 
+            ? '1.6rem' // Increased from 1.4rem for mobile
+            : (window.innerWidth >= 990 
+              ? '1.5rem' // Increased from 1.3rem for desktop
+              : '1.45rem'); // Increased from 1.35rem for tablet
+          priceElement.style.fontWeight = '700';
+          priceElement.style.color = '#d4af37';
+        }
+        
+        // Style attributes to be less prominent
+        const attributesElement = card.querySelector('.card__attributes--inline');
+        if (attributesElement) {
+          attributesElement.style.display = 'flex';
+          attributesElement.style.color = 'rgba(212, 175, 55, 0.6)';
+          attributesElement.style.marginTop = '0.75rem';
+          attributesElement.style.marginBottom = '0';
+          attributesElement.style.fontSize = window.innerWidth < 749 ? '0.6rem' : '0.65rem';
+          attributesElement.style.gap = '0.1rem';
+          
+          // Style attribute labels
+          const labels = attributesElement.querySelectorAll('.attribute-label');
+          labels.forEach(label => {
+            label.style.opacity = '0.6';
+            label.style.minWidth = window.innerWidth < 749 ? '9px' : '10px';
+            label.style.marginRight = '0.1rem';
+          });
+          
+          // Style attribute values
+          const values = attributesElement.querySelectorAll('.attribute-value');
+          values.forEach(value => {
+            value.style.fontSize = window.innerWidth < 749 ? '0.6rem' : '0.65rem';
+          });
+          
+          // Style separators
+          const separators = attributesElement.querySelectorAll('.attribute-separator');
+          separators.forEach(separator => {
+            separator.style.opacity = '0.6';
+            separator.style.padding = '0 0.1rem';
+          });
+        }
+        
+        // Process badges
+        const cardWrapper = card.closest('.card-wrapper.card-link-wrapper') || card.closest('.card-link-wrapper');
+        if (cardWrapper) {
+          // Process existing badges from data
+          processBadges(card, cardWrapper);
+          
+          // Apply consistent styling to all badges
+          const allBadges = card.querySelectorAll('.product-badge');
+          allBadges.forEach(badge => {
+            styleBadge(badge);
+          });
+        }
+      });
+    }
+  });
+
+  // Ensure titles display correctly with enough height
+  document.addEventListener('DOMContentLoaded', function() {
+    // Function to adjust card title heights
+    function fixCardTitles() {
+      document.querySelectorAll('.card__heading').forEach(function(heading) {
+        // Fix the title container height
+        heading.style.minHeight = '5rem';
+        
+        // Find the title element
+        const titleElement = heading.querySelector('.full-unstyled-link, span, a');
+        if (titleElement) {
+          // Ensure we have sufficient height for two lines of text
+          titleElement.style.display = '-webkit-box';
+          titleElement.style.webkitLineClamp = '2';
+          titleElement.style.webkitBoxOrient = 'vertical';
+          titleElement.style.overflow = 'hidden';
+          titleElement.style.textOverflow = 'ellipsis';
+          titleElement.style.lineHeight = '1.3';
+          titleElement.style.minHeight = '3.9rem';
+          titleElement.style.maxHeight = 'none'; // Remove max-height constraint
+          
+          // Adjust for mobile
+          if (window.innerWidth <= 749) {
+            heading.style.minHeight = '4.2rem';
+            titleElement.style.minHeight = '3.3rem';
+          }
+        }
+      });
+    }
+    
+    // Run on page load
+    fixCardTitles();
+    
+    // Run again on window resize for responsiveness
+    window.addEventListener('resize', function() {
+      fixCardTitles();
+    });
+  });
+
+  // Ensure title and price display consistently
+  document.addEventListener('DOMContentLoaded', function() {
+    // Apply consistent styling to product cards
+    function enhanceProductCards() {
+      // Fix title display to exactly 2 lines
+      document.querySelectorAll('.card.card--app-style .card__heading').forEach(function(heading) {
+        const titleElement = heading.querySelector('.full-unstyled-link, span, a');
+        if (titleElement) {
+          // Ensure we enforce 2-line display
+          if (window.innerWidth <= 749) {
+            // Mobile adjustments
+            titleElement.style.fontSize = '0.9rem';
+            titleElement.style.height = '2.3rem';
+            titleElement.style.maxHeight = '2.3rem';
+          } else {
+            // Desktop settings
+            titleElement.style.fontSize = '1rem';
+            titleElement.style.height = '2.6rem';
+            titleElement.style.maxHeight = '2.6rem';
+          }
+        }
+      });
+      
+      // Enhance price visibility
+      document.querySelectorAll('.card.card--app-style .price .price-item').forEach(function(price) {
+        if (window.innerWidth <= 749) {
+          price.style.fontSize = '2rem';
+      } else {
+          price.style.fontSize = '2.5rem';
+        }
+        price.style.fontWeight = '800';
+        price.style.color = '#d4af37';
+        price.style.textShadow = '0 1px 2px rgba(0,0,0,0.3)';
+      });
+    }
+    
+    // Apply immediately
+    enhanceProductCards();
+    
+    // Re-apply on window resize for responsiveness
+    window.addEventListener('resize', function() {
+      enhanceProductCards();
+    });
+    
+    // Also apply on any dynamic content changes
+    const observer = new MutationObserver(function() {
+      enhanceProductCards();
+    });
+    
+    // Observe the product grid for changes
+    const productGrid = document.querySelector('.product-grid');
+    if (productGrid) {
+      observer.observe(productGrid, { childList: true, subtree: true });
+    }
+  });
+
+  // ... existing code ...
+    // Apply text styles to card elements
+    function applyTextStyles(cardElement, isMobile, isDesktop, mobileHeadingSize, tabletHeadingSize, desktopHeadingSize) {
+      // Style game title container if it exists
+      const gameTitleContainer = cardElement.querySelector('.card__game_title-container');
+      if (gameTitleContainer) {
+        gameTitleContainer.style.width = '100%';
+        gameTitleContainer.style.marginBottom = '0.3rem';
+        gameTitleContainer.style.position = 'relative';
+        gameTitleContainer.style.display = 'block';
+        
+        // Style game title
+        const gameTitle = gameTitleContainer.querySelector('.game-title');
+        if (gameTitle) {
+          gameTitle.style.fontSize = isMobile ? '0.75rem' : '0.85rem';
+          gameTitle.style.color = 'rgba(212, 175, 55, 0.9)';
+          gameTitle.style.fontWeight = '500';
+          gameTitle.style.lineHeight = '1.2';
+          gameTitle.style.display = 'block';
+          gameTitle.style.width = '100%';
+          gameTitle.style.whiteSpace = 'nowrap';
+          gameTitle.style.overflow = 'hidden';
+          gameTitle.style.textOverflow = 'ellipsis';
+        }
+      }
+      
+      // Style product title
+      const headingElement = cardElement.querySelector('.card__heading');
+      if (headingElement) {
+        headingElement.style.marginTop = '0';
+        headingElement.style.marginBottom = '0.7rem';
+        headingElement.style.width = '100%';
+        headingElement.style.display = 'block';
+        headingElement.style.overflow = 'visible';
+        
+        // Style title element
+        const titleElement = headingElement.querySelector('.card__title');
+        if (titleElement) {
+          titleElement.style.display = '-webkit-box';
+          titleElement.style.webkitLineClamp = '2';
+          titleElement.style.webkitBoxOrient = 'vertical';
+          titleElement.style.overflow = 'hidden';
+          titleElement.style.textOverflow = 'ellipsis';
+          titleElement.style.letterSpacing = '-0.01em';
+          titleElement.style.textShadow = '0 1px 1px rgba(0,0,0,0.2)';
+          titleElement.style.wordBreak = 'break-word';
+          titleElement.style.width = '100%';
+        }
+      }
+    }
+  });
+</script>

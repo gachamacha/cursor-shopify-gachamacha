@@ -1,0 +1,106 @@
+{% comment %}
+  Custom CSS styling for the menu drawer to match the site theme
+  
+  Usage:
+  {% render 'custom-menu-drawer-style' %}
+{% endcomment %}
+
+<style>
+  /* Enhanced styling for the menu drawer */
+  .menu-drawer {
+    background: linear-gradient(to bottom, rgba(25, 25, 25, 0.95), rgba(18, 18, 18, 0.98)) !important;
+    color: #f0d080 !important;
+    border-right: 1px solid rgba(208, 175, 55, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  /* Hamburger icon styling */
+  .header__icon--menu .icon-hamburger {
+    fill: #f0d080 !important;
+  }
+  
+  /* Menu item styling */
+  .menu-drawer__menu-item {
+    color: #f0d080 !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  /* Hover effect for menu items */
+  .menu-drawer__menu-item:hover {
+    background-color: rgba(240, 208, 128, 0.1);
+    color: #ffffff !important;
+  }
+  
+  /* Active menu item */
+  .menu-drawer__menu-item--active {
+    background-color: rgba(240, 208, 128, 0.15);
+    font-weight: 600;
+  }
+  
+  /* Close button styling */
+  .menu-drawer__close-button {
+    color: #f0d080 !important;
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(240, 208, 128, 0.2);
+    margin-bottom: 1rem;
+  }
+  
+  /* Arrow icon styling */
+  .menu-drawer__menu-item .svg-wrapper svg, 
+  .menu-drawer__close-button .svg-wrapper svg {
+    color: #f0d080 !important;
+    transition: all 0.2s ease;
+  }
+  
+  /* Collection icon styling */
+  .menu-drawer__collection-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(240, 208, 128, 0.3);
+  }
+  
+  /* Submenu background */
+  .menu-drawer__submenu {
+    background: linear-gradient(to bottom, rgba(28, 28, 28, 0.98), rgba(25, 25, 25, 0.98)) !important;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 1px solid rgba(208, 175, 55, 0.15);
+  }
+  
+  /* Account icon styling */
+  .menu-drawer__account svg {
+    fill: #f0d080 !important;
+  }
+  
+  /* Social icons */
+  .list-social__link svg {
+    fill: #f0d080 !important;
+    transition: all 0.2s ease;
+  }
+  
+  .list-social__link:hover svg {
+    fill: #ffffff !important;
+  }
+  
+  /* Icon rotation animation for menu toggles */
+  .menu-drawer__menu-item[aria-expanded="true"] .icon-arrow {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease;
+  }
+  
+  /* Add a subtle gold glow to active menu items */
+  .menu-drawer__menu-item:active,
+  .menu-drawer__menu-item:focus {
+    box-shadow: 0 0 0 2px rgba(240, 208, 128, 0.3);
+    outline: none;
+  }
+</style> 

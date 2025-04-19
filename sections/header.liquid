@@ -1,0 +1,1304 @@
+{% render 'custom-menu-drawer-style' %}
+
+<link rel="stylesheet" href="{{ 'component-list-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-cart-notification.css' | asset_url }}" media="print" onload="this.media='all'">
+
+{%- if settings.predictive_search_enabled -%}
+  <link rel="stylesheet" href="{{ 'component-price.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+{%- if section.settings.menu_type_desktop == 'mega' -%}
+  <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+
+<style>
+  /* Global header positioning fix */
+  .shopify-section-header-sticky,
+  sticky-header,
+  sticky-header.header-wrapper,
+  #shopify-section-sections--16891912388778__header > sticky-header,
+  .section-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    width: 100%;
+    transition: transform 0.3s ease, background-color 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease !important;
+    backdrop-filter: blur(10px);
+  }
+  
+  /* Extra specificity to ensure stickiness */
+  html body sticky-header,
+  html body .shopify-section-header-sticky,
+  html body sticky-header.header-wrapper,
+  html body #shopify-section-sections--16891912388778__header > sticky-header,
+  html body .section-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    width: 100%;
+  }
+  
+  /* Mobile-specific sticky header rules */
+  @media screen and (max-width: 990px) {
+    html body sticky-header,
+    .shopify-section-header-sticky,
+    sticky-header.header-wrapper,
+    #shopify-section-sections--16891912388778__header > sticky-header,
+    .section-header {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 999 !important; /* Higher z-index for mobile to prevent overlapping */
+      width: 100%;
+      height: auto; /* Ensure height is not constrained */
+      max-height: none; /* Remove any max-height constraints */
+    }
+    
+    /* Fix for potential parent element issues */
+    .shopify-section[data-section-type="header"] {
+      position: relative !important;
+      z-index: 999 !important;
+    }
+  }
+  
+  /* Ensure consistent styling across page types */
+  :root {
+    --header-position: fixed;
+    --header-background-transparent: transparent;
+    --header-background-dark: rgba(18, 18, 18, 0.9);
+  }
+
+  .header-wrapper,
+  .header {
+    background: transparent;
+    transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* High specificity for transparent background to ensure it's not overridden */
+  html body .header-transparent-background,
+  body .header-transparent-background,
+  .shopify-section-header-sticky.header-transparent-background,
+  .section-header.header-transparent-background {
+    background-color: var(--header-background-transparent) !important;
+    box-shadow: none !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+  }
+  
+  /* High specificity for dark background to ensure it's not overridden */
+  html body .header-dark-background,
+  body .header-dark-background,
+  .shopify-section-header-sticky.header-dark-background,
+  .section-header.header-dark-background {
+    background-color: var(--header-background-dark) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+  }
+
+  /* Ensure collection pages have same styling */
+  .template-collection .header-transparent-background,
+  html.is-collection-page .header-transparent-background {
+    background-color: var(--header-background-transparent) !important;
+    box-shadow: none !important;
+  }
+
+  .template-collection .header-dark-background,
+  html.is-collection-page .header-dark-background {
+    background-color: var(--header-background-dark) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  header-drawer {
+    justify-self: start;
+    margin-left: -1.2rem;
+  }
+
+  {%- if section.settings.sticky_header_type == 'reduce-logo-size' -%}
+    .scrolled-past-header .header__heading-logo-wrapper {
+      width: 75%;
+      transition: width 0.3s ease;
+    }
+  {%- endif -%}
+
+  {%- if section.settings.menu_type_desktop != "drawer" -%}
+    @media screen and (min-width: 990px) {
+      header-drawer {
+        display: none;
+      }
+    }
+  {%- endif -%}
+
+  .menu-drawer-container {
+    display: flex;
+  }
+
+  .list-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .list-menu--inline {
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  summary.list-menu__item {
+    padding-right: 2.7rem;
+  }
+
+  .list-menu__item {
+    display: flex;
+    align-items: center;
+    line-height: calc(1 + 0.3 / var(--font-body-scale));
+  }
+
+  .list-menu__item--link {
+    text-decoration: none;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+    line-height: calc(1 + 0.8 / var(--font-body-scale));
+  }
+
+  @media screen and (min-width: 750px) {
+    .list-menu__item--link {
+      padding-bottom: 0.5rem;
+      padding-top: 0.5rem;
+    }
+  }
+
+  /* Smooth animations for header states */
+  .shopify-section-header-sticky {
+    transform: translateY(0);
+    transition: transform 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important; /* Ensure this is higher than any other elements on the page */
+  }
+  
+  .shopify-section-header-hidden {
+    transform: translateY(-100%);
+    transition: transform 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+  }
+  
+  /* Add padding to body to account for fixed header */
+  body {
+    padding-top: var(--header-height, 80px);
+  }
+  
+  /* Ensure consistent sticky behavior across all page types */
+  html {
+    scroll-padding-top: var(--header-height, 80px);
+  }
+
+  /* Specific fix for collection pages */
+  .template-collection .shopify-section-header-sticky,
+  .template-collection .section-header,
+  html.is-collection-page .shopify-section-header-sticky,
+  html.is-collection-page .section-header,
+  .section-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  /* Ensure the header wrapper maintains fixed positioning */
+  .header-wrapper {
+    position: relative;
+    z-index: 50 !important;
+  }
+
+  /* High specificity selectors to ensure sticky behavior */
+  body .section-header,
+  html body .section-header,
+  .shopify-section .section-header,
+  #shopify-section-sections--16891912388778__header .section-header,
+  .shopify-section-header-sticky.section-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  .header {
+    padding: {{ section.settings.padding_top | times: 0.5 | round: 0 }}px 3rem {{ section.settings.padding_bottom | times: 0.5 | round: 0 }}px 3rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .section-header {
+    position: fixed !important; /* Use fixed directly */
+    margin-bottom: {{ section.settings.margin_bottom | times: 0.75 | round: 0 }}px;
+    z-index: 50 !important; /* Match z-index with shopify-section-header-sticky */
+  }
+</style>
+
+{%- style -%}
+  /* High specificity selectors to ensure sticky behavior */
+  body .section-header,
+  html body .section-header,
+  .shopify-section .section-header,
+  #shopify-section-sections--16891912388778__header .section-header,
+  .shopify-section-header-sticky.section-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  /* Additional sticky header selectors with high specificity */
+  html body sticky-header,
+  body #shopify-section-sections--16891912388778__header > sticky-header,
+  .shopify-section-header-sticky sticky-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    width: 100%;
+  }
+  
+  /* Mobile specific fixes */
+  @media screen and (max-width: 990px) {
+    html body sticky-header,
+    body .shopify-section-header-sticky,
+    body #shopify-section-sections--16891912388778__header > sticky-header,
+    body .section-header {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 999 !important;
+    }
+  }
+
+  .header {
+    padding: {{ section.settings.padding_top | times: 0.5 | round: 0 }}px 3rem {{ section.settings.padding_bottom | times: 0.5 | round: 0 }}px 3rem;
+  }
+
+  .section-header {
+    position: fixed !important; /* Use fixed directly */
+    margin-bottom: {{ section.settings.margin_bottom | times: 0.75 | round: 0 }}px;
+    z-index: 50 !important; /* Match z-index with shopify-section-header-sticky */
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-header {
+      margin-bottom: {{ section.settings.margin_bottom }}px;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .header {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<script src="{{ 'cart-notification.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  for block in section.blocks
+    if block.type == '@app'
+      assign has_app_block = true
+    endif
+  endfor
+-%}
+
+<{% if section.settings.sticky_header_type != 'none' %}sticky-header data-sticky-type="{{ section.settings.sticky_header_type }}"{% else %}div data-sticky-type="none"{% endif %} class="header-wrapper{% if section.settings.show_line_separator %} header-wrapper--border-bottom{% endif %}">
+  {%- liquid
+    assign social_links = false
+    assign localization_forms = false
+
+    if settings.social_twitter_link != blank or settings.social_facebook_link != blank or settings.social_pinterest_link != blank or settings.social_instagram_link != blank or settings.social_youtube_link != blank or settings.social_vimeo_link != blank or settings.social_tiktok_link != blank or settings.social_tumblr_link != blank or settings.social_snapchat_link != blank
+      assign social_links = true
+    endif
+
+    if localization.available_countries.size > 1 and section.settings.enable_country_selector or section.settings.enable_language_selector and localization.available_languages.size > 1
+      assign localization_forms = true
+    endif
+  -%}
+  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
+    {%- liquid
+      if section.settings.menu != blank
+        render 'header-drawer'
+      endif
+
+      if section.settings.logo_position == 'top-center' or section.settings.menu == blank
+        render 'header-search', input_id: 'Search-In-Modal-1'
+      endif
+    -%}
+
+    {%- if section.settings.logo_position != 'middle-center' -%}
+      {%- if request.page_type == 'index' -%}
+        <h1 class="header__heading">
+      {%- endif -%}
+          <a href="{{ routes.root_url }}" class="header__heading-link link link--text focus-inset">
+            {%- if settings.logo != blank -%}
+              <div class="header__heading-logo-wrapper">
+                {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+                {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+                {% capture sizes %}(max-width: {{ settings.logo_width | times: 2 }}px) 50vw, {{ settings.logo_width }}px{% endcapture %}
+                {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
+                {{ settings.logo | image_url: width: 600 | image_tag:
+                  class: 'header__heading-logo motion-reduce',
+                  widths: widths,
+                  height: logo_height,
+                  width: settings.logo_width,
+                  alt: logo_alt,
+                  sizes: sizes,
+                  preload: true
+                }}
+              </div>
+            {%- else -%}
+              <span class="h2">{{ shop.name }}</span>
+            {%- endif -%}
+          </a>
+      {%- if request.page_type == 'index' -%}
+        </h1>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- liquid
+      if section.settings.menu != blank
+        if section.settings.menu_type_desktop == 'dropdown'
+          render 'header-dropdown-menu'
+        elsif section.settings.menu_type_desktop != 'drawer'
+          render 'header-mega-menu'
+        endif
+      endif
+    %}
+
+    {%- if section.settings.logo_position == 'middle-center' -%}
+      {%- if request.page_type == 'index' -%}
+        <h1 class="header__heading">
+      {%- endif -%}
+          <a href="{{ routes.root_url }}" class="header__heading-link link link--text focus-inset">
+            {%- if settings.logo != blank -%}
+              <div class="header__heading-logo-wrapper">
+                {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+                {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+                {% capture sizes %}(min-width: 750px) {{ settings.logo_width }}px, 50vw{% endcapture %}
+                {% capture widths %}{{ settings.logo_width }}, {{ settings.logo_width | times: 1.5 | round }}, {{ settings.logo_width | times: 2 }}{% endcapture %}
+                {{ settings.logo | image_url: width: 600 | image_tag:
+                  class: 'header__heading-logo',
+                  widths: widths,
+                  height: logo_height,
+                  width: settings.logo_width,
+                  alt: logo_alt,
+                  sizes: sizes,
+                  preload: true
+                }}
+              </div>
+            {%- else -%}
+              <span class="h2">{{ shop.name }}</span>
+            {%- endif -%}
+          </a>
+      {%- if request.page_type == 'index' -%}
+        </h1>
+      {%- endif -%}
+    {%- endif -%}
+
+    <div class="header__icons{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} header__icons--localization header-localization{% endif %}">
+      <div class="desktop-localization-wrapper">
+        {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+          <localization-form class="small-hide medium-hide" data-prevent-hide>
+            {%- form 'localization', id: 'HeaderCountryForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="visually-hidden" id="HeaderCountryLabel">{{ 'localization.country_label' | t }}</h2>
+                {%- render 'country-localization', localPosition: 'HeaderCountry' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {% endif %}
+
+        {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+          <localization-form class="small-hide medium-hide" data-prevent-hide>
+            {%- form 'localization', id: 'HeaderLanguageForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="visually-hidden" id="HeaderLanguageLabel">{{ 'localization.language_label' | t }}</h2>
+                {%- render 'language-localization', localPosition: 'HeaderLanguage' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {%- endif -%}
+      </div>
+      {% render 'header-search', input_id: 'Search-In-Modal' %}
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a
+          href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+          class="header__icon header__icon--account link focus-inset{% if section.settings.menu != blank %} small-hide{% endif %}"
+          rel="nofollow"
+        >
+          {%- if section.settings.enable_customer_avatar -%}
+            <account-icon>
+              {%- if customer and customer.has_avatar? -%}
+                {{ customer | avatar }}
+              {%- else -%}
+                <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+              {%- endif -%}
+            </account-icon>
+          {%- else -%}
+            <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+          {%- endif -%}
+          <span class="visually-hidden">
+            {%- liquid
+              if customer
+                echo 'customer.account_fallback' | t
+              else
+                echo 'customer.log_in' | t
+              endif
+            -%}
+          </span>
+        </a>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            {% render block %}
+        {%- endcase -%}
+      {%- endfor -%}
+
+      <a href="{{ routes.cart_url }}" class="header__icon header__icon--cart link focus-inset" id="cart-icon-bubble">
+          {% if cart == empty %}
+            <span class="svg-wrapper">{{'icon-cart-empty.svg' | inline_asset_content }}</span>
+          {% else %}
+            <span class="svg-wrapper">{{'icon-cart.svg' | inline_asset_content }}</span>
+          {% endif %}
+        <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+        {%- if cart != empty -%}
+          <div class="cart-count-bubble">
+            {%- if cart.item_count < 100 -%}
+              <span aria-hidden="true">{{ cart.item_count }}</span>
+            {%- endif -%}
+            <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+          </div>
+        {%- endif -%}
+      </a>
+    </div>
+  </header>
+</{% if section.settings.sticky_header_type != 'none' %}sticky-header{% else %}div{% endif %}>
+
+{%- if settings.cart_type == "notification" -%}
+  {%- render 'cart-notification', color_scheme: section.settings.color_scheme, desktop_menu_type: section.settings.menu_type_desktop -%}
+{%- endif -%}
+
+{% javascript %}
+  class StickyHeader extends HTMLElement {
+    constructor() {
+      super();
+      this.isFilterActive = false;
+      
+      // Add event listener for when page is fully loaded
+      document.addEventListener('DOMContentLoaded', () => {
+        // Check if we're at the top of the page
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const header = document.querySelector('.section-header');
+        
+        if (header) {
+          // Use the same logic: transparent within header height, dark beyond
+          const headerHeight = header.offsetHeight || 100; // Add fallback
+          
+          if (scrollTop <= headerHeight) {
+            header.classList.remove('header-dark-background');
+            header.classList.add('header-transparent-background');
+            header.classList.remove('scrolled-past-header');
+          } else {
+            header.classList.add('header-dark-background');
+            header.classList.remove('header-transparent-background');
+            header.classList.add('scrolled-past-header');
+          }
+        }
+        
+        // Ensure the header is always fixed by default
+        this.reveal();
+        
+        // Add body padding to account for the fixed header
+        this.updateBodyPadding();
+      });
+      
+      // Bind methods that will be used as event listeners
+      this.calculateHeaderBounds = this.calculateHeaderBounds.bind(this);
+      this.onScrollHandler = this.onScroll.bind(this);
+      // Always apply fixed header behavior regardless of scroll direction
+      this.hideHeaderOnScrollUp = () => {
+        if (!this.headerIsAlwaysSticky) {
+          this.preventReveal = true;
+        }
+      };
+    }
+    
+    // Method to calculate header position
+    calculateHeaderBounds() {
+      if (!this.header) return;
+      
+      // Get the actual position relative to the viewport
+      const headerRect = this.header.getBoundingClientRect();
+      
+      // Combine with current scroll position to get absolute position
+      this.headerBounds = {
+        top: headerRect.top + window.scrollY,
+        bottom: headerRect.bottom + window.scrollY,
+        height: headerRect.height
+      };
+      
+      // After header bounds are set, re-evaluate the header background
+      this.updateHeaderBackground(window.pageYOffset || document.documentElement.scrollTop);
+      
+      // Always enforce fixed position after calculating bounds
+      this.enforceFixedPosition();
+      
+      // Update body padding to account for the fixed header height
+      this.updateBodyPadding();
+    }
+
+    connectedCallback() {
+      // Set CSS variables immediately
+      document.documentElement.style.setProperty('--header-position', 'fixed');
+      
+      // Ensure background variables are defined
+      const style = window.getComputedStyle(document.documentElement);
+      const headerBackgroundTransparent = style.getPropertyValue('--header-background-transparent') || 'transparent';
+      const headerBackgroundDark = style.getPropertyValue('--header-background-dark') || 'rgba(18, 18, 18, 0.9)';
+      
+      document.documentElement.style.setProperty('--header-background-transparent', headerBackgroundTransparent);
+      document.documentElement.style.setProperty('--header-background-dark', headerBackgroundDark);
+      
+      this.header = document.querySelector('.section-header');
+      this.headerIsAlwaysSticky = true; // Make sure header is always fixed regardless of settings
+      this.headerBounds = {};
+
+      this.setHeaderHeight();
+      
+      // Check if we're on a collection page and add a class if needed
+      const isCollectionPage = document.body.classList.contains('template-collection');
+      if (isCollectionPage) {
+        document.documentElement.classList.add('is-collection-page');
+      }
+
+      window.matchMedia('(max-width: 990px)').addEventListener('change', this.setHeaderHeight.bind(this));
+
+      // Always add sticky class to make header fixed
+      this.header.classList.add('shopify-section-header-sticky');
+      
+      // Set fixed positioning but don't set background color here (let scroll events handle it)
+      this.header.style.position = 'fixed';
+      this.header.style.top = '0';
+      this.header.style.left = '0';
+      this.header.style.right = '0';
+      this.header.style.zIndex = '50';
+      this.header.style.width = '100%';
+      
+      // Set initial background state based on scroll position and header height
+      const initialScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      this.updateHeaderBackground(initialScrollTop);
+
+      this.currentScrollTop = 0;
+      this.preventReveal = false;
+      this.predictiveSearch = this.querySelector('predictive-search');
+
+      this.addEventListener('preventHeaderReveal', this.hideHeaderOnScrollUp);
+      window.addEventListener('scroll', this.onScrollHandler, { passive: true }); // Added passive for better performance
+      
+      // Listen for filter activity
+      document.addEventListener('facet:filter:open', this.onFilterOpen.bind(this));
+      document.addEventListener('facet:filter:close', this.onFilterClose.bind(this));
+      
+      // Set up the observer to track header position
+      this.createObserver();
+      
+      // Set up a mutation observer to detect DOM changes that might affect header position
+      this.setupMutationObserver();
+      
+      // Wait for layout to stabilize then check initial state
+      setTimeout(() => {
+        // Recalculate header bounds to ensure we have the most up-to-date values
+        this.calculateHeaderBounds();
+        
+        // Check if any filters are currently active on page load
+        this.checkInitialFilterState();
+        
+        // Reapply background state based on updated values
+        this.updateHeaderBackground(window.pageYOffset || document.documentElement.scrollTop);
+        
+        // Ensure the header is fixed
+        this.reveal();
+        
+        // Add body padding to account for fixed header
+        this.updateBodyPadding();
+        
+        // Add additional event listener for window resize to ensure fixed behavior is maintained
+        window.addEventListener('resize', this.enforceFixedPosition.bind(this));
+        window.addEventListener('resize', this.updateBodyPadding.bind(this));
+      }, 100);
+    }
+    
+    // Add method to update body padding based on header height
+    updateBodyPadding() {
+      if (!this.header) return;
+      
+      const headerHeight = this.header.offsetHeight || 100;
+      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+      document.body.style.paddingTop = `${headerHeight}px`;
+    }
+    
+    checkInitialFilterState() {
+      // Check if any mobile filter elements are open/active
+      const mobileFiltersOpen = document.querySelector('.mobile-facets__details[open]') !== null;
+      const mobileFilterActive = document.querySelector('.mobile-facets.active') !== null;
+      
+      // Update filter state based on what's found
+      this.isFilterActive = mobileFiltersOpen || mobileFilterActive;
+      
+      // If filters are active and not using always-sticky header, hide the header
+      if (this.isFilterActive && !this.headerIsAlwaysSticky) {
+        this.hide();
+      }
+    }
+    
+    onFilterOpen() {
+      this.isFilterActive = true;
+      
+      // Hide the header when filters are open (unless it's always sticky)
+      if (!this.headerIsAlwaysSticky) {
+        this.hide();
+      }
+    }
+    
+    onFilterClose() {
+      this.isFilterActive = false;
+      
+      // Show the header when filters are closed
+      this.reveal();
+      
+      // Update background based on current scroll position
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      this.updateHeaderBackground(scrollTop);
+    }
+    
+    updateHeaderBackground(scrollTop) {
+      if (!this.header) return;
+      
+      // Get header height to use as threshold, with a fallback value
+      const headerHeight = this.header.offsetHeight || 100;
+      
+      // If we've scrolled past the header height, use dark background
+      if (scrollTop > headerHeight) {
+        this.header.classList.add('scrolled-past-header');
+        this.header.classList.remove('header-transparent-background');
+        this.header.classList.add('header-dark-background');
+      } else {
+        // Within the header height - use transparent background
+        this.header.classList.remove('scrolled-past-header');
+        this.header.classList.remove('header-dark-background');
+        this.header.classList.add('header-transparent-background');
+      }
+      
+      // Always enforce fixed position after updating background
+      this.enforceFixedPosition();
+    }
+
+    setHeaderHeight() {
+      const headerHeight = this.header?.offsetHeight || 100;
+      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+    }
+
+    disconnectedCallback() {
+      this.removeEventListener('preventHeaderReveal', this.hideHeaderOnScrollUp);
+      window.removeEventListener('scroll', this.onScrollHandler);
+      window.removeEventListener('resize', this.calculateHeaderBounds);
+      window.removeEventListener('resize', this.enforceFixedPosition);
+      window.removeEventListener('resize', this.updateBodyPadding);
+      document.removeEventListener('facet:filter:open', this.onFilterOpen);
+      document.removeEventListener('facet:filter:close', this.onFilterClose);
+      
+      // Disconnect mutation observer
+      if (this.mutationObserver) {
+        this.mutationObserver.disconnect();
+      }
+    }
+
+    createObserver() {
+      // Run the calculation immediately
+      this.calculateHeaderBounds();
+      
+      // Also set up an observer to recalculate if needed
+      let observer = new IntersectionObserver((entries) => {
+        this.calculateHeaderBounds();
+        this.enforceFixedPosition(); // Enforce fixed position when intersection changes
+        this.updateBodyPadding(); // Update body padding when header size changes
+      });
+
+      observer.observe(this.header);
+      
+      // Also recalculate on window resize as layout might change
+      window.addEventListener('resize', this.calculateHeaderBounds);
+    }
+
+    onScroll() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (this.predictiveSearch && this.predictiveSearch.isOpen) return;
+      
+      // Update header background based on scroll position using our simplified logic
+      this.updateHeaderBackground(scrollTop);
+
+      // If filters are active, hide the header (unless it's always sticky)
+      if (this.isFilterActive && !this.headerIsAlwaysSticky) {
+        this.hide();
+        this.currentScrollTop = scrollTop;
+        return;
+      }
+
+      // With headerIsAlwaysSticky set to true, we always want to reveal 
+      // the header regardless of scroll direction or position
+      if (this.headerIsAlwaysSticky) {
+        this.reveal();
+        this.preventReveal = false; // Reset preventReveal flag to ensure header stays visible
+      } else {
+        // Original behavior for non-always-sticky headers
+        const scrollDirection = scrollTop > this.currentScrollTop ? 'down' : 'up';
+        
+        if (scrollDirection === 'up' && !this.preventReveal) {
+          this.reveal();
+        } else if (scrollDirection === 'down' && scrollTop > this.headerBounds.bottom) {
+          this.hide();
+        }
+      }
+
+      this.currentScrollTop = scrollTop;
+    }
+
+    hide() {
+      if (this.headerIsAlwaysSticky) {
+        // For always sticky, don't hide - just maintain fixed state
+        this.header.classList.add('shopify-section-header-sticky');
+        this.header.classList.remove('shopify-section-header-hidden');
+        this.enforceFixedPosition(); // Always enforce fixed position
+        return;
+      }
+      this.header.classList.add('shopify-section-header-hidden', 'shopify-section-header-sticky');
+      this.closeMenuDisclosure();
+      this.closeSearchModal();
+    }
+
+    reveal() {
+      this.header.classList.add('shopify-section-header-sticky', 'animate');
+      this.header.classList.remove('shopify-section-header-hidden');
+      document.documentElement.style.setProperty('--header-position', 'fixed');
+      
+      // Force the header to be fixed through inline styles as well
+      this.enforceFixedPosition();
+    }
+
+    reset() {
+      this.header.classList.remove('shopify-section-header-hidden');
+      // Add back shopify-section-header-sticky to maintain fixed behavior
+      this.header.classList.add('shopify-section-header-sticky');
+      this.header.classList.remove('animate');
+      document.documentElement.style.setProperty('--header-position', 'fixed');
+      
+      // Force the header to be fixed through inline styles
+      this.enforceFixedPosition();
+    }
+    
+    // Helper method to enforce fixed position consistently
+    enforceFixedPosition() {
+      if (!this.header) return;
+      
+      // Force fixed positioning on the header element
+      this.header.style.position = 'fixed';
+      this.header.style.top = '0';
+      this.header.style.left = '0';
+      this.header.style.right = '0';
+      this.header.style.zIndex = '50';
+      this.header.style.width = '100%';
+      
+      // Don't set background color here - let updateHeaderBackground handle it
+      
+      // Also ensure our custom element has fixed positioning
+      this.style.position = 'fixed';
+      this.style.top = '0';
+      this.style.left = '0';
+      this.style.right = '0';
+      this.style.zIndex = '50';
+      this.style.width = '100%';
+      
+      // Add important sticky classes
+      this.header.classList.add('shopify-section-header-sticky');
+      this.classList.add('shopify-section-header-sticky');
+    }
+
+    closeMenuDisclosure() {
+      this.disclosures = this.disclosures || this.header.querySelectorAll('header-menu');
+      this.disclosures.forEach(disclosure => disclosure.close());
+    }
+
+    closeSearchModal() {
+      this.searchModal = this.searchModal || this.header.querySelector('details-modal');
+      if (this.searchModal) {
+        this.searchModal.close(false);
+      }
+    }
+
+    // Add a new method to set up mutation observer
+    setupMutationObserver() {
+      // Create a mutation observer to detect when the announcement bar is added/removed
+      this.mutationObserver = new MutationObserver((mutations) => {
+        // If any mutations affected the DOM structure, recalculate header position
+        let needsRecalculation = false;
+        
+        mutations.forEach(mutation => {
+          // Check if the mutation is related to announcement bar or sections that would affect header position
+          const target = mutation.target;
+          const isHeaderRelated = 
+            target.classList?.contains('announcement-bar') || 
+            target.closest('.announcement-bar') || 
+            target.id?.includes('shopify-section-announcement-bar') ||
+            target.classList?.contains('shopify-section-group-header-group');
+          
+          if (isHeaderRelated && mutation.type === 'childList') {
+            needsRecalculation = true;
+          }
+        });
+        
+        if (needsRecalculation) {
+          // Wait a moment for the DOM to stabilize
+          setTimeout(() => {
+            // Recalculate header bounds
+            this.calculateHeaderBounds();
+            
+            // Apply background based on current scroll position using simplified logic
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            this.updateHeaderBackground(scrollTop);
+            
+            // Always enforce fixed position after DOM changes
+            this.enforceFixedPosition();
+            
+            // Update body padding to maintain correct layout
+            this.updateBodyPadding();
+          }, 50);
+        }
+      });
+      
+      // Observe changes to header-related elements
+      const headersContainer = document.querySelector('.shopify-section-group-header-group');
+      if (headersContainer) {
+        this.mutationObserver.observe(headersContainer, {
+          childList: true,
+          subtree: true,
+          attributes: true
+        });
+      }
+    }
+  }
+  
+  // Register the custom element
+  customElements.define('sticky-header', StickyHeader);
+{% endjavascript %}
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    {% if settings.logo %}
+      "logo": {{ settings.logo | image_url: width: 500 | prepend: "https:" | json }},
+    {% endif %}
+    "sameAs": [
+      {{ settings.social_twitter_link | json }},
+      {{ settings.social_facebook_link | json }},
+      {{ settings.social_pinterest_link | json }},
+      {{ settings.social_instagram_link | json }},
+      {{ settings.social_tiktok_link | json }},
+      {{ settings.social_tumblr_link | json }},
+      {{ settings.social_snapchat_link | json }},
+      {{ settings.social_youtube_link | json }},
+      {{ settings.social_vimeo_link | json }}
+    ],
+    "url": {{ request.origin | append: page.url | json }}
+  }
+</script>
+
+{%- if request.page_type == 'index' -%}
+  {% assign potential_action_target = request.origin | append: routes.search_url | append: "?q={search_term_string}" %}
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {{ potential_action_target | json }},
+        "query-input": "required name=search_term_string"
+      },
+      "url": {{ request.origin | append: page.url | json }}
+    }
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "class": "section-header",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "select",
+      "id": "logo_position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "t:sections.header.settings.logo_position.options__2.label"
+        },
+        {
+          "value": "top-center",
+          "label": "t:sections.header.settings.logo_position.options__3.label"
+        },
+        {
+          "value": "middle-left",
+          "label": "t:sections.header.settings.logo_position.options__1.label"
+        },
+        {
+          "value": "middle-center",
+          "label": "t:sections.header.settings.logo_position.options__4.label"
+        }
+      ],
+      "default": "middle-left",
+      "label": "t:sections.header.settings.logo_position.label",
+      "info": "t:sections.header.settings.logo_help.content"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "t:sections.header.settings.menu.label"
+    },
+    {
+      "type": "select",
+      "id": "menu_type_desktop",
+      "options": [
+        {
+          "value": "dropdown",
+          "label": "t:sections.header.settings.menu_type_desktop.options__1.label"
+        },
+        {
+          "value": "mega",
+          "label": "t:sections.header.settings.menu_type_desktop.options__2.label"
+        },
+        {
+          "value": "drawer",
+          "label": "t:sections.header.settings.menu_type_desktop.options__3.label"
+        }
+      ],
+      "default": "dropdown",
+      "label": "t:sections.header.settings.menu_type_desktop.label",
+      "info": "t:sections.header.settings.menu_type_desktop.info"
+    },
+    {
+      "type": "select",
+      "id": "sticky_header_type",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.header.settings.sticky_header_type.options__1.label"
+        },
+        {
+          "value": "on-scroll-up",
+          "label": "t:sections.header.settings.sticky_header_type.options__2.label"
+        },
+        {
+          "value": "always",
+          "label": "t:sections.header.settings.sticky_header_type.options__3.label"
+        },
+        {
+          "value": "reduce-logo-size",
+          "label": "t:sections.header.settings.sticky_header_type.options__4.label"
+        }
+      ],
+      "default": "on-scroll-up",
+      "label": "t:sections.header.settings.sticky_header_type.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_line_separator",
+      "default": true,
+      "label": "t:sections.header.settings.show_line_separator.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__1.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "menu_color_scheme",
+      "label": "t:sections.header.settings.menu_color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__3.content",
+      "info": "t:sections.header.settings.header__4.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": false,
+      "label": "t:sections.header.settings.enable_country_selector.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__5.content",
+      "info": "t:sections.header.settings.header__6.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "default": false,
+      "label": "t:sections.header.settings.enable_language_selector.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.header__7.content",
+      "info": "t:sections.header.settings.header__7.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_customer_avatar",
+      "default": true,
+      "label": "t:sections.header.settings.enable_customer_avatar.label",
+      "info": "t:sections.header.settings.enable_customer_avatar.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.header.settings.mobile_layout.content"
+    },
+    {
+      "type": "select",
+      "id": "mobile_logo_position",
+      "options": [
+        {
+          "value": "center",
+          "label": "t:sections.header.settings.mobile_logo_position.options__1.label"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.header.settings.mobile_logo_position.options__2.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.header.settings.mobile_logo_position.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.header.settings.margin_bottom.label",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 36,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 36,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 20
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}
+
+<!-- Force fixed header behavior script -->
+<script>
+  (function() {
+    // Enhanced function to force header fixed behavior
+    function forceHeaderFixed() {
+      // Get all possible header elements
+      const headerElements = [
+        document.querySelector('.section-header'),
+        document.querySelector('sticky-header'),
+        document.querySelector('.header-wrapper'),
+        document.querySelector('#shopify-section-sections--16891912388778__header > sticky-header'),
+        document.querySelector('.shopify-section-header-sticky')
+      ].filter(Boolean); // Filter out null values
+      
+      // Apply fixed styles to all header elements
+      headerElements.forEach(header => {
+        if (header) {
+          // Check if we're at the top of the page for proper background styling
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const headerHeight = header.offsetHeight || 100;
+          const shouldUseDarkBackground = scrollTop > headerHeight;
+          
+          // Create a style object that preserves existing background settings
+          const styles = {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            zIndex: '999',
+            width: '100%',
+            transition: 'background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease',
+            backdropFilter: 'blur(10px)', 
+            WebkitBackdropFilter: 'blur(10px)'
+          };
+          
+          // Apply the styles while preserving background settings
+          Object.assign(header.style, styles);
+          
+          // Instead of setting inline background styles, use classes
+          if (shouldUseDarkBackground) {
+            header.classList.add('header-dark-background');
+            header.classList.remove('header-transparent-background');
+            header.classList.add('scrolled-past-header');
+          } else {
+            header.classList.remove('header-dark-background');
+            header.classList.add('header-transparent-background');
+            header.classList.remove('scrolled-past-header');
+          }
+          
+          // Add important classes
+          header.classList.add('shopify-section-header-sticky');
+          header.classList.remove('shopify-section-header-hidden');
+          
+          // For mobile, apply fixed positioning but preserve the class-based background styling
+          if (window.innerWidth <= 990) {
+            // Use setAttribute for important values, but don't specify background
+            header.style.position = 'fixed';
+            header.style.top = '0';
+            header.style.left = '0';
+            header.style.right = '0';
+            header.style.zIndex = '999';
+            header.style.width = '100%';
+            header.style.height = 'auto';
+            header.style.maxHeight = 'none';
+          }
+        }
+      });
+      
+      // Update body padding to account for fixed header
+      const header = document.querySelector('.section-header') || document.querySelector('sticky-header');
+      if (header) {
+        const headerHeight = header.offsetHeight || 100;
+        document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+        document.body.style.paddingTop = `${headerHeight}px`;
+      }
+      
+      // Also check parent container for any issues
+      const headerSection = document.querySelector('.shopify-section[data-section-type="header"]') || 
+                           document.querySelector('#shopify-section-sections--16891912388778__header');
+      if (headerSection) {
+        headerSection.style.position = 'relative';
+        headerSection.style.zIndex = '999';
+      }
+    }
+    
+    // Run immediately
+    forceHeaderFixed();
+    
+    // Also run after a slight delay to ensure it applies after other scripts
+    window.addEventListener('DOMContentLoaded', function() {
+      forceHeaderFixed();
+      // Run again after delays to catch any late DOM changes
+      setTimeout(forceHeaderFixed, 100);
+      setTimeout(forceHeaderFixed, 500);
+      setTimeout(forceHeaderFixed, 1000);
+    });
+    
+    // Run when page is fully loaded
+    window.addEventListener('load', function() {
+      forceHeaderFixed();
+      setTimeout(forceHeaderFixed, 500);
+    });
+    
+    // Run when scrolling begins with throttling for performance
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+      if (!scrollTimeout) {
+        scrollTimeout = setTimeout(function() {
+          forceHeaderFixed();
+          scrollTimeout = null;
+        }, 100);
+      }
+    }, { passive: true });
+    
+    // Run on resize to handle orientation changes on mobile
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+      if (!resizeTimeout) {
+        resizeTimeout = setTimeout(function() {
+          forceHeaderFixed();
+          resizeTimeout = null;
+        }, 100);
+      }
+    }, { passive: true });
+    
+    // Special handling for mobile
+    if ('ontouchstart' in window || navigator.maxTouchPoints) {
+      // On mobile devices, check more frequently during scroll
+      window.addEventListener('touchmove', function() {
+        requestAnimationFrame(forceHeaderFixed);
+      }, { passive: true });
+      
+      // After orientation change
+      window.addEventListener('orientationchange', function() {
+        setTimeout(forceHeaderFixed, 100);
+        setTimeout(forceHeaderFixed, 500);
+      });
+    }
+  })();
+</script>

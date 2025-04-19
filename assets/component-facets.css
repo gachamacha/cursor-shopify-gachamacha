@@ -1,0 +1,959 @@
+/* =================================================================
+ * COMPONENT: FACETS & FILTERS
+ * 
+ * A comprehensive styling system for product filtering and sorting UI
+ * Includes mobile and desktop layouts, interactive elements, and 
+ * accessibility features.
+ * 
+ * CONTENTS:
+ * 1. Base Variables & Colors
+ * 2. Main Container Layout
+ * 3. Facet Display Panel
+ * 4. Facet Disclosure Component
+ * 5. Active Filters & Selections
+ * 6. Sort Container
+ * ================================================================= */
+
+/* ===== 1. BASE VARIABLES & COLOR DEFINITIONS =====
+ * PURPOSE:
+ * Defines the core design system variables for the facets component,
+ * establishing a consistent theme using a gold accent color scheme
+ * with various opacity levels for different UI states.
+ *
+ * TECHNICAL DETAILS:
+ * - Uses RGB color values to enable opacity variations
+ * - Implements a systematic scale of opacity levels (10%, 15%, 25%, etc.)
+ * - Defines consistent spacing and animation timing
+ * - Establishes reusable component patterns (pills, borders, etc.)
+ *
+ * DEPENDENCIES:
+ * - None (root level variables)
+ *
+ * BROWSER SUPPORT:
+ * - CSS Custom Properties (IE11 not supported)
+ * - rgba() color values (Modern browsers only)
+ * =============================================== */
+:root {
+  /* Core accent color system using a gold theme
+   * Uses RGB values for opacity variations
+   * Provides consistent color palette across components */
+  --color-background: rgba(26, 26, 26, 0.9);     /* Semi-transparent dark background */
+  --color-text-primary: rgba(255, 255, 255, 0.9); /* Primary white text with 90% opacity */
+  --color-accent: #E0B36A;                        /* Main gold accent color */
+  --color-accent-rgb: 224, 179, 106;              /* RGB values for opacity variations */
+  
+  /* Accent color opacity variations for different UI states */
+  --color-accent-10: rgba(var(--color-accent-rgb), 0.1);  /* Subtle highlights */
+  --color-accent-15: rgba(var(--color-accent-rgb), 0.15); /* Hover states */
+  --color-accent-25: rgba(var(--color-accent-rgb), 0.25); /* Active states */
+  --color-accent-30: rgba(var(--color-accent-rgb), 0.3);  /* Borders */
+  --color-accent-60: rgba(var(--color-accent-rgb), 0.6);  /* Strong highlights */
+
+  /* Warning and interaction states */
+  --color-warning: #ff4d4d;                /* Error/warning red */
+  --color-warning-rgb: 255, 77, 77;        /* RGB values for warning color */
+
+  /* Animation and transition timing */
+  --transition-default: all 0.2s ease;     /* Standard transition */
+  --transition-short: all 0.1s ease-in-out; /* Quick interactions */
+
+  /* Border and shape system */
+  --border-default: 1px solid var(--color-accent-30);
+  --border-radius-default: 4px;
+  --border-subtle: 0.1rem solid var(--color-accent-10);
+
+  /* Pill-style button system - consistent across components */
+  --pill-height: 4.4rem;
+  --pill-padding: 0 1.8rem;
+  --pill-border: 1px solid var(--color-accent-30);
+  --pill-radius: 24px;
+}
+
+.facets-container {
+  border: none;
+}
+
+.facets__display {
+  border: none;
+}
+
+/* Desktop filter facets */
+.facets__disclosure {
+  border: 5px solid rgb(255, 240, 29, 0.5); /* Pink with 50% opacity */
+  }
+
+
+/* ===== 8. FACET FILTERS FORM ARCHITECTURE =====
+ * PURPOSE:
+ * Implements the structural framework for filter forms,
+ * managing layout, spacing, and component relationships.
+ *
+ * TECHNICAL DETAILS:
+ * - Uses CSS Grid for precise layout control
+ * - Manages proper spacing between elements
+ * - Handles responsive adjustments
+ * - Implements sticky positioning for headers
+ *
+ * DEPENDENCIES:
+ * - Works with all filter components
+ * - Uses design system variables
+ *
+ * ACCESSIBILITY:
+ * - Maintains logical tab order
+ * - Ensures proper heading hierarchy
+ * ============================================= */
+
+/* ---------------------------
+Desktop filter placeholder
+--------------------------- */
+/* DESKTOP IN-USE: does not style, but keep filter options in one row*/
+.facets__wrapper {
+  display: flex;
+}
+
+.facets__wrapper {
+  border: 5px solid rgba(0, 128, 128, 0.5); /* Teal with 50% opacity */
+}
+
+.facets__heading {
+  border: 5px solid rgb(242, 17, 171); /* Pink with 50% opacity */
+}
+
+.mobile-facets__field {
+  width: 100%; /* Ensure field takes full width */
+  padding: 0; /* Remove any padding */
+  margin: 0; /* Set bottom margin only */
+}
+
+.mobile-facets__selected {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-size: 1.4rem;
+}
+
+/* Make sure other elements maintain their positions */
+.mobile-facets__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.2rem;
+  margin-left: 1rem;
+  position: relative;
+  top: -1px; /* Add this to slightly adjust vertical position */
+}
+
+/* Ensure consistent height for the filter buttons */
+.mobile-facets__filter-section {
+  width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Style for pill filter */
+.active-facets__button--light {
+  max-width: 100%;
+  margin-right: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Ensure the active pills show correctly */
+.active-facets-mobile {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Make mobile-facets__close-button the same across all filters */
+.mobile-facets__close-button {
+  align-items: center;
+  background-color: transparent;
+  display: flex;
+  font: inherit;
+  letter-spacing: inherit;
+  margin-top: 0;
+  padding: 1.5rem 2.6rem;
+  text-align: start;
+  text-decoration: none;
+  width: 100%;
+  border-bottom: 1px solid var(--color-accent-15);
+}
+
+.mobile-facets__close-button .icon-arrow {
+  transform: rotate(180deg);
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+/* Update submenu to appear as a dropdown */
+.mobile-facets__submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  border: 1px solid rgba(var(--color-foreground), 0.1);
+  border-radius: 0.8rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  margin-top: 0.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateY(10px);
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  width: 100%;
+}
+
+/* Adjust dropdown header and content */
+.mobile-facets__close-button {
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
+  display: flex;
+  align-items: center;
+}
+
+/* Ensure dropdown is visible when filter is open */
+details[open] .mobile-facets__submenu {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Adjust the position of the dropdown relative to its filter button */
+.mobile-facets__floating-label {
+  position: relative;
+}
+
+/* Preserve existing option styling */
+.mobile-facets__sort-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobile-facets__sort-option:hover,
+.mobile-facets__sort-option:focus {
+  background-color: var(--color-accent-10);
+  color: var(--color-accent);
+  outline: none;
+}
+
+.mobile-facets__sort-option.selected {
+  background-color: var(--color-accent-10);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.mobile-facets__sort-selected-icon {
+  display: inline-flex;
+  margin-right: 1rem;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* Close button and header improvements */
+.mobile-facets__close-button {
+  border-bottom: 1px solid var(--color-accent-15);
+  margin-top: 0;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 1.6rem;
+}
+
+/* IMPORTANT: FILTER BACK BUTTON - ARROW */
+.mobile-facets__close-button .icon-arrow {
+  margin-right: 1rem;
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* Add focus state for better accessibility */
+.mobile-facets__sort-option:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* Maintain proper text overflow handling */
+.mobile-facets__selected {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-size: 1.4rem;
+}
+
+/* ---------------------------
+12.3 Spinner Styling 
+--------------------------- */
+.loading__spinner path {
+  stroke: var(--color-accent);
+}
+
+/* ===== 13. MOBILE FACETS =====
+ * PURPOSE:
+ * Implements mobile-specific filter interface
+ * with slide-out panels and touch interactions.
+ *
+ * TECHNICAL DETAILS:
+ * - Uses transform for smooth animations
+ * - Manages touch interactions
+ * - Handles proper z-index stacking
+ * - Implements mobile-first design patterns
+ *
+ * DEPENDENCIES:
+ * - Requires proper HTML structure
+ * - Uses design system variables
+ *
+ * ACCESSIBILITY:
+ * - Maintains proper focus management
+ * - Provides touch target sizes
+ * - Ensures proper contrast
+ *
+ * EXAMPLE USAGE:
+ * <div class="mobile-facets">
+ *   <div class="mobile-facets__wrapper">...</div>
+ *   <div class="mobile-facets__footer">...</div>
+ * </div>
+ * ============================================= */
+
+/* ---------------------------
+13.1 Core Container & List 
+--------------------------- */
+.mobile-facets__wrapper {
+  border: none;
+}
+
+.mobile-facets__list {
+  overflow-y: visible !important; /* Prevent scrolling */
+  max-height: none !important; /* Remove height constraint */
+}
+
+/* ---------------------------
+13.4 Submenu Management 
+--------------------------- */
+.mobile-facets__submenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Only add scrolling if needed */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  background-color: var(--color-background);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  visibility: hidden; /* Hidden by default */
+}
+
+/* =============================================
+   MOBILE FILTER SUBMENU ANIMATION CONTROLLER
+   ---------------------------------------------
+   Targets the mobile filter submenu WHEN:
+   1. It's in a <details> element that's:
+      - Marked as open with [open] attribute
+      - Has the .menu-opening transition class
+   2. Is a DIRECT child (> combinator) of that <details>
+   
+   Structure Example:
+   <details class="menu-opening" open>
+     ▸ <div class="mobile-facets__submenu"> ← THIS gets styled
+       ▸ <div class="nested-menu"> ← NOT this (not direct child)
+   </details>
+============================================= */
+details[open].menu-opening > .mobile-facets__submenu {
+  transform: translateX(0);
+  visibility: visible;
+  /* outline: 6px solid rgb(13, 255, 122) !important; */
+}
+
+/* ---------------------------
+13.7 Visual Feedback 
+--------------------------- */
+.mobile-facets__highlight {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-color: rgba(var(--color-foreground), 0.04);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* ---------------------------
+13.8 Header Component 
+--------------------------- */
+.mobile-facets {
+  padding-top: 0; /* Remove any top padding that might have been compensating for the header */
+  background: var(--gradient-background);
+}
+
+.mobile-facets__details:first-child {
+  margin-top: 0;
+  border-top: none;
+}
+
+/* ---------------------------
+13.9 Footer Component 
+--------------------------- */
+.mobile-facets__footer {
+  border-top: 0.1rem solid rgba(var(--color-foreground), 0.08);
+  padding: 2rem;
+  position: sticky;
+  bottom: 0;
+  display: none; /* Hide by default */
+  z-index: 2;
+  margin-top: auto;
+  background-color: rgb(var(--color-background));
+  background: var(--gradient-background);
+}
+
+/* Show footer when parent container is active */
+.mobile-facets.active .mobile-facets__footer,
+.mobile-facets__wrapper[open] .mobile-facets__footer {
+  display: flex; /* Show when filter panel is active */
+}
+
+/* Ensure clear wrapper is also hidden by default */
+.mobile-facets__clear-wrapper {
+  display: none;
+}
+
+/* Show clear wrapper when parent is active */
+.mobile-facets.active .mobile-facets__clear-wrapper,
+.mobile-facets__wrapper[open] .mobile-facets__clear-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* Maintain existing footer layout when visible */
+.mobile-facets__footer > * {
+  width: 50%;
+}
+
+.mobile-facets__footer > * + * {
+  margin-left: 1rem;
+}
+
+/* ---------------------------
+13.10 Filter Label System 
+--------------------------- */
+.mobile-facets__label {
+  padding: 1.5rem 2rem 1.5rem 2.5rem;
+  width: 100%;
+  display: flex;
+  word-break: break-word;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-facets__label > svg {
+  background-color: rgb(var(--color-background));
+  position: relative;
+  z-index: 2;
+  margin-right: 1.2rem;
+  flex-shrink: 0;
+}
+
+.mobile-facets__label .icon-checkmark {
+  position: absolute;
+  top: 1.9rem;
+  left: 2.8rem;
+  visibility: hidden;
+  width: 11px;
+  height: 9px;
+}
+
+.mobile-facets__label__arrow {
+  margin-left: auto;
+  display: block;
+}
+
+/* ---------------------------
+13.11 Checkbox System 
+--------------------------- */
+input.mobile-facets__checkbox {
+  position: absolute;
+  left: 2.1rem;
+  top: 1.2rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 0;
+  z-index: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* ---------------------------
+13.12 Additional Components 
+--------------------------- */
+.mobile-facets__clear-wrapper {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-facets__close-button {
+  align-items: center;
+  background-color: transparent;
+  display: grid;
+  font: inherit;
+  grid-template-columns: min-content 1fr;
+  letter-spacing: inherit;
+  margin-top: 1.5rem;
+  padding: 1.2rem 2.6rem;
+  text-align: start;
+  text-decoration: none;
+}
+
+.mobile-facets__close-button > .facets__and-helptext {
+  grid-column-start: 2;
+}
+
+.mobile-facets__close-button .icon-arrow {
+  transform: rotate(180deg);
+  margin-right: 1rem;
+}
+
+/* Arrow icon styling */
+.mobile-facets__arrow {
+  color: var(--color-accent);
+  transition: transform 0.2s ease;
+}
+
+/* Sort by container styling */
+.mobile-facets__sort {
+  margin: 0.5rem 1rem;
+  padding: 0.8rem 1rem;
+  background: transparent;
+  border: none;
+}
+
+/* Sort by label and select styling */
+.mobile-facets__sort label {
+  font-size: 1.2rem;
+  color: var(--color-text-primary);
+  margin-bottom: 0.3rem;
+}
+
+.mobile-facets__sort .select__select {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-accent-30);
+  border-radius: var(--border-radius-default);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Hover and active states */
+.mobile-facets__details:hover .mobile-facets__summary,
+.mobile-facets__sort:hover label {
+  color: var(--color-accent);
+}
+
+.mobile-facets__details[open] .mobile-facets__arrow {
+  transform: rotate(90deg);
+}
+
+/* Active filter pills */
+.active-facets__button {
+  background: transparent;
+  border: 1px solid var(--color-accent-30);
+  border-radius: var(--border-radius-default);
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  color: var(--color-accent);
+  margin: 0.5rem 0;
+}
+
+/* Remove all link styling */
+.active-facets__button-remove {
+  font-size: 1.2rem;
+  color: var(--color-accent);
+  text-decoration: underline;
+  margin-top: 0.5rem;
+}
+
+.mobile-facets__filter-heading {
+  font-size: 1.4rem;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Make all filter submenu backgrounds consistently opaque */
+.mobile-facets__submenu,
+.facets__display,
+.facets__price,
+.mobile-facets__price {
+  background-color: rgba(26, 26, 26, 0.9) !important; /* Semi-transparent dark background */
+  backdrop-filter: blur(3px); /* Optional: adds a slight blur effect */
+}
+
+/* Ensure gradient doesn't override the opacity */
+.mobile-facets__submenu.gradient {
+  background: rgba(26, 26, 26, 0.9) !important;
+}
+
+/* Price filter specific adjustments */
+.mobile-facets__submenu price-range,
+.facets__display price-range {
+  background: transparent;
+}
+
+/* Style Filter heading to match Sort by alignment */
+h2.mobile-facets__filter-heading {
+  font-size: 1.4rem;
+  color: var(--color-text-primary);
+  margin: 0 0 1rem 0;
+  text-align: left; /* Match sort by alignment */
+  font-weight: normal;
+  padding-left: 1.5rem;
+}
+
+/* Hover state for filter options */
+.mobile-facets__summary:hover {
+  border-color: var(--color-accent-60);
+  box-shadow: 0 0 8px var(--color-accent-15);
+}
+
+/* Active state for filter options */
+.mobile-facets__details[open] .mobile-facets__summary {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+/* Selected value styling */
+.mobile-facets__selected {
+  font-size: 1.4rem;
+  color: var(--color-text-primary);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 40px);
+}
+
+/* Placeholder text styling */
+.mobile-facets__selected.placeholder-text {
+  color: var(--color-accent); /* Use the gold accent color */
+  font-style: italic;
+  opacity: 0.8;
+  max-width: 100%; /* Ensure placeholder text isn't truncated */
+  text-overflow: clip; /* Prevent ellipsis for placeholder */
+}
+
+/* Arrow icon positioning */
+.mobile-facets__arrow {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  pointer-events: none;
+}
+
+.mobile-facets__arrow svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--color-accent);
+}
+
+/* Sort container specific adjustments */
+.mobile-facets__sort-container {
+  padding: 0;
+  overflow: hidden;
+}
+
+.mobile-facets__sort {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.mobile-facets__sort .select {
+  width: 100%;
+  padding: 0;
+  position: relative;
+  border: none;
+}
+
+.mobile-facets__sort .select__select {
+  width: 100%;
+  padding: 1.4rem 1.2rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 1.4rem;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Hide original arrow for select and use custom one */
+.mobile-facets__sort .select .svg-wrapper {
+  display: none;
+}
+
+/* Price filter info alignment */
+.mobile-facets__info {
+  padding: 0 2.6rem 1rem;
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 1.2rem;
+}
+
+/* Make mobile submenu animation consistent */
+.mobile-facets__details[open] .mobile-facets__submenu {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.4s cubic-bezier(0.29, 0.63, 0.44, 1), 
+              visibility 0.4s cubic-bezier(0.29, 0.63, 0.44, 1);
+  z-index: 9999 !important; /* Extremely high z-index to ensure it appears above everything */
+  
+  /* Add an opaque background to prevent bleed-through */
+  background-color: var(--color-background) !important;
+  box-shadow: 0 0 50px rgba(0,0,0,0.5); /* Add shadow for depth */
+}
+
+/* Improve arrow icon in back button */
+.mobile-facets__close-button .icon-arrow {
+  transform: rotate(180deg);
+  margin-right: 1rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Fix for default filter option text */
+.mobile-facets__selected {
+  font-size: 1.4rem;
+  color: var(--color-text-primary);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 40px);
+}
+
+/* Placeholder text styling */
+.mobile-facets__selected.placeholder-text {
+  color: var(--color-accent); /* Use the gold accent color */
+  font-style: italic;
+  opacity: 0.8;
+  max-width: 100%; /* Ensure placeholder text isn't truncated */
+  text-overflow: clip; /* Prevent ellipsis for placeholder */
+}
+
+/* Remove max-height constraints from lists */
+.mobile-facets__list {
+  overflow-y: visible !important; /* Prevent scrolling */
+  max-height: none !important; /* Remove height constraint */
+}
+
+/* Ensure the filter options are fully visible */
+.facets-layout, 
+.facets-layout-list, 
+.facets-layout-grid {
+  max-height: none !important; /* Remove height constraint */
+  overflow: visible !important; /* Prevent scrolling */
+}
+
+/* Ensure price range container is fully visible */
+price-range.facets__price {
+  padding: 0 2rem 2rem;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Filter by heading styling - clean up */
+.mobile-facets__filter-header {
+  padding: 1rem 1.5rem 0.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent; /* Remove debug background */
+  border: none; /* Remove debug border */
+}
+
+/* Sort by header styling - clean up */
+.mobile-facets__sort-header {
+  padding: 1rem 1.5rem 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent; /* Remove debug background */
+  border: none; /* Remove debug border */
+}
+
+/* Sort options list */
+.mobile-facets__sort-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.mobile-facets__sort-option {
+  display: flex;
+  align-items: center;
+  padding: 1.2rem;
+  font-size: 1.4rem;
+  color: rgba(var(--color-foreground), 0.75);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-facets__sort-option:hover,
+.mobile-facets__sort-option:focus {
+  background-color: rgba(var(--color-foreground), 0.06);
+  color: rgb(var(--color-foreground));
+}
+
+.mobile-facets__sort-option.selected {
+  background-color: rgba(var(--color-foreground), 0.06);
+  font-weight: 500;
+}
+
+.mobile-facets__sort-selected-icon {
+  margin-right: 0.8rem;
+  width: 1.6rem;
+  flex-shrink: 0;
+}
+
+.mobile-facets__sort-selected-icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+/* Fix selected text truncation */
+.mobile-facets__selected {
+  display: block;
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: rgb(var(--color-foreground));
+}
+
+/* Enhance dropdown positioning */
+.mobile-facets__submenu {
+  overflow-y: visible;
+  max-height: none;
+  padding-bottom: 5rem;
+}
+
+/* Adjust dropdown for better mobile experience */
+@media screen and (max-width: 749px) {
+  .mobile-facets__sort-list {
+    max-height: 50vh;
+  }
+}
+
+.mobile-facets__arrow {
+  flex-shrink: 0;
+  margin-left: 0.8rem;
+}
+
+/* Style the individual sort option items */
+.mobile-facets__sort-item {
+  width: 100%;
+  list-style: none;
+}
+
+.mobile-facets__sort-option {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: rgba(var(--color-foreground), 0.75);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-facets__sort-option:hover,
+.mobile-facets__sort-option:focus {
+  background-color: rgba(var(--color-foreground), 0.06);
+  color: rgb(var(--color-foreground));
+}
+
+.mobile-facets__sort-option.selected {
+  background-color: rgba(var(--color-foreground), 0.06);
+  font-weight: 500;
+}
+
+/* Arrange the submenu for better display */
+.mobile-facets__submenu {
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.mobile-facets__close-button {
+  padding: 1.5rem 2rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
+}
+
+/* Make sure the arrow points appropriately */
+.mobile-facets__details[open] .mobile-facets__arrow svg {
+  transform: rotate(180deg);
+}
+
+/* Handle overflow if many options */
+@media screen and (max-width: 749px) {
+  .mobile-facets__submenu {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+
+/* Remove any debug borders and colors from mobile facets */
+@media screen and (max-width: 749px) {
+  /* Remove any debug borders from containers */
+  .facets,
+  .facets__wrapper,
+  .mobile-facets__wrapper,
+  .mobile-facets,
+  .mobile-facets__submenu,
+  .mobile-facets__details {
+    border: none !important;
+    background: transparent !important;
+  }
+  
+  .mobile-facets__submenu {
+    background-color: rgba(26, 26, 26, 0.9) !important;
+  }
+  
+  /* Remove any debug borders that might be added by JS */
+  [style*="border: 2px solid"] {
+    border-color: transparent !important;
+  }
+}

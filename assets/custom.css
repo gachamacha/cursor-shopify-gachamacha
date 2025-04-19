@@ -1,0 +1,9 @@
+.game-title-custom {
+  font-weight: bold;
+  color: #0000ff; /* Blue color */
+}
+
+.server-custom {
+  font-weight: bold;
+  color: #ff0000; /* Red color */
+}

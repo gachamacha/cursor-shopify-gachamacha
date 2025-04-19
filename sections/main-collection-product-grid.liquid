@@ -1,0 +1,1457 @@
+{{ 'template-collection.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+{% if section.settings.image_shape == 'blob' %}
+  {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+{%- unless section.settings.quick_add == 'none' -%}
+  {{ 'quick-add.css' | asset_url | stylesheet_tag }}
+{%- endunless -%}
+
+{%- if section.settings.quick_add == 'standard' -%}
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- if section.settings.quick_add == 'bulk' -%}
+  <script src="{{ 'quick-add-bulk.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quick-order-list.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- style -%}
+  /* Remove non-functional section padding */
+  .section-{{ section.id }}-padding {
+    margin: 0;
+  }
+  
+  /* Custom mobile padding controls */
+  @media screen and (max-width: 749px) {
+    /* Mobile facets padding control */
+    .mobile-facets__wrapper {
+      padding-left: {{ section.settings.mobile_facets_padding_horizontal }}px !important;
+      padding-right: {{ section.settings.mobile_facets_padding_horizontal }}px !important;
+    }
+    
+    .mobile-facets__main {
+      padding: {{ section.settings.mobile_facets_padding_vertical }}px {{ section.settings.mobile_facets_padding_horizontal }}px !important;
+      gap: 0.5rem;
+    }
+    
+    /* Mobile product grid padding control */
+    #product-grid {
+      padding: {{ section.settings.mobile_product_grid_padding_vertical }}px {{ section.settings.mobile_product_grid_padding_horizontal }}px !important;
+    }
+    
+    /* Ensure padding doesn't conflict with other styles */
+    .page-width #product-grid {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    
+    /* Override no-spacing classes to respect our padding */
+    .no-spacing-mobile-grid {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+
+    /* Add vertical spacing between grid items */
+    .grid__item {
+      margin-bottom: {{ section.settings.mobile_product_grid_padding_vertical }}px !important;
+    }
+  }
+  
+  /* Remove gap between collection banner and filter section */
+  .section-main-collection-banner + .section-main-collection-product-grid {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  
+  .section-main-collection-banner + .section-main-collection-product-grid .section-{{ section.id }}-padding {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  
+  .section-main-collection-banner + .section-main-collection-product-grid .page-width {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  
+  /* Mobile 2-column grid styles */
+  @media screen and (max-width: 749px) {
+    .grid--2-col-tablet-down {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 0.5rem;
+    }
+    
+    .no-spacing-mobile-grid {
+      padding: 0.5rem;
+    }
+    
+    .no-spacing-mobile-grid .grid__item {
+      padding: 0;
+      margin-bottom: 0.5rem;
+    }
+    
+    /* Enhanced image sizing for mobile grid */
+    .grid--2-col-tablet-down .mobile-image-container {
+      position: relative;
+      width: 100%;
+      min-width: 43vw; /* Ensure minimum width based on viewport */
+      padding-bottom: 100%; /* 1:1 Aspect Ratio */
+      overflow: hidden;
+    }
+    
+    .grid--2-col-tablet-down .mobile-image-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transform-origin: center;
+    }
+    
+    /* Ensure smaller images scale up properly */
+    .grid--2-col-tablet-down .mobile-image-container img[width="1080"][height="1080"] {
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 100%;
+      min-height: 100%;
+    }
+
+    /* Enforce minimum image dimensions for consistency */
+    .grid--2-col-tablet-down .grid__item {
+      min-width: 43vw; /* Minimum width relative to viewport */
+    }
+
+    /* Ensure consistent sizing for product grid items */
+    #product-grid.grid--2-col-tablet-down {
+      grid-template-columns: repeat(2, minmax(43vw, 1fr));
+    }
+    
+    /* Standardized approach for card content padding across all mobile sizes */
+    .card__content {
+      padding: 0.75rem !important;
+      box-sizing: border-box !important;
+      width: calc(100% - 1.5rem) !important; /* Account for left and right padding */
+      margin: 0 auto !important; /* Center the content */
+      min-width: 0 !important; /* Allow content to shrink but maintain padding */
+      overflow: hidden !important;
+    }
+    
+    /* Ensure card fits within available space */
+    .product-card-wrapper .card {
+      overflow: hidden !important;
+      width: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+    
+    /* Fix potential padding issues with inner card elements */
+    .card__information {
+      padding: 0 !important;
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+    
+    /* Ensure price container maintains consistent padding */
+    .card__price-container {
+      width: 100% !important;
+      padding: 0 !important;
+      margin-top: 0.5rem !important;
+      min-width: 0 !important;
+    }
+    
+    /* Prevent title and price from being cut off */
+    .card__heading, .price {
+      width: 100% !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      word-wrap: break-word !important;
+    }
+    
+    /* Make card attribute tags responsive */
+    .card__attributes--inline {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      width: 100% !important;
+      overflow: hidden !important;
+    }
+    
+    .attribute-game, .attribute-server {
+      max-width: 100% !important;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
+    }
+    
+    /* Make cards properly fill the grid cells */
+    .product-card-wrapper {
+      display: flex !important;
+      width: 100% !important;
+    }
+  }
+  
+  /* Mobile responsive adjustments */
+  @media screen and (max-width: 749px) {
+    /* Ensure mobile filters are always visible */
+    .mobile-facets__main {
+      display: flex !important;
+      flex-direction: row;
+      width: 100%;
+      position: relative;
+      padding: 0.5rem 0.5rem;
+      gap: 0.5rem;
+      align-items: center;
+      /* background-color: #1e1e1e; */
+    }
+    
+    /* Change to 2 columns for mobile */
+    .grid--1-col-tablet-down {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0.8rem !important;
+    }
+    
+    /* Adjust individual grid items for 2-column layout */
+    .grid--1-col-tablet-down .grid__item {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+    }
+    
+    /* Two column grid specific adjustments */
+    .grid--2-col-tablet-down {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 0.8rem !important;
+    }
+    
+    /* Adjust appearance for 2-column grid items */
+    .no-spacing-mobile-grid {
+      padding: 0.8rem !important;
+    }
+    
+    .no-spacing-mobile-grid .grid__item {
+      margin-bottom: 0.8rem !important;
+    }
+    
+    .no-spacing-mobile-grid .grid__item .card {
+      border-radius: 12px !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    
+    .no-spacing-mobile-grid .grid__item .card__content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .no-spacing-mobile-grid .grid__item .card__information {
+      flex-grow: 1;
+    }
+  }
+{%- endstyle -%}
+
+{% comment %} Main container with dynamic padding based on section settings {% endcomment %}
+<div class="section-{{ section.id }}-padding">
+  {% comment %} Split products into pages (e.g., show 12 products per page) {% endcomment %}
+  {%- paginate collection.products by section.settings.products_per_page -%}
+
+    {% comment %} Main content container {% endcomment %}
+     <div class="page-width">
+      {% comment %} Load filter/sort styles {% endcomment %}
+      {{ 'component-facets.css' | asset_url | stylesheet_tag }}
+      {% comment %} Load filter/sort JavaScript {% endcomment %}
+      <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
+      
+      {% comment %} Show filters if enabled {% endcomment %}
+      {%- if section.settings.enable_filtering or section.settings.enable_sorting -%}
+        {% comment %} Filters sidebar container {% endcomment %}
+        <h2 id="verticalTitle" class="visually-hidden">Filters & Sorting</h2>
+        <aside
+          class="facets__wrapper{% unless section.settings.enable_filtering %} facets-wrapper--no-filters{% endunless %} page-width"
+          aria-labelledby="verticalTitle" 
+          id="main-collection-filters"
+          data-id="{{ section.id }}"
+        >
+          {% comment %} Actual filters content {% endcomment %}
+            {% render 'facets',
+              results: collection,
+              enable_filtering: section.settings.enable_filtering,
+              enable_sorting: section.settings.enable_sorting,
+              filter_type: section.settings.filter_type,
+              paginate: paginate
+            %}
+        </aside>
+      {%- endif -%}
+
+      {% comment %} Product grid container {% endcomment %}
+      <div
+        class="product-grid-container{% if collection.products.size == 0 %} is-empty{% endif %}"
+        id="ProductGridContainer"
+        {% if settings.animations_reveal_on_scroll %}
+          data-cascade
+        {% endif %}
+        style="margin-top: 0; padding-top: 0;"
+      >
+        {% comment %} Show empty state if no products {% endcomment %}
+        {%- if collection.products.size == 0 -%}
+          <div class="collection collection--empty page-width" id="product-grid" data-id="{{ section.id }}">
+            <div class="title-wrapper center">
+              <h2 class="title title--primary">
+                {{ 'sections.collection_template.empty' | t -}}
+                <br>
+                {{
+                  'sections.collection_template.use_fewer_filters_html'
+                  | t: link: collection.url, class: 'underlined-link link'
+                }}
+              </h2>
+            </div>
+          </div>
+        {%- else -%}
+          {% comment %} Products grid wrapper {% endcomment %}
+          <div
+            class="collection{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
+          >
+            {% comment %} Grid list of products {% endcomment %}
+            <ul
+              id="product-grid"
+              data-id="{{ section.id }}"
+              data-columns-mobile="{{ section.settings.mobile_columns }}"
+              class="
+                grid product-grid grid--{{ section.settings.columns_desktop }}-col-desktop
+                {% if section.settings.collection_card_style != 'standard' %} grid--2-col-tablet-down{% endif %}
+                grid--{{ section.settings.mobile_columns }}-col-tablet-down
+                {% if section.settings.quick_add == 'bulk' %} collection-quick-add-bulk{% endif %}
+                {% if section.settings.mobile_columns == '2' %}no-spacing-mobile-grid{% else %}no-spacing-mobile{% endif %}
+              "
+            >
+              {% comment %} Flag to optimize CSS loading {% endcomment %}
+              {% assign skip_card_product_styles = false %}
+              {% comment %} Loop through products {% endcomment %}
+              {%- for product in collection.products -%}
+                {% comment %} Lazy load images after first 4 visible products (instead of 2) {% endcomment %}
+                {% assign lazy_load = true %}
+                {%- if forloop.index <= 4 -%}
+                  {%- assign lazy_load = false -%}
+                {%- endif -%}
+                {% comment %} Individual product grid item {% endcomment %}
+                <li
+                  class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                  {% if settings.animations_reveal_on_scroll %}
+                    data-cascade
+                    style="--animation-order: {{ forloop.index }};"
+                  {% endif %}
+                >
+                  {% comment %} Render product card component {% endcomment %}
+                  {% render 'card-product',
+                    card_product: product,
+                    media_aspect_ratio: section.settings.image_ratio,
+                    image_shape: section.settings.image_shape,
+                    show_secondary_image: section.settings.show_secondary_image,
+                    show_vendor: section.settings.show_vendor,
+                    show_rating: section.settings.show_rating,
+                    lazy_load: lazy_load,
+                    skip_styles: skip_card_product_styles,
+                    quick_add: section.settings.quick_add,
+                    section_id: section.id,
+                    collection: collection
+                  %}
+                </li>
+                {% comment %} Only load card styles once {% endcomment %}
+                {%- assign skip_card_product_styles = true -%}
+              {%- endfor -%}
+            </ul>
+
+            {% comment %} Show page numbers if needed {% endcomment %}
+            {%- if paginate.pages > 1 -%}
+              {% render 'pagination', paginate: paginate, anchor: '' %}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endpaginate -%}
+  {% comment %} Load arch shape mask if needed {% endcomment %}
+  {% if section.settings.image_shape == 'arch' %}
+    {{ 'mask-arch.svg' | inline_asset_content }}
+  {%- endif -%}
+</div>
+
+<script>
+  // Enhanced lazy loading with Intersection Observer
+  if ('IntersectionObserver' in window) {
+    const lazyImages = document.querySelectorAll('.card__media img[loading="lazy"]');
+    
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          const src = img.getAttribute('data-src');
+          const srcset = img.getAttribute('data-srcset');
+          
+          if (src) img.src = src;
+          if (srcset) img.srcset = srcset;
+          
+          img.classList.add('loaded');
+          
+          // Apply square image handling when image loads
+          img.onload = function() {
+            if (window.innerWidth <= 749) { // Only for mobile
+              ensureSquareImage(img);
+            }
+          };
+          
+          imageObserver.unobserve(img);
+        }
+      });
+    }, {
+      rootMargin: '200px 0px', // Load images 200px before they come into viewport
+      threshold: 0.01
+    });
+    
+    lazyImages.forEach(img => {
+      if (img.hasAttribute('loading')) {
+        // Store original src/srcset and replace with placeholder
+        if (img.src && !img.hasAttribute('data-src')) {
+          img.setAttribute('data-src', img.src);
+          img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E';
+        }
+        
+        if (img.srcset && !img.hasAttribute('data-srcset')) {
+          img.setAttribute('data-srcset', img.srcset);
+          img.srcset = '';
+        }
+        
+        imageObserver.observe(img);
+      }
+    });
+  }
+  
+  // Force zero spacing between product grid items
+  function enforceZeroSpacing() {
+    if (window.innerWidth <= 749) { // Mobile only
+      // Check if we have 2-column layout
+      const productGrid = document.getElementById('product-grid');
+      const hasTwoColumns = productGrid && productGrid.getAttribute('data-columns-mobile') === '2';
+      
+      // Get the page-width container
+      const pageWidth = document.querySelector('.page-width');
+      if (pageWidth && hasTwoColumns) {
+        // For 2-column layout, add padding to the page container
+        pageWidth.style.padding = '0 1rem'; // Add horizontal padding
+      }
+      
+      // Target containers to adjust
+      const containersToAdjust = [
+        '.collection',
+        '.product-grid-container',
+        '.section-template-collection',
+        '[class*="section-"][class*="-padding"]',
+        '.grid__item'
+      ];
+      
+      // Add .page-width only for 1-column layout
+      if (!hasTwoColumns) {
+        containersToAdjust.unshift('.page-width');
+      }
+      
+      // Apply zero margin/padding to all containers
+      containersToAdjust.forEach(selector => {
+        document.querySelectorAll(selector).forEach(el => {
+          el.style.margin = '0';
+          el.style.padding = '0';
+          
+          // Force full width on containers
+          if (selector !== '.grid__item') {
+            el.style.maxWidth = '100%';
+            el.style.width = '100%';
+          }
+        });
+      });
+      
+      // Ensure the product grid has the correct display
+      if (productGrid) {
+        // Only use flex column layout for 1-column setting
+        if (!hasTwoColumns) {
+        productGrid.style.display = 'flex';
+        productGrid.style.flexDirection = 'column';
+          
+          // For 1 column, stack items vertically
+          document.querySelectorAll('#product-grid .grid__item').forEach(item => {
+            item.style.width = '100%';
+            item.style.maxWidth = '100%';
+          });
+        } else {
+          // For 2 columns layout
+          productGrid.style.display = 'grid';
+          productGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+          productGrid.style.gap = '0.5rem';
+          
+          // For 2 columns, set items to 50% width
+          document.querySelectorAll('#product-grid .grid__item').forEach(item => {
+            item.style.width = 'auto';
+            item.style.maxWidth = 'none';
+            // Add some padding to product cards for 2-column layout
+          const card = item.querySelector('.card');
+          if (card) {
+            card.style.margin = '0';
+              card.style.height = '100%';
+              card.style.overflow = 'hidden'; // Ensure nothing spills out
+              card.style.width = '100%'; // Force card to take full width of container
+              
+              // Ensure card content maintains consistent padding
+              const cardContent = card.querySelector('.card__content');
+              if (cardContent) {
+                cardContent.style.padding = '0.75rem';
+                cardContent.style.boxSizing = 'border-box';
+                cardContent.style.width = '100%';
+                cardContent.style.minWidth = '0'; // Allow content to shrink as needed
+                cardContent.style.overflow = 'hidden'; // Prevent content from overflowing
+                
+                // Adjust text elements for very small screens
+                const isVerySmall = window.innerWidth <= 375;
+                const isExtremelySmall = window.innerWidth <= 320;
+                
+                // Handle title text
+                const heading = cardContent.querySelector('.card__heading');
+                if (heading) {
+                  heading.style.width = '100%';
+                  heading.style.overflow = 'hidden';
+                  heading.style.textOverflow = 'ellipsis';
+                  heading.style.wordWrap = 'break-word';
+                  
+                  // Responsive font sizing
+                  if (isExtremelySmall) {
+                    heading.style.fontSize = '12px';
+                  } else if (isVerySmall) {
+                    heading.style.fontSize = 'calc(12px + 0.5vw)';
+                  }
+                }
+                
+                // Handle price text
+                const price = cardContent.querySelector('.price');
+                if (price) {
+                  price.style.width = '100%';
+                  price.style.overflow = 'hidden';
+                  price.style.textOverflow = 'ellipsis';
+                  
+                  // Responsive font sizing for price
+                  if (isExtremelySmall) {
+                    price.style.fontSize = '12px';
+                  } else if (isVerySmall) {
+                    price.style.fontSize = 'calc(12px + 0.5vw)';
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
+    }
+  }
+  
+  // Helper function to ensure images are displayed as squares with center cropping
+  function ensureSquareImage(img) {
+    // Get the container dimensions
+    const container = img.closest('.mobile-image-container');
+    if (!container) return;
+    
+    // Get screen width to calculate minimum size
+    const screenWidth = window.innerWidth;
+    const isVerySmall = screenWidth <= 375;
+    const isExtremelySmall = screenWidth <= 320;
+    
+    // Adjust minimum size based on screen width
+    let minSize;
+    if (isExtremelySmall) {
+      minSize = Math.max(screenWidth * 0.38, 80); // Smaller size for iPhone SE
+    } else if (isVerySmall) {
+      minSize = Math.max(screenWidth * 0.4, 100); // Smaller size for small screens
+    } else {
+      minSize = Math.max(screenWidth * 0.43, 140); // Default minimum size
+    }
+    
+    const containerWidth = container.offsetWidth;
+    
+    // Force container to be square and respect minimum size
+    // For very small screens, prioritize fitting content over maintaining minimum size
+    if (isExtremelySmall) {
+      container.style.width = '100%';
+      container.style.height = 'auto';
+      container.style.paddingBottom = '100%'; // Square aspect ratio
+    } else {
+      container.style.width = Math.max(containerWidth, minSize) + 'px';
+      container.style.height = Math.max(containerWidth, minSize) + 'px';
+    }
+    container.style.overflow = 'hidden';
+    
+    // Ensure image fills the square container completely
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'cover';
+    img.style.objectPosition = 'center';
+    img.style.minWidth = '100%';
+    img.style.minHeight = '100%';
+    
+    // Handle edge cases for different image aspect ratios
+    const imgWidth = img.naturalWidth;
+    const imgHeight = img.naturalHeight;
+    
+    if (imgWidth && imgHeight) {
+      // Handle small images (smaller than container) - ensure they're scaled up
+      if (imgWidth < containerWidth || imgHeight < containerWidth) {
+        // Force the image to scale up to fill the container
+        img.style.objectFit = 'cover';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        
+        // Calculate scale factor to ensure image fills container
+        const scaleFactorW = containerWidth / imgWidth;
+        const scaleFactorH = containerWidth / imgHeight;
+        
+        // Limit scale factor for very small screens to prevent excessive upscaling
+        let scaleFactor;
+        if (isExtremelySmall) {
+          scaleFactor = Math.max(Math.min(scaleFactorW, scaleFactorH, 1.3), 1.05);
+        } else {
+          scaleFactor = Math.max(scaleFactorW, scaleFactorH, 1.1);
+        }
+        
+        // Apply scaling transform 
+        img.style.transform = `scale(${scaleFactor})`;
+      }
+      // If the image is wider than it is tall (landscape)
+      else if (imgWidth > imgHeight) {
+        img.style.width = 'auto';
+        img.style.height = '100%';
+        // Center horizontally
+        img.style.position = 'absolute';
+        img.style.left = '50%';
+        img.style.transform = 'translateX(-50%)';
+      }
+      // If the image is taller than it is wide (portrait)
+      else if (imgHeight > imgWidth) {
+        img.style.width = '100%';
+        img.style.height = 'auto';
+        // Center vertically
+        img.style.position = 'absolute';
+        img.style.top = '50%';
+        img.style.transform = 'translateY(-50%)';
+      }
+      // If already square, just fill the container
+      else {
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.position = 'static';
+        img.style.transform = 'none';
+      }
+    }
+    
+    // Find the card content container adjacent to this image
+    const card = container.closest('.card');
+    if (card) {
+      // Apply consistent card styling
+      card.style.width = '100%';
+      card.style.overflow = 'hidden';
+      card.style.display = 'flex';
+      card.style.flexDirection = 'column';
+      card.style.alignItems = 'center';
+      
+      const cardContent = card.querySelector('.card__content');
+      if (cardContent) {
+        // Apply standardized content padding for all mobile sizes
+        const contentPadding = isExtremelySmall ? '0.5rem' : (isVerySmall ? '0.6rem' : '0.75rem');
+        cardContent.style.padding = contentPadding;
+        cardContent.style.boxSizing = 'border-box';
+        
+        // Calculate consistent width with padding for all screen sizes
+        const paddingValue = parseFloat(contentPadding) * 2;
+        cardContent.style.width = `calc(100% - ${paddingValue}rem)`;
+        cardContent.style.margin = '0 auto';
+        
+        cardContent.style.minWidth = '0';
+        cardContent.style.overflow = 'hidden';
+        
+        // Ensure card content text doesn't overflow
+        const heading = cardContent.querySelector('.card__heading');
+        if (heading) {
+          heading.style.width = '100%';
+          heading.style.maxHeight = isExtremelySmall ? '2.4em' : '2.6em';
+          heading.style.overflow = 'hidden';
+          heading.style.textOverflow = 'ellipsis';
+          heading.style.display = '-webkit-box';
+          heading.style.webkitLineClamp = '2';
+          heading.style.webkitBoxOrient = 'vertical';
+          
+          // Adjust font size for small screens
+          if (isExtremelySmall) {
+            heading.style.fontSize = '10px';
+            heading.style.textAlign = 'left';
+          } else if (isVerySmall) {
+            heading.style.fontSize = 'calc(10px + 0.5vw)';
+          }
+        }
+        
+        // Handle game/server tags
+        const attributeTags = cardContent.querySelector('.card__attributes--inline');
+        if (attributeTags) {
+          attributeTags.style.width = '100%';
+          attributeTags.style.display = 'flex';
+          attributeTags.style.flexWrap = 'wrap';
+          attributeTags.style.overflow = 'hidden';
+          
+          if (isExtremelySmall) {
+            attributeTags.style.justifyContent = 'space-between';
+          }
+          
+          // Adjust individual tags
+          const gameTags = attributeTags.querySelectorAll('.attribute-game, .attribute-server');
+          gameTags.forEach(tag => {
+            tag.style.maxWidth = isExtremelySmall ? '40%' : (isVerySmall ? '45%' : '100%');
+            tag.style.overflow = 'hidden';
+            tag.style.whiteSpace = 'nowrap';
+            tag.style.textOverflow = 'ellipsis';
+            
+            // Adjust font size for small screens
+            if (isExtremelySmall) {
+              tag.style.fontSize = '9px';
+            } else if (isVerySmall) {
+              tag.style.fontSize = '11px';
+            }
+          });
+        }
+        
+        // Handle price container
+        const priceContainer = cardContent.querySelector('.card__price-container');
+        if (priceContainer) {
+          priceContainer.style.width = '100%';
+          
+          const priceElement = priceContainer.querySelector('.price');
+          if (priceElement) {
+            priceElement.style.width = '100%';
+            priceElement.style.textAlign = 'left';
+          }
+        }
+      }
+    }
+  }
+  
+  // Function to match content height to image height and ensure square images
+  function matchContentHeight() {
+    if (window.innerWidth <= 749) {
+      // Get the product grid to check if we're using 2 columns
+      const productGrid = document.getElementById('product-grid');
+      const hasTwoColumns = productGrid && productGrid.getAttribute('data-columns-mobile') === '2';
+      
+      // Calculate minimum size based on viewport
+      const screenWidth = window.innerWidth;
+      const isVerySmall = screenWidth <= 375;
+      const isExtremelySmall = screenWidth <= 320;
+      
+      // Calculate appropriate minimum size for different screen widths
+      let minSize;
+      if (isExtremelySmall) {
+        minSize = Math.max(screenWidth * 0.38, 80); // Smaller size for iPhone SE
+      } else if (isVerySmall) {
+        minSize = Math.max(screenWidth * 0.4, 100); // Smaller size for small screens
+      } else {
+        minSize = Math.max(screenWidth * 0.43, 140); // Default minimum size
+      }
+      
+      // Adjust grid columns for very small screens
+      if (hasTwoColumns && productGrid) {
+        if (isExtremelySmall) {
+          // For extremely small screens, use 1fr with smaller gap
+          productGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+          productGrid.style.columnGap = '0.3rem';
+        } else if (isVerySmall) {
+          // For very small screens, use 1fr with normal gap
+          productGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+          productGrid.style.columnGap = '0.5rem';
+        } else {
+          productGrid.style.gridTemplateColumns = `repeat(2, minmax(${minSize}px, 1fr))`;
+          productGrid.style.columnGap = '0.5rem';
+        }
+      }
+
+      // Get all card wrappers
+      document.querySelectorAll('.product-card-wrapper').forEach(card => {
+        // For very small screens, apply scaling to fit content
+        if (isExtremelySmall) {
+          card.style.transform = 'scale(0.95)';
+          card.style.transformOrigin = 'center top';
+          card.style.width = '100%';
+        } else if (isVerySmall) {
+          card.style.transform = 'scale(0.98)';
+          card.style.transformOrigin = 'center top';
+          card.style.width = '100%';
+        } else {
+          card.style.transform = 'none';
+        }
+        
+        const imageContainer = card.querySelector('.mobile-image-container');
+        const contentContainer = card.querySelector('.mobile-content-container');
+        
+        if (imageContainer && contentContainer) {
+          // Handle extremely small screens differently
+          if (isExtremelySmall) {
+            imageContainer.style.width = '100%';
+            imageContainer.style.height = 'auto';
+            imageContainer.style.paddingBottom = '100%'; // Square aspect ratio via padding
+          } else {
+          // Get the width of the image container (for square aspect ratio)
+            const imageWidth = Math.max(imageContainer.offsetWidth, minSize);
+          
+          // Force square aspect ratio by setting height equal to width
+            imageContainer.style.width = imageWidth + 'px';
+          imageContainer.style.height = imageWidth + 'px';
+          }
+          
+          // Force any images inside to maintain aspect ratio
+          const images = imageContainer.querySelectorAll('img');
+          images.forEach(img => {
+            // Ensure image is always displayed as a perfect square with center cropping
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.objectPosition = 'center';
+            
+            // Add additional styles to ensure images maintain square aspect ratio
+            img.style.position = 'absolute';
+            img.style.top = '0';
+            img.style.left = '0';
+            img.style.bottom = '0';
+            img.style.right = '0';
+            
+            // Ensure minimum dimensions to avoid scaling issues with smaller images
+            img.style.minWidth = '100%';
+            img.style.minHeight = '100%';
+            
+            // Ensure parent has proper positioning for absolute positioning to work
+            if (img.parentElement) {
+              img.parentElement.style.position = 'relative';
+              img.parentElement.style.width = '100%';
+              img.parentElement.style.height = '100%';
+              img.parentElement.style.overflow = 'hidden';
+            }
+            
+            // Force loading to address potential sizing issues
+            if (img.complete) {
+              // For already loaded images, ensure sizing is applied
+              ensureSquareImage(img);
+            } else {
+              // For images still loading, apply sizing when loaded
+              img.onload = function() {
+                ensureSquareImage(img);
+              }
+            }
+          });
+          
+          if (!hasTwoColumns) {
+            // For 1-column layout: Set the content container height to match exactly
+            contentContainer.style.height = imageContainer.offsetHeight + 'px';
+          } else {
+            // For 2-column layout: Let the height be determined by content
+            contentContainer.style.height = 'auto';
+            contentContainer.style.minHeight = 'auto';
+          }
+          
+          // Ensure the card wrapper maintains proper dimensions
+          const cardElement = card.querySelector('.card');
+          if (cardElement) {
+            if (hasTwoColumns) {
+              // For 2-column layout: flex column with auto height
+              cardElement.style.display = 'flex';
+              cardElement.style.flexDirection = 'column';
+            cardElement.style.height = 'auto';
+              cardElement.style.minHeight = 'auto';
+              cardElement.style.width = '100%';
+              cardElement.style.overflow = 'hidden';
+              
+              // Ensure content padding is consistent
+              const cardContent = cardElement.querySelector('.card__content');
+              if (cardContent) {
+                // Adjust padding based on screen size
+                cardContent.style.padding = isExtremelySmall ? '0.5rem' : (isVerySmall ? '0.6rem' : '0.75rem');
+                cardContent.style.boxSizing = 'border-box';
+                cardContent.style.width = '100%';
+                cardContent.style.minWidth = '0';
+                cardContent.style.overflow = 'hidden';
+                
+                // Handle game/server tags for very small screens
+                const attributeTags = cardContent.querySelector('.card__attributes--inline');
+                if (attributeTags) {
+                  attributeTags.style.width = '100%';
+                  attributeTags.style.display = 'flex';
+                  attributeTags.style.flexWrap = 'wrap';
+                  attributeTags.style.overflow = 'hidden';
+                  
+                  // Adjust individual tags
+                  const gameTags = attributeTags.querySelectorAll('.attribute-game, .attribute-server');
+                  gameTags.forEach(tag => {
+                    tag.style.maxWidth = isExtremelySmall ? '40%' : (isVerySmall ? '45%' : '100%');
+                    tag.style.overflow = 'hidden';
+                    tag.style.whiteSpace = 'nowrap';
+                    tag.style.textOverflow = 'ellipsis';
+                    
+                    // Adjust font size for small screens
+                    if (isExtremelySmall) {
+                      tag.style.fontSize = '9px';
+                    } else if (isVerySmall) {
+                      tag.style.fontSize = '11px';
+                    }
+                  });
+                }
+                
+                // Ensure price container has consistent spacing
+                const priceContainer = cardContent.querySelector('.card__price-container');
+                if (priceContainer) {
+                  priceContainer.style.marginTop = '0.5rem';
+                  priceContainer.style.width = '100%';
+                  
+                  // Adjust price text for small screens
+                  const priceElement = priceContainer.querySelector('.price');
+                  if (priceElement) {
+                    if (isExtremelySmall) {
+                      priceElement.style.fontSize = '10px';
+                    } else if (isVerySmall) {
+                      priceElement.style.fontSize = 'calc(10px + 0.5vw)';
+                    }
+                    priceElement.style.width = '100%';
+                    priceElement.style.overflow = 'hidden';
+                    priceElement.style.textOverflow = 'ellipsis';
+                  }
+                }
+              }
+            } else {
+              // For 1-column layout: match height to image
+              cardElement.style.height = 'auto';
+              cardElement.style.minHeight = imageContainer.offsetHeight + 'px';
+            }
+          }
+        }
+      });
+    }
+  }
+  
+  // Function to ensure product titles are properly truncated
+  function enforceTitleTruncation() {
+    if (window.innerWidth <= 749) {
+      // Get all card titles
+      const productGrid = document.getElementById('product-grid');
+      const hasTwoColumns = productGrid && productGrid.getAttribute('data-columns-mobile') === '2';
+      
+      // Get all product headings
+      document.querySelectorAll('.card__heading').forEach(heading => {
+        // Set explicit max-height in case CSS fails
+        const fontSize = parseInt(window.getComputedStyle(heading).fontSize);
+        const lineHeight = 1.3; // Match our CSS lineHeight
+        
+        // Different max lines based on layout
+        const maxLines = hasTwoColumns ? 2 : 2; // Both layouts use 2 lines but could be adjusted
+        const maxHeight = Math.floor(fontSize * lineHeight * maxLines);
+        
+        heading.style.maxHeight = maxHeight + 'px';
+        heading.style.display = '-webkit-box';
+        heading.style.webkitLineClamp = maxLines.toString();
+        heading.style.webkitBoxOrient = 'vertical';
+        heading.style.overflow = 'hidden';
+        heading.style.textOverflow = 'ellipsis';
+        heading.style.wordBreak = 'break-word';
+        
+        // Additional adjustments for 2-column layout
+        if (hasTwoColumns) {
+          heading.style.fontSize = '14px';
+          heading.style.lineHeight = '1.2';
+          heading.style.marginBottom = '0.4rem';
+        }
+      });
+    }
+  }
+  
+  // Run all functions on page load
+  enforceZeroSpacing();
+  matchContentHeight();
+  enforceTitleTruncation();
+  
+  // Run on resize
+  window.addEventListener('resize', function() {
+    enforceZeroSpacing();
+    matchContentHeight();
+    enforceTitleTruncation();
+  });
+  
+  // Run after dynamic content loads
+  window.addEventListener('load', function() {
+    enforceZeroSpacing();
+    matchContentHeight();
+    enforceTitleTruncation();
+    
+    // Apply iPhone SE specific fixes
+    if (window.innerWidth <= 320) {
+      // Apply special handling for extremely small screens
+      document.querySelectorAll('.product-card-wrapper').forEach(wrapper => {
+        // Apply slight scale down to fit content
+        wrapper.style.transform = 'scale(0.95)';
+        wrapper.style.transformOrigin = 'center top';
+        
+        // Ensure card components have correct sizing
+        const card = wrapper.querySelector('.card');
+        if (card) {
+          card.style.width = '100%';
+          card.style.maxWidth = '100%';
+          card.style.overflow = 'hidden';
+          card.style.padding = '0';
+          card.style.display = 'flex';
+          card.style.flexDirection = 'column';
+          card.style.alignItems = 'center';
+          
+          // Ensure content has proper padding
+          const content = card.querySelector('.card__content');
+          if (content) {
+            // Set equal padding on all sides
+            content.style.padding = '0.5rem';
+            content.style.boxSizing = 'border-box';
+            // Calculate width to account for padding
+            content.style.width = 'calc(100% - 1rem)';
+            content.style.margin = '0 auto';
+            content.style.overflow = 'hidden';
+            
+            // Make title text smaller
+            const heading = content.querySelector('.card__heading');
+            if (heading) {
+              heading.style.fontSize = '10px';
+              heading.style.lineHeight = '1.2';
+              heading.style.webkitLineClamp = '2';
+              heading.style.width = '100%';
+              heading.style.textAlign = 'left';
+            }
+            
+            // Make attribute tags smaller and ensure they fit
+            const attributesContainer = content.querySelector('.card__attributes--inline');
+            if (attributesContainer) {
+              attributesContainer.style.width = '100%';
+              attributesContainer.style.display = 'flex';
+              attributesContainer.style.justifyContent = 'space-between';
+              
+              const tags = content.querySelectorAll('.attribute-game, .attribute-server');
+              tags.forEach(tag => {
+                tag.style.fontSize = '9px';
+                tag.style.maxWidth = '40%';
+                tag.style.overflow = 'hidden';
+                tag.style.textOverflow = 'ellipsis';
+              });
+            }
+            
+            // Ensure price container is properly sized
+            const priceContainer = content.querySelector('.card__price-container');
+            if (priceContainer) {
+              priceContainer.style.width = '100%';
+              
+              // Make price smaller
+              const price = priceContainer.querySelector('.price');
+              if (price) {
+                price.style.fontSize = '10px';
+                price.style.width = '100%';
+                price.style.textAlign = 'left';
+              }
+            }
+          }
+        }
+      });
+      
+      // Adjust grid spacing
+      const grid = document.getElementById('product-grid');
+      if (grid) {
+        grid.style.columnGap = '0.3rem';
+        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      }
+    }
+  });
+  
+  // Run when orientation changes (important for mobile)
+  window.addEventListener('orientationchange', function() {
+    enforceZeroSpacing();
+    matchContentHeight();
+    enforceTitleTruncation();
+  });
+  
+  // Additional mobile-specific events
+  window.addEventListener('scroll', debounce(matchContentHeight, 200));
+  
+  // Touch events for mobile
+  document.addEventListener('touchend', function() {
+    setTimeout(matchContentHeight, 300);
+  });
+  
+  // Helper function to debounce frequent events
+  function debounce(fn, delay) {
+    let timer;
+    return function() {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        fn();
+      }, delay);
+    };
+  }
+  
+  // Make sure padding settings are maintained after facet updates
+  document.addEventListener('DOMContentLoaded', applyCustomPadding);
+  
+  // Apply again after facet filtering
+  document.addEventListener('facet:update', applyCustomPadding);
+  
+  function applyCustomPadding() {
+    // Only apply on mobile
+    if (window.innerWidth <= 749) {
+      // Apply mobile facets padding
+      const facetsWrapper = document.querySelector('.mobile-facets__wrapper');
+      const facetsMain = document.querySelector('.mobile-facets__main');
+      
+      if (facetsWrapper) {
+        facetsWrapper.style.paddingLeft = '{{ section.settings.mobile_facets_padding_horizontal }}px';
+        facetsWrapper.style.paddingRight = '{{ section.settings.mobile_facets_padding_horizontal }}px';
+      }
+      
+      if (facetsMain) {
+        facetsMain.style.padding = '{{ section.settings.mobile_facets_padding_vertical }}px {{ section.settings.mobile_facets_padding_horizontal }}px';
+      }
+      
+      // Apply product grid padding
+      const productGrid = document.getElementById('product-grid');
+      if (productGrid) {
+        productGrid.style.padding = '{{ section.settings.mobile_product_grid_padding_vertical }}px {{ section.settings.mobile_product_grid_padding_horizontal }}px';
+        
+        // Remove any conflicting margin
+        productGrid.style.margin = '0';
+      }
+      
+      // Apply vertical spacing to grid items
+      const gridItems = document.querySelectorAll('.grid__item');
+      if (gridItems.length > 0) {
+        gridItems.forEach(item => {
+          item.style.marginBottom = '{{ section.settings.mobile_product_grid_padding_vertical }}px';
+        });
+      }
+      
+      // Override any spacing classes
+      const noSpacingGrid = document.querySelector('.no-spacing-mobile-grid');
+      if (noSpacingGrid) {
+        noSpacingGrid.style.padding = '0';
+      }
+    }
+  }
+  
+  // Also apply on resize
+  window.addEventListener('resize', applyCustomPadding);
+});
+</script>
+
+<style>
+  /* Ensure consistent padding between facets and product grid */
+  @media screen and (max-width: 749px) {
+    /* Reset outer page-width padding */
+    .section-main-collection-product-grid .page-width {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  
+    /* Apply proper padding to facets */
+    .facets__wrapper.page-width {
+      padding-left: 1.25rem !important;
+      padding-right: 1.25rem !important;
+    }
+    
+    /* Ensure active facets and mobile filter display also have consistent padding */
+    .active-facets-mobile,
+    .mobile-facets__open,
+    .facets-horizontal {
+      padding-left: 1.25rem !important;
+      padding-right: 1.25rem !important;
+    }
+  }
+  
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .facets__wrapper.page-width {
+      padding-left: 1.75rem !important;
+      padding-right: 1.75rem !important;
+    }
+  }
+  
+  @media screen and (min-width: 990px) {
+    .facets__wrapper.page-width {
+      padding-left: 2rem !important;
+      padding-right: 2rem !important;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.main-collection-product-grid.name",
+  "class": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 24,
+      "step": 4,
+      "default": 16,
+      "label": "t:sections.main-collection-product-grid.settings.products_per_page.label"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.main-collection-product-grid.settings.columns_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "mobile_columns",
+      "label": "Products per row on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 product"
+        },
+        {
+          "value": "2",
+          "label": "2 products"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-product-grid.settings.header__3.content"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.main-collection-product-grid.settings.image_ratio.options__1.label"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.main-collection-product-grid.settings.image_ratio.options__2.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.main-collection-product-grid.settings.image_ratio.options__3.label"
+        }
+      ],
+      "default": "adapt",
+      "label": "t:sections.main-collection-product-grid.settings.image_ratio.label"
+    },
+    {
+      "type": "select",
+      "id": "image_shape",
+      "options": [
+        {
+          "value": "default",
+          "label": "t:sections.all.image_shape.options__1.label"
+        },
+        {
+          "value": "arch",
+          "label": "t:sections.all.image_shape.options__2.label"
+        },
+        {
+          "value": "blob",
+          "label": "t:sections.all.image_shape.options__3.label"
+        },
+        {
+          "value": "chevronleft",
+          "label": "t:sections.all.image_shape.options__4.label"
+        },
+        {
+          "value": "chevronright",
+          "label": "t:sections.all.image_shape.options__5.label"
+        },
+        {
+          "value": "diamond",
+          "label": "t:sections.all.image_shape.options__6.label"
+        },
+        {
+          "value": "parallelogram",
+          "label": "t:sections.all.image_shape.options__7.label"
+        },
+        {
+          "value": "round",
+          "label": "t:sections.all.image_shape.options__8.label"
+        }
+      ],
+      "default": "default",
+      "label": "t:sections.all.image_shape.label",
+      "info": "t:sections.all.image_shape.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "default": false,
+      "label": "t:sections.main-collection-product-grid.settings.show_secondary_image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": false,
+      "label": "t:sections.main-collection-product-grid.settings.show_vendor.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "default": false,
+      "label": "t:sections.main-collection-product-grid.settings.show_rating.label",
+      "info": "t:sections.main-collection-product-grid.settings.show_rating.info"
+    },
+    {
+      "type": "select",
+      "id": "quick_add",
+      "default": "none",
+      "label": "t:sections.main-collection-product-grid.settings.quick_add.label",
+      "info": "t:sections.main-collection-product-grid.settings.quick_add.info",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.main-collection-product-grid.settings.quick_add.options.option_1"
+        },
+        {
+          "value": "standard",
+          "label": "t:sections.main-collection-product-grid.settings.quick_add.options.option_2"
+        },
+        {
+          "value": "bulk",
+          "label": "t:sections.main-collection-product-grid.settings.quick_add.options.option_3"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-product-grid.settings.header__1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.enable_filtering.label",
+      "info": "t:sections.main-collection-product-grid.settings.enable_filtering.info"
+    },
+    {
+      "type": "select",
+      "id": "filter_type",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "t:sections.main-collection-product-grid.settings.filter_type.options__1.label"
+        },
+        {
+          "value": "vertical",
+          "label": "t:sections.main-collection-product-grid.settings.filter_type.options__2.label"
+        },
+        {
+          "value": "drawer",
+          "label": "t:sections.main-collection-product-grid.settings.filter_type.options__3.label"
+        }
+      ],
+      "default": "horizontal",
+      "label": "t:sections.main-collection-product-grid.settings.filter_type.label",
+      "info": "t:sections.main-collection-product-grid.settings.filter_type.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.enable_sorting.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-product-grid.settings.header_mobile.content"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "default": "2",
+      "label": "t:sections.main-collection-product-grid.settings.columns_mobile.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.main-collection-product-grid.settings.columns_mobile.options__1.label"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.main-collection-product-grid.settings.columns_mobile.options__2.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Mobile Padding Controls"
+    },
+    {
+      "type": "range",
+      "id": "mobile_facets_padding_horizontal",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile facets horizontal padding",
+      "info": "Controls the horizontal padding for filters on mobile devices",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "mobile_facets_padding_vertical",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile facets vertical padding",
+      "info": "Controls the vertical padding for filters on mobile devices",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "mobile_product_grid_padding_horizontal",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile product grid horizontal padding",
+      "info": "Controls the horizontal padding for product grid on mobile devices",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_product_grid_padding_vertical",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "label": "Mobile product grid vertical padding",
+      "info": "Controls the vertical padding for product grid on mobile devices",
+      "default": 16
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,12 @@
+{% comment %}
+  Renders the game title.
+  Accepts:
+  - game_title: {String} The game title from the product metafield.
+
+  Usage:
+  {% render 'game-title', game_title: product.metafields.custom.game_title.value %}
+{% endcomment %}
+
+<div class="game-title__wrapper">
+  <p class="game-title__text">{{ game_title }}</p>
+</div>
