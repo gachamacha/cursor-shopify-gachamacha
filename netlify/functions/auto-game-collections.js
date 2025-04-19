@@ -69,50 +69,87 @@ exports.handler = async (event, context) => {
     }
     
     // Parse the webhook payload
-    const product = JSON.parse(event.body);
+    const webhookData = JSON.parse(event.body);
     
-    console.log(`Processing product: ${product.id} - ${product.title}`);
+    console.log(`Processing product: ${webhookData.id} - ${webhookData.title}`);
     
-    // Log metafields to understand structure
-    console.log("Metafields received:", JSON.stringify(product.metafields || []));
+    // Get Shopify credentials
+    const shopifyDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+    const shopifyAccessToken = process.env.SHOPIFY_ACCESS_TOKEN;
     
-    // Check for metafields in different formats
-    let gameMetafield = null;
-    
-    // Look for metafields in array format
-    if (Array.isArray(product.metafields)) {
-      console.log("Checking metafields array format");
-      // Try namespace=custom, key=game
-      gameMetafield = product.metafields.find(m => m.namespace === 'custom' && m.key === 'game');
-      
-      // If not found, try different common namespace/key combinations
-      if (!gameMetafield) {
-        gameMetafield = product.metafields.find(m => 
-          (m.namespace === 'custom' && m.key === 'game') || 
-          (m.key === 'custom.game') ||
-          (m.namespace === 'global' && m.key === 'game')
-        );
-      }
-    } 
-    // Shopify sometimes nests metafields under a "metafields" property with namespace as keys
-    else if (product.metafields && typeof product.metafields === 'object') {
-      console.log("Checking metafields object format");
-      
-      // Check for custom.game format
-      if (product.metafields.custom && product.metafields.custom.game) {
-        gameMetafield = {
-          namespace: 'custom',
-          key: 'game',
-          value: product.metafields.custom.game
-        };
-      }
+    if (!shopifyDomain || !shopifyAccessToken) {
+      throw new Error('Missing Shopify API credentials');
     }
     
-    // If still not found, check if there are any properties containing "game" for debugging
-    if (!gameMetafield && product.metafields) {
-      console.log("No standard game metafield found. Checking for any game-related fields for debugging");
-      const allKeys = getAllMetafieldKeys(product.metafields);
-      console.log("All available metafield keys:", allKeys);
+    // Instead of relying on webhook payload for metafields, fetch the product with metafields
+    console.log(`Fetching complete product data with metafields for product ID: ${webhookData.id}`);
+    
+    // Make API call to get the product with metafields
+    const productResponse = await fetch(
+      `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}.json?fields=id,title,metafields`, 
+      {
+        method: 'GET',
+        headers: {
+          'X-Shopify-Access-Token': shopifyAccessToken,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (!productResponse.ok) {
+      throw new Error(`Failed to fetch product: ${productResponse.statusText}`);
+    }
+    
+    const productData = await productResponse.json();
+    console.log(`Product data received:`, JSON.stringify(productData));
+    
+    // If no metafields are returned in the product data, we need to make a separate call
+    // Shopify often requires a separate API call for metafields
+    if (!productData.product.metafields || productData.product.metafields.length === 0) {
+      console.log(`No metafields in product data, fetching metafields separately`);
+      
+      const metafieldsResponse = await fetch(
+        `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}/metafields.json`, 
+        {
+          method: 'GET',
+          headers: {
+            'X-Shopify-Access-Token': shopifyAccessToken,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (!metafieldsResponse.ok) {
+        throw new Error(`Failed to fetch metafields: ${metafieldsResponse.statusText}`);
+      }
+      
+      const metafieldsData = await metafieldsResponse.json();
+      console.log(`Metafields data received:`, JSON.stringify(metafieldsData));
+      
+      // Update the product data with metafields
+      productData.product.metafields = metafieldsData.metafields;
+    }
+    
+    // Look for game metafield in the metafields array
+    const metafields = productData.product.metafields || [];
+    console.log(`Total metafields found: ${metafields.length}`);
+    
+    // Log all metafields for debugging
+    metafields.forEach((m, i) => {
+      console.log(`Metafield ${i+1}: namespace=${m.namespace}, key=${m.key}, value=${m.value}`);
+    });
+    
+    // Look for game metafield with namespace=custom, key=game
+    let gameMetafield = metafields.find(m => m.namespace === 'custom' && m.key === 'game');
+    
+    // If not found, try other common patterns
+    if (!gameMetafield) {
+      console.log('Looking for alternative metafield patterns...');
+      gameMetafield = metafields.find(m => 
+        (m.key === 'game') || 
+        (m.key === 'custom.game') ||
+        (m.namespace === 'global' && m.key === 'game')
+      );
     }
     
     // Exit if no game metafield found
@@ -125,7 +162,7 @@ exports.handler = async (event, context) => {
     }
     
     // Get the game value
-    const gameName = typeof gameMetafield === 'object' ? gameMetafield.value : gameMetafield;
+    const gameName = gameMetafield.value;
     
     if (!gameName || gameName.trim() === '') {
       console.log('Empty game metafield value');
@@ -140,14 +177,6 @@ exports.handler = async (event, context) => {
     const gameHandle = gameName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '').replace(/^-/, '');
     
     // Check if a collection with this handle already exists
-    const shopifyDomain = process.env.SHOPIFY_SHOP_DOMAIN;
-    const shopifyAccessToken = process.env.SHOPIFY_ACCESS_TOKEN;
-    
-    if (!shopifyDomain || !shopifyAccessToken) {
-      throw new Error('Missing Shopify API credentials');
-    }
-    
-    // Use Shopify Admin API to check for existing collection
     console.log(`Checking if collection exists for handle: ${gameHandle}`);
     
     try {
