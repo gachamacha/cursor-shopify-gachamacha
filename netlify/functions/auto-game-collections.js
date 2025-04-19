@@ -47,6 +47,37 @@ function verifyShopifyWebhook(req) {
 }
 
 /**
+ * Helper function to handle API requests to Shopify
+ * 
+ * @param {string} url - The API endpoint URL
+ * @param {Object} options - The fetch options
+ * @param {string} errorPrefix - Prefix for error messages
+ * @return {Promise<Object>} - The API response
+ */
+async function shopifyApiRequest(url, options, errorPrefix) {
+  try {
+    console.log(`Making API request to: ${url}`);
+    const response = await fetch(url, options);
+    
+    // Log status code for debugging
+    console.log(`API response status: ${response.status} ${response.statusText}`);
+    
+    if (!response.ok) {
+      // Try to extract detailed error
+      const errorText = await response.text();
+      console.error(`${errorPrefix} failed with status ${response.status}: ${errorText}`);
+      return { error: true, status: response.status, message: errorText };
+    }
+    
+    const data = await response.json();
+    return { error: false, data };
+  } catch (error) {
+    console.error(`${errorPrefix} exception:`, error);
+    return { error: true, message: error.message };
+  }
+}
+
+/**
  * Netlify function to handle Shopify webhook for product creation/update
  * This function detects new game metafields and creates collections for them
  */
@@ -85,53 +116,54 @@ exports.handler = async (event, context) => {
     console.log(`Fetching complete product data with metafields for product ID: ${webhookData.id}`);
     
     // Make API call to get the product with metafields
-    const productResponse = await fetch(
-      `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}.json?fields=id,title,metafields`, 
+    const productResult = await shopifyApiRequest(
+      `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}.json?fields=id,title,metafields`,
       {
         method: 'GET',
         headers: {
           'X-Shopify-Access-Token': shopifyAccessToken,
           'Content-Type': 'application/json'
         }
-      }
+      },
+      "Product fetch"
     );
     
-    if (!productResponse.ok) {
-      throw new Error(`Failed to fetch product: ${productResponse.statusText}`);
+    if (productResult.error) {
+      throw new Error(`Failed to fetch product: ${productResult.message}`);
     }
     
-    const productData = await productResponse.json();
+    const productData = productResult.data;
     console.log(`Product data received:`, JSON.stringify(productData));
     
     // If no metafields are returned in the product data, we need to make a separate call
-    // Shopify often requires a separate API call for metafields
+    let metafields = [];
     if (!productData.product.metafields || productData.product.metafields.length === 0) {
       console.log(`No metafields in product data, fetching metafields separately`);
       
-      const metafieldsResponse = await fetch(
-        `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}/metafields.json`, 
+      const metafieldsResult = await shopifyApiRequest(
+        `https://${shopifyDomain}/admin/api/2023-07/products/${webhookData.id}/metafields.json`,
         {
           method: 'GET',
           headers: {
             'X-Shopify-Access-Token': shopifyAccessToken,
             'Content-Type': 'application/json'
           }
-        }
+        },
+        "Metafields fetch"
       );
       
-      if (!metafieldsResponse.ok) {
-        throw new Error(`Failed to fetch metafields: ${metafieldsResponse.statusText}`);
+      if (metafieldsResult.error) {
+        throw new Error(`Failed to fetch metafields: ${metafieldsResult.message}`);
       }
       
-      const metafieldsData = await metafieldsResponse.json();
-      console.log(`Metafields data received:`, JSON.stringify(metafieldsData));
+      console.log(`Metafields data received:`, JSON.stringify(metafieldsResult.data));
       
-      // Update the product data with metafields
-      productData.product.metafields = metafieldsData.metafields;
+      metafields = metafieldsResult.data.metafields || [];
+    } else {
+      metafields = productData.product.metafields;
     }
     
     // Look for game metafield in the metafields array
-    const metafields = productData.product.metafields || [];
     console.log(`Total metafields found: ${metafields.length}`);
     
     // Log all metafields for debugging
@@ -179,93 +211,91 @@ exports.handler = async (event, context) => {
     // Check if a collection with this handle already exists
     console.log(`Checking if collection exists for handle: ${gameHandle}`);
     
+    // Track if collection exists
+    let collectionExists = false;
+    let existingCollections = [];
+    
     try {
-      // Fix: Use the correct API endpoint to check for collections
-      // The original query was incorrect. We need to use the custom_collections and smart_collections endpoints
-      
       // First check custom collections
-      const customCollectionsResponse = await fetch(`https://${shopifyDomain}/admin/api/2023-07/custom_collections.json?handle=${gameHandle}`, {
-        method: 'GET',
-        headers: {
-          'X-Shopify-Access-Token': shopifyAccessToken,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!customCollectionsResponse.ok) {
-        console.log(`Error checking custom collections: ${customCollectionsResponse.statusText}`);
-      }
+      const customCollectionsResult = await shopifyApiRequest(
+        `https://${shopifyDomain}/admin/api/2023-07/custom_collections.json?handle=${gameHandle}`,
+        {
+          method: 'GET',
+          headers: {
+            'X-Shopify-Access-Token': shopifyAccessToken,
+            'Content-Type': 'application/json'
+          }
+        },
+        "Custom collections check"
+      );
       
       // Then check smart collections
-      const smartCollectionsResponse = await fetch(`https://${shopifyDomain}/admin/api/2023-07/smart_collections.json?handle=${gameHandle}`, {
-        method: 'GET',
-        headers: {
-          'X-Shopify-Access-Token': shopifyAccessToken,
-          'Content-Type': 'application/json'
-        }
-      });
+      const smartCollectionsResult = await shopifyApiRequest(
+        `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json?handle=${gameHandle}`,
+        {
+          method: 'GET',
+          headers: {
+            'X-Shopify-Access-Token': shopifyAccessToken,
+            'Content-Type': 'application/json'
+          }
+        },
+        "Smart collections check"
+      );
       
-      if (!smartCollectionsResponse.ok) {
-        console.log(`Error checking smart collections: ${smartCollectionsResponse.statusText}`);
-      }
-      
-      // Parse both responses
-      const customCollections = await customCollectionsResponse.json();
-      const smartCollections = await smartCollectionsResponse.json();
+      // Process results from both endpoints
+      const customCollections = customCollectionsResult.error ? { custom_collections: [] } : customCollectionsResult.data;
+      const smartCollections = smartCollectionsResult.error ? { smart_collections: [] } : smartCollectionsResult.data;
       
       console.log(`Custom collections check result:`, JSON.stringify(customCollections));
       console.log(`Smart collections check result:`, JSON.stringify(smartCollections));
       
       // Combine both collection types
-      const existingCollections = [
+      existingCollections = [
         ...(customCollections.custom_collections || []),
         ...(smartCollections.smart_collections || [])
       ];
       
+      collectionExists = existingCollections.length > 0;
       console.log(`Total existing collections found with handle '${gameHandle}': ${existingCollections.length}`);
       
       // If collection doesn't exist, create it
-      if (existingCollections.length === 0) {
+      if (!collectionExists) {
         console.log(`No collection found for ${gameHandle}, creating new one`);
         
         // Create smart collection using Shopify Admin API
-        const createResponse = await fetch(`https://${shopifyDomain}/admin/api/2023-07/smart_collections.json`, {
-          method: 'POST',
-          headers: {
-            'X-Shopify-Access-Token': shopifyAccessToken,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            smart_collection: {
-              title: gameName,
-              rules: [
-                {
-                  column: 'metafield',
-                  relation: 'equals',
-                  condition: gameName,
-                  metafield: {
-                    namespace: 'custom',
-                    key: 'game'
+        const createCollectionResult = await shopifyApiRequest(
+          `https://${shopifyDomain}/admin/api/2023-07/smart_collections.json`,
+          {
+            method: 'POST',
+            headers: {
+              'X-Shopify-Access-Token': shopifyAccessToken,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              smart_collection: {
+                title: gameName,
+                rules: [
+                  {
+                    column: 'metafield',
+                    relation: 'equals',
+                    condition: gameName,
+                    metafield: {
+                      namespace: 'custom',
+                      key: 'game'
+                    }
                   }
-                }
-              ]
-            }
-          })
-        });
+                ]
+              }
+            })
+          },
+          "Collection creation"
+        );
         
-        if (!createResponse.ok) {
-          const errorText = await createResponse.text();
-          console.error(`Failed to create collection, response: ${errorText}`);
-          try {
-            const errorData = JSON.parse(errorText);
-            throw new Error(`Failed to create collection: ${JSON.stringify(errorData)}`);
-          } catch (e) {
-            throw new Error(`Failed to create collection: ${errorText}`);
-          }
+        if (createCollectionResult.error) {
+          throw new Error(`Failed to create collection: ${createCollectionResult.message}`);
         }
         
-        const createResult = await createResponse.json();
-        console.log(`Successfully created collection: ${createResult.smart_collection.title} (ID: ${createResult.smart_collection.id})`);
+        console.log(`Successfully created collection: ${createCollectionResult.data.smart_collection.title} (ID: ${createCollectionResult.data.smart_collection.id})`);
         return {
           statusCode: 200,
           body: `Created collection for game ${gameName}`
