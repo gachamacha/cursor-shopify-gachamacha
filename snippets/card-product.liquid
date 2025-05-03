@@ -61,7 +61,7 @@
         </div>
         
         {%- if card_product.featured_media -%}
-          <div class="card__media{% if image_shape and image_shape != 'default' %} shape--{{ image_shape }}{% endif %}">
+          <div class="card__media image-ratio-{{ media_aspect_ratio }}{% if image_shape and image_shape != 'default' %} shape--{{ image_shape }}{% endif %}" data-media-aspect-ratio="{{ media_aspect_ratio }}">
             <div class="media media--transparent{% if card_product.media[1] != null and show_secondary_image %} media--hover-effect{% endif %}">
               {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
               <img
@@ -570,27 +570,6 @@
     overflow: visible; /* Ensure content isn't cut off during hover */
     position: relative; /* Added from card-container */
     padding-top: 4px; /* Added from card-container to prevent cutoff during hover */
-  }
-  
-  /* Universal title display for all screen sizes - key fix */
-  .card__heading .full-unstyled-link,
-  .card__heading span,
-  .card__heading a {
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.4 !important; /* Improved line height for readability */
-    min-height: 3.2em !important; /* Increased to accommodate larger font size */
-    max-height: 3.2em !important; /* Increased to match min-height */
-    width: 100%;
-    word-break: break-word;
-    color: white;
-    font-size: 1.7rem !important; /* Increased from 1.5rem for better visibility */
-    font-weight: 600; /* Medium bold for better distinction */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow for better contrast */
-    letter-spacing: 0.01em; /* Slight letter spacing for readability */
   }
   
   /* CRITICAL FIX: Ensure card structure is properly laid out */
@@ -1238,22 +1217,6 @@
     margin-top: -1px !important; /* Ensure no gap between image and content */
   }
 
-  /* Fix content display */
-  .card--app-style .card__information {
-    display: block !important;
-    visibility: visible !important;
-    color: white !important;
-    width: 100%;
-  }
-
-  /* Ensure heading is visible */
-  .card--app-style .card__heading {
-    color: white !important;
-    display: block !important;
-    visibility: visible !important;
-    margin-bottom: 0.5rem;
-  }
-
   /* Ensure price is visible */
   .card--app-style .price .price-item {
     color: #d4af37 !important;
@@ -1588,12 +1551,6 @@
     font-weight: 400;
   }
   
-  @media screen and (max-width: 749px) {
-    .attribute-value {
-      font-size: 0.6rem;
-    }
-  }
-  
   @media screen and (min-width: 750px) {
     .attribute-value {
       font-size: 0.65rem;
@@ -1621,29 +1578,7 @@
     outline-offset: 2px;
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.8), 0 8px 24px rgba(0, 0, 0, 0.12);
   }
-  
-  /* Updated card title styling for consistent 2-line display */
-  .card__heading .full-unstyled-link,
-  .card__heading span,
-  .card__heading a {
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.3 !important; 
-    max-height: 3.4rem !important; /* Updated to match our new styling */
-    min-height: 3.4rem !important; /* Updated to match our new styling */
-    width: 100%;
-    word-break: break-word;
-    color: white;
-    font-size: 1.8rem !important; /* Updated to our new larger size */
-    font-weight: 600; 
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Updated to match our new styling */
-    letter-spacing: -0.01em !important; /* Updated to match our new styling */
-    margin-bottom: 0.5rem; /* Consistent spacing after title */
-  }
-  
+
   /* Card heading container height management */
   .card__heading {
     min-height: 4.8rem !important; /* Updated to match our new styling */
@@ -1657,26 +1592,6 @@
     flex-direction: column;
     justify-content: space-between;
     min-height: 7.5rem; /* Ensure minimum height for information section */
-  }
-  
-  /* Small screen adjustments */
-  @media screen and (max-width: 749px) {
-    .card__heading .full-unstyled-link,
-    .card__heading span,
-    .card__heading a {
-      font-size: 1.5rem !important; /* Updated to match our new mobile styling */
-      min-height: 3rem !important; /* Updated to match our new mobile styling */
-      max-height: 3rem !important; /* Updated to match our new mobile styling */
-      line-height: 1.25 !important; /* Updated to match our new mobile styling */
-    }
-    
-    .card__heading {
-      min-height: 4rem !important; /* Updated to match our new mobile styling */
-    }
-    
-    .card__information {
-      min-height: 8.5rem !important; /* Updated to match our new mobile styling */
-    }
   }
 
   /* Card Title Styling */
@@ -1710,55 +1625,6 @@
     min-height: 8rem; /* Increased from 7.2rem to accommodate taller title */
     display: flex;
     flex-direction: column;
-  }
-
-  @media screen and (max-width: 749px) {
-    .card__heading {
-      min-height: 3.6rem; /* Increased from 2.8rem for mobile */
-    }
-    
-    .card__heading .full-unstyled-link,
-    .card__heading span,
-    .card__heading a {
-      font-size: 1.4rem !important; /* Increased from 0.85rem for better visibility on mobile */
-      min-height: 2.8rem !important; /* Increased from 2.2rem for mobile */
-      max-height: 2.8rem !important; /* Increased to match min-height */
-    }
-    
-    .card__information {
-      min-height: 7rem; /* Increased from 6rem for mobile */
-    }
-  }
-
-  /* Critical fix for title content visibility */
-  .card--app-style .card__heading {
-    min-height: 4.8rem !important; /* Updated to match our new styling */
-    margin-bottom: 0.7rem !important;
-    margin-top: 0 !important;
-    display: block !important;
-    width: 100% !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .card--app-style .card__heading .full-unstyled-link,
-  .card--app-style .card__heading span,
-  .card--app-style .card__heading a {
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.3 !important;
-    min-height: 3.4rem !important; /* Updated to match our new styling */
-    max-height: 3.4rem !important; /* Updated to match our new styling */
-    width: 100% !important;
-    word-break: break-word !important;
-    color: white !important;
-    font-size: 1.8rem !important; /* Updated to our new larger size */
-    font-weight: 600 !important;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Updated to match our new styling */
-    letter-spacing: -0.01em !important; /* Updated to match our new styling */
   }
 
   .game-title {
@@ -1814,25 +1680,6 @@
     padding-top: 0.5rem !important;
   }
 
-  @media screen and (max-width: 749px) {
-    .card.card--app-style .card__content {
-      padding: 1rem !important; /* Slightly reduced padding for mobile */
-    }
-    
-    .card.card--app-style .card__information {
-      min-height: 8rem !important; /* Adjusted for mobile */
-    }
-    
-    .card.card--app-style .game-title {
-      font-size: 0.75rem !important;
-      margin-bottom: 0.25rem !important;
-    }
-    
-    .card.card--app-style .card__attributes--inline {
-      padding-top: 0.3rem !important;
-    }
-  }
-
   /* Ensure price remains the same size */
   .card--app-style .card__price-container {
     margin-top: 0.3rem !important;
@@ -1860,64 +1707,6 @@
 
   .card__information {
     min-height: unset;
-  }
-
-  @media screen and (max-width: 749px) {
-    .card--app-style .card__heading {
-      min-height: 4.2rem !important; /* Increased for mobile */
-    }
-    
-    .card--app-style .card__heading .full-unstyled-link,
-    .card--app-style .card__heading span,
-    .card--app-style .card__heading a {
-      font-size: 1.25rem !important; /* Slightly increased for better readability */
-      min-height: 3.3rem !important; /* Increased from previous value */
-    }
-    
-    .game-title {
-      font-size: 0.75rem !important;
-      margin-bottom: 0.25rem !important;
-    }
-    
-    .card--app-style .card__content {
-      padding: 1rem !important; /* Slightly reduced padding for mobile */
-    }
-    
-    .card--app-style .card__information {
-      min-height: 7.5rem !important; /* Adjusted for mobile */
-    }
-    
-    .card--app-style .price .price-item {
-      font-size: 1.5rem !important; /* Keep price size consistent */
-    }
-  }
-
-  /* Most specific selectors to override any other styles */
-  .card.card--app-style .card__heading {
-    min-height: 4.2rem !important; /* Exact space for 2 rows of title */
-    margin-bottom: 0.7rem !important;
-    margin-top: 0 !important;
-    display: block !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-
-  .card.card--app-style .card__heading .full-unstyled-link,
-  .card.card--app-style .card__heading span,
-  .card.card--app-style .card__heading a {
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.3 !important;
-    height: 2.6rem !important; /* Fixed height for exactly 2 lines */
-    max-height: 2.6rem !important; /* Enforces 2 line maximum */
-    width: 100% !important;
-    word-break: break-word !important;
-    color: white !important;
-    font-size: 1rem !important;
-    font-weight: 600 !important;
   }
 
   /* Game title styling */
@@ -1956,91 +1745,6 @@
     position: relative !important;
   }
 
-  /* Ensure price remains the same size */
-  .card.card--app-style .card__price-container {
-    margin-top: 0.5rem !important;
-    width: 100% !important;
-    position: relative !important;
-  }
-
-  .card.card--app-style .price .price-item {
-    font-size: 1.5rem !important; /* Preserved price size */
-    font-weight: 700 !important;
-    color: #d4af37 !important;
-    display: inline-block !important;
-  }
-
-  @media screen and (max-width: 749px) {
-    .card.card--app-style .card__heading {
-      min-height: 4.5rem !important; /* Increased for mobile */
-    }
-    
-    .card.card--app-style .card__heading .full-unstyled-link,
-    .card.card--app-style .card__heading span,
-    .card.card--app-style .card__heading a {
-      font-size: 1.25rem !important; /* Slightly increased for better readability */
-      min-height: 3.5rem !important; /* Increased from previous value */
-    }
-    
-    .card.card--app-style .game-title {
-      font-size: 0.75rem !important;
-      margin-bottom: 0.25rem !important;
-    }
-    
-    .card.card--app-style .card__content {
-      padding: 1rem !important; /* Slightly reduced padding for mobile */
-    }
-    
-    .card.card--app-style .card__information {
-      min-height: 8rem !important; /* Adjusted for mobile */
-    }
-  }
-
-  /* Card title and price styling improvements */
-  .card.card--app-style .card__heading {
-    min-height: 4.8rem !important; /* Updated to match our new styling */
-    margin-bottom: 0.7rem !important;
-    margin-top: 0 !important;
-    display: block !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-
-  .card.card--app-style .card__heading .full-unstyled-link,
-  .card.card--app-style .card__heading span,
-  .card.card--app-style .card__heading a {
-            display: -webkit-box !important;
-            -webkit-line-clamp: 2 !important;
-            -webkit-box-orient: vertical !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            line-height: 1.3 !important;
-    height: 3.4rem !important; /* Updated to match our new styling */
-    max-height: 3.4rem !important; /* Updated to match our new styling */
-    width: 100% !important;
-    word-break: break-word !important;
-    color: white !important;
-    font-size: 1.8rem !important; /* Updated to match our new styling */
-    font-weight: 600 !important;
-    letter-spacing: -0.01em !important; /* Updated to match our new styling */
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Updated to match our new styling */
-  }
-
-  @media screen and (max-width: 749px) {
-    .card.card--app-style .card__heading {
-      min-height: 4rem !important; /* Updated to match our new mobile styling */
-    }
-    
-    .card.card--app-style .card__heading .full-unstyled-link,
-    .card.card--app-style .card__heading span,
-    .card.card--app-style .card__heading a {
-      font-size: 1.5rem !important; /* Updated to match our new mobile styling */
-      height: 3rem !important; /* Updated to match our new mobile styling */
-      max-height: 3rem !important; /* Updated to match our new mobile styling */
-      line-height: 1.25 !important; /* Updated to match our new mobile styling */
-    }
-  }
-
   /* Enhanced price display */
   .card.card--app-style .card__price-container {
     margin-top: 0.5rem !important;
@@ -2072,28 +1776,6 @@
 
   .card.card--app-style .price--on-sale .price-item--sale {
     color: #ff6b6b !important; /* Highlight sale price */
-  }
-
-  @media screen and (max-width: 749px) {
-    .card.card--app-style .card__heading {
-      min-height: 3.6rem !important;
-    }
-    
-    .card.card--app-style .card__heading .full-unstyled-link,
-    .card.card--app-style .card__heading span,
-    .card.card--app-style .card__heading a {
-      font-size: 0.9rem !important;
-      height: 2.3rem !important;
-      max-height: 2.3rem !important;
-    }
-    
-    .card.card--app-style .price .price-item {
-      font-size: 1.8rem !important; /* Still prominent but smaller for mobile */
-    }
-    
-    .card.card--app-style .price-item--regular {
-      font-size: 1.5rem !important;
-    }
   }
 
   /* UPDATED STYLES BELOW */
@@ -2132,82 +1814,19 @@
     z-index: 5 !important;
   }
 
+  /* DO NOT REMOVE: Responsive adjustments for mobile */
   @media screen and (max-width: 749px) {
     .card.card--app-style .price .price-item {
       font-size: 2rem !important; /* Still prominent but smaller for mobile */
     }
-    
-    .card.card--app-style .price__prefix {
-      font-size: 1.5rem !important;
-    }
-  }
 
-  /* Card title styling with increased size but still smaller than price */
-  .card.card--app-style .card__heading .full-unstyled-link,
-  .card.card--app-style .card__heading span,
-  .card.card--app-style .card__heading a {
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.3 !important;
-    height: 3.4rem !important; /* Increased for larger font size */
-    max-height: 3.4rem !important; /* Enforces 2 line maximum */
-    width: 100% !important;
-    word-break: break-word !important;
-    color: white !important;
-    font-size: 1.8rem !important; /* Significantly increased, but smaller than price (2.5rem) */
-    font-weight: 600 !important;
-    letter-spacing: -0.01em !important; /* Slightly tighter for better fit */
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important; /* Subtle shadow for better readability */
-  }
-
-  /* Card heading container update for larger title */
-  .card.card--app-style .card__heading {
-    min-height: 4.8rem !important; /* Increased to accommodate larger font */
-    margin-bottom: 0.7rem !important;
-    margin-top: 0 !important;
-    display: block !important;
-    width: 100% !important;
-    overflow: hidden !important;
-  }
-
-  /* Adjust card information height */
-  .card.card--app-style .card__information {
-    min-height: 10rem !important; /* Increased to accommodate larger title */
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    padding: 0 !important;
-    justify-content: space-between !important;
-  }
-
-  /* Responsive adjustments for mobile */
-  @media screen and (max-width: 749px) {
-    .card.card--app-style .card__heading {
-      min-height: 4rem !important; /* Adjusted for mobile */
-    }
-    
     .card.card--app-style .card__heading .full-unstyled-link,
     .card.card--app-style .card__heading span,
     .card.card--app-style .card__heading a {
       font-size: 1.5rem !important; /* Increased for mobile but still smaller than price (2rem) */
-      height: 3rem !important; /* Adjusted for mobile */
-      max-height: 3rem !important; /* Matched with height */
-      line-height: 1.25 !important; /* Slightly tighter line height for mobile */
-    }
-    
-    .card.card--app-style .card__information {
-      min-height: 8.5rem !important; /* Adjusted for mobile */
-    }
+      height: 6rem !important; /* Adjusted for mobile */
+    }    
   }
-
-  /* Card layout and structure */
-  /* ... existing styles ... */
-  
-  /* Game title container styling */
-  /* ... existing styles ... */
   
   /* Game title styling - keep existing styles */
   .game-title {
@@ -2242,14 +1861,7 @@
     text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important;
   }
   
-  /* Maintain card heading spacing but don't set height constraints on it */
-  .card.card--app-style .card__heading {
-    display: block !important;
-    width: 100% !important;
-    margin-top: 0 !important;
-    margin-bottom: 0.7rem !important;
-    padding: 0 !important;
-  }
+
   
   /* Media queries */
   @media screen and (max-width: 749px) {
@@ -2296,35 +1908,6 @@
     justify-content: flex-start !important; /* Changed from space-between to ensure proper flow */
   }
 
-  /* Card heading (contains product title) */
-  .card.card--app-style .card__heading {
-    margin-bottom: 0.7rem !important;
-    margin-top: 0 !important;
-    display: block !important;
-    width: 100% !important;
-    overflow: visible !important;
-    padding: 0 !important;
-  }
-
-  /* Full card title styles */
-  .card.card--app-style .card__title {
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    line-height: 1.3 !important;
-    height: 3.4rem !important;
-    max-height: 3.4rem !important;
-    width: 100% !important;
-    word-break: break-word !important;
-    color: white !important;
-    font-size: 1.8rem !important;
-    font-weight: 600 !important;
-    letter-spacing: -0.01em !important;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.2) !important;
-  }
-
   /* Game title styles */
   .card.card--app-style .game-title {
     font-size: 0.85rem !important;
@@ -2348,13 +1931,6 @@
     
     .card.card--app-style .card__content {
       padding: 1rem !important; /* Slightly reduced padding for mobile */
-    }
-    
-    .card.card--app-style .card__title {
-      font-size: 1.5rem !important;
-      height: 3rem !important;
-      max-height: 3rem !important;
-      line-height: 1.25 !important;
     }
     
     .card.card--app-style .game-title {

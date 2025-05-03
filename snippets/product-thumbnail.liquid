@@ -40,9 +40,7 @@
     assign mobile_columns = 2
   endif
 
-  if media.media_type == 'image'
-    assign image_class = 'image-magnify-' | append: section.settings.image_zoom
-  endif
+  assign image_class = 'lightbox-zoom'
 -%}
 
 {%- capture sizes -%}
@@ -58,7 +56,7 @@
     data-modal="#ProductModal-{{ modal_id }}"
   >
     <span
-      class="product__media-icon motion-reduce quick-add-hidden{% if media.media_type == 'image' %} product__media-icon--{{ section.settings.image_zoom }}{% endif %}"
+      class="product__media-icon motion-reduce quick-add-hidden"
       aria-hidden="true"
     >
       {% case media.media_type %}
@@ -89,7 +87,7 @@
       }}
     </div>
     <button
-      class="product__media-toggle quick-add-hidden product__media-zoom-{{ section.settings.image_zoom }}"
+      class="product__media-toggle quick-add-hidden lightbox-zoom"
       type="button"
       aria-haspopup="dialog"
       data-media-id="{{ media.id }}"

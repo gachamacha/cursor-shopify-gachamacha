@@ -17,14 +17,10 @@
     {%- for option in product.options_with_values -%}
       {%- liquid
         assign swatch_count = option.values | map: 'swatch' | compact | size
-        assign picker_type = block.settings.picker_type
-
+        assign picker_type = 'dropdown'  
+        
         if swatch_count > 0 and block.settings.swatch_shape != 'none'
-          if block.settings.picker_type == 'dropdown'
-            assign picker_type = 'swatch_dropdown'
-          else
-            assign picker_type = 'swatch'
-          endif
+          assign picker_type = 'swatch_dropdown'
         endif
       -%}
       {%- if picker_type == 'swatch' -%}
@@ -42,33 +38,15 @@
             picker_type: picker_type
           %}
         </fieldset>
-      {%- elsif picker_type == 'button' -%}
-        <fieldset class="js product-form__input product-form__input--pill">
-          <legend class="form__label">{{ option.name }}</legend>
-          {% render 'product-variant-options',
-            product: product,
-            option: option,
-            block: block,
-            picker_type: picker_type
-          %}
-        </fieldset>
       {%- else -%}
-        <div class="product-form__input product-form__input--dropdown">
+        <div class="product-form__input product-form__input--dropdown product-form__input--combo-dropdown variant-picker-input-wrapper {{ block.settings.variant_picker_design }}">
           <label class="form__label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
             {{ option.name }}
           </label>
-          <div class="select">
-            {%- if picker_type == 'swatch_dropdown' -%}
-              <span
-                data-selected-value
-                class="dropdown-swatch"
-              >
-                {% render 'swatch', swatch: option.selected_value.swatch, shape: block.settings.swatch_shape %}
-              </span>
-            {%- endif -%}
+          <div class="select select--combo">
             <select
               id="Option-{{ section.id }}-{{ forloop.index0 }}"
-              class="select__select"
+              class="select__select select__select--combo"
               name="options[{{ option.name | escape }}]"
               form="{{ product_form_id }}"
             >
@@ -76,8 +54,7 @@
                 product: product,
                 option: option,
                 block: block,
-                picker_type: picker_type
-              %}
+                picker_type: 'dropdown' %}
             </select>
             <span class="svg-wrapper">
               {{- 'icon-caret.svg' | inline_asset_content -}}
@@ -90,5 +67,33 @@
     <script type="application/json" data-selected-variant>
       {{ product.selected_or_first_available_variant | json }}
     </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var variantSelects = document.getElementById('variant-selects-{{ section.id }}');
+        if (!variantSelects) return;
+        var selects = variantSelects.querySelectorAll('select');
+        var variantData = {{ product.variants | json }};
+        var selectedVariantScript = variantSelects.querySelector('[data-selected-variant]');
+        function updateSelectedVariant() {
+          var selectedOptions = Array.from(selects).map(function(select) {
+            return select.value;
+          });
+          var matched = variantData.find(function(variant) {
+            return variant.options.every(function(opt, idx) {
+              return opt == selectedOptions[idx];
+            });
+          });
+          if (matched && selectedVariantScript) {
+            selectedVariantScript.textContent = JSON.stringify(matched);
+          }
+        }
+        selects.forEach(function(select) {
+          select.addEventListener('change', updateSelectedVariant);
+        });
+      });
+    </script>
   </variant-selects>
+  <script src="{{ 'picker-focus.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'picker-selection-feedback.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-title-dynamic.js' | asset_url }}" defer></script>
 {%- endunless -%}

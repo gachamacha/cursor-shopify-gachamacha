@@ -15,6 +15,10 @@
   {% endif %}
 >
   {{ 'section-main-product.css' | asset_url | stylesheet_tag }}
+  {{ 'product-media.css' | asset_url | stylesheet_tag }}
+  {{ 'product-info-panel-gold-luxe.css' | asset_url | stylesheet_tag }}
+  {{ 'product-info-panel-plum-glass.css' | asset_url | stylesheet_tag }}
+  {{ 'product-media-modal.css' | asset_url | stylesheet_tag }}
   {{ 'section-featured-product.css' | asset_url | stylesheet_tag }}
   {{ 'component-accordion.css' | asset_url | stylesheet_tag }}
   {{ 'component-price.css' | asset_url | stylesheet_tag }}
@@ -457,7 +461,7 @@
   <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
   {%- if section.settings.image_zoom == 'hover' -%}
     <script id="EnableZoomOnHover-featured" src="{{ 'magnify.js' | asset_url }}" defer="defer"></script>
-  {%- endif %}
+  {%- endif -%}
   {%- if request.design_mode -%}
     <script src="{{ 'theme-editor.js' | asset_url }}" defer="defer"></script>
   {%- endif -%}
@@ -610,37 +614,36 @@
       "settings": [
         {
           "type": "select",
-          "id": "picker_type",
+          "id": "variant_picker_design",
           "options": [
             {
-              "value": "dropdown",
-              "label": "t:sections.featured-product.blocks.variant_picker.settings.picker_type.options__1.label"
+              "value": "gold-luxe",
+              "label": "Gold Luxe"
             },
             {
-              "value": "button",
-              "label": "t:sections.featured-product.blocks.variant_picker.settings.picker_type.options__2.label"
+              "value": "plum-glass",
+              "label": "Plum Glass"
             }
           ],
-          "default": "button",
-          "label": "t:sections.featured-product.blocks.variant_picker.settings.picker_type.label"
+          "default": "gold-luxe",
+          "label": "Product variant picker design"
         },
         {
-          "id": "swatch_shape",
-          "label": "t:sections.featured-product.blocks.variant_picker.settings.swatch_shape.label",
           "type": "select",
-          "info": "t:sections.featured-product.blocks.variant_picker.settings.swatch_shape.info",
+          "id": "swatch_shape",
+          "label": "Swatch shape",
           "options": [
             {
               "value": "circle",
-              "label": "t:sections.featured-product.blocks.variant_picker.settings.swatch_shape.options__1.label"
+              "label": "Circle"
             },
             {
               "value": "square",
-              "label": "t:sections.featured-product.blocks.variant_picker.settings.swatch_shape.options__2.label"
+              "label": "Square"
             },
             {
               "value": "none",
-              "label": "t:sections.main-product.blocks.variant_picker.settings.swatch_shape.options__3.label"
+              "label": "None"
             }
           ],
           "default": "circle"

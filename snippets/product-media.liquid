@@ -3,13 +3,11 @@
 
   Accepts:
   - media: {Object} Product Media object
-  - loop: {Boolean} Enable video looping (optional)
   - variant_image: {Boolean} Whether or not media is associated with a variant
 
   Usage:
   {% render 'product-media',
     media: media,
-    loop: section.settings.enable_video_looping,
     variant_image: true
   %}
 {% endcomment %}
@@ -28,12 +26,13 @@
       {%- if media.preview_image.width >= 4096 -%}{{ media.preview_image | image_url: width: 4096 }} 4096w,{%- endif -%}
       {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
     "
-    sizes="(min-width: 750px) calc(100vw - 22rem), 1100px"
-    src="{{ media.preview_image | image_url: width: 1445 }}"
+    sizes="100vw"
+    style="max-width: 100vw; height: auto; display: block; margin: 0 auto;"
+    src="{{ media.preview_image | image_url: width: 2048 }}"
     alt="{{ media.alt | escape }}"
     loading="lazy"
-    width="1100"
-    height="{{ 1100 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+    width="{{ media.preview_image.width }}"
+    height="{{ media.preview_image.width | divided_by: media.preview_image.aspect_ratio | ceil }}"
     data-media-id="{{ media.id }}"
   >
 {%- else -%}
@@ -68,10 +67,11 @@
         {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
       "
       src="{{ media | image_url: width: 550, height: 550 }}"
-      sizes="(min-width: 1200px) calc((1200px - 10rem) / 2), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+      sizes="100vw"
+      style="max-width: 100vw; height: auto; display: block; margin: 0 auto;"
       loading="lazy"
-      width="576"
-      height="{{ 576 | divided_by: media.preview_image.aspect_ratio }}"
+      width="{{ media.preview_image.width }}"
+      height="{{ media.preview_image.width | divided_by: media.preview_image.aspect_ratio | ceil }}"
       alt="{{ media.preview_image.alt | escape }}"
     >
   </button>
@@ -79,21 +79,13 @@
     {%- case media.media_type -%}
       {%- when 'external_video' -%}
         {%- assign video_class = 'js-' | append: media.host -%}
-        {%- if media.host == 'youtube' -%}
-          {{
-            media
-            | external_video_url: autoplay: true, loop: loop, playlist: media.external_id
-            | external_video_tag: class: video_class, loading: 'lazy'
-          }}
-        {%- else -%}
-          {{
-            media
-            | external_video_url: autoplay: true, loop: loop
-            | external_video_tag: class: video_class, loading: 'lazy'
-          }}
-        {%- endif -%}
+        {{
+          media
+          | external_video_url: autoplay: true, loop: true, playlist: media.external_id
+          | external_video_tag: class: video_class, loading: 'lazy'
+        }}
       {%- when 'video' -%}
-        {{ media | media_tag: image_size: '2048x', autoplay: true, loop: loop, controls: true, preload: 'none' }}
+        {{ media | media_tag: image_size: '2048x', autoplay: true, controls: true, preload: 'none' }}
       {%- when 'model' -%}
         {{ media | media_tag: image_size: '2048x', toggleable: true }}
     {%- endcase -%}

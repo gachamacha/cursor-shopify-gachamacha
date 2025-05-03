@@ -1,0 +1,97 @@
+/*
+ * Modular Header Designs: 9 New Unique Styles + Monochrome Luxe (default)
+ * Applies to: .header--style-X, .mega-menu__content.header--style-X, .menu-drawer.header--style-X
+ * All styles are responsive and use the site's color scheme for consistency.
+*/
+
+/* 1. Solar Flare */
+.header--style-1, .mega-menu__content.header--style-1, .menu-drawer.header--style-1 {
+  background: linear-gradient(90deg, #f7971e 0%, #ff5858 100%);
+  color: #fff;
+  box-shadow: 0 4px 32px 0 rgba(247,151,30,0.12);
+  border-bottom: 2px solid #ff5858;
+}
+
+/* 2. Aurora Fade */
+.header--style-2, .mega-menu__content.header--style-2, .menu-drawer.header--style-2 {
+  background: linear-gradient(120deg, #6e41ff 0%, #1ec8f7 100%);
+  color: #fff;
+  box-shadow: 0 4px 24px 0 rgba(30,200,247,0.10);
+}
+
+/* 3. Opaline Mist */
+.header--style-3, .mega-menu__content.header--style-3, .menu-drawer.header--style-3 {
+  background: rgba(255,255,255,0.13);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #22223c;
+  box-shadow: 0 2px 18px 0 rgba(0,0,0,0.08);
+}
+
+/* 4. Emerald Circuit */
+.header--style-4, .mega-menu__content.header--style-4, .menu-drawer.header--style-4 {
+  background: linear-gradient(90deg, #0f9d58 0%, #43e97b 100%);
+  color: #fff;
+  border-bottom: 3px solid #0f9d58;
+  box-shadow: 0 6px 22px 0 rgba(15,157,88,0.13);
+}
+
+/* 5. Sunset Glass */
+.header--style-5, .mega-menu__content.header--style-5, .menu-drawer.header--style-5 {
+  background: rgba(255, 184, 108, 0.23);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,184,108,0.32);
+  color: #3c2e1e;
+  margin: 0 8px;
+}
+
+/* 6. Royal Shadow */
+.header--style-6, .mega-menu__content.header--style-6, .menu-drawer.header--style-6 {
+  background: #23234c;
+  color: #e9e6ff;
+  box-shadow: 0 8px 32px 0 rgba(36,36,76,0.18);
+  border-bottom: 2px solid #6e41ff;
+}
+
+/* 7. Pixel Neo */
+.header--style-7, .mega-menu__content.header--style-7, .menu-drawer.header--style-7 {
+  background: repeating-linear-gradient(135deg, #23232b, #23232b 10px, #1ec8f7 10px, #1ec8f7 20px);
+  color: #fff;
+  border: 4px dashed #f7971e;
+  box-shadow: 0 0 0 6px #fff, 0 4px 24px 0 rgba(0,0,0,0.10);
+}
+
+/* 8. Frostbyte */
+.header--style-8, .mega-menu__content.header--style-8, .menu-drawer.header--style-8 {
+  background: linear-gradient(90deg, #e0eaff 0%, #b6d0ff 100%);
+  color: #22223c;
+  border-bottom: 3px solid #6e41ff;
+  box-shadow: 0 2px 18px 0 rgba(182,208,255,0.18);
+}
+
+/* 9. Luminous Card */
+.header--style-9, .mega-menu__content.header--style-9, .menu-drawer.header--style-9 {
+  background: #fffbe6;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px 0 rgba(255,251,230,0.13);
+  border: 1px solid #f0d080;
+  color: #3c2e1e;
+  margin: 0 8px;
+}
+
+/* 10. Monochrome Luxe (default) */
+.header--style-10, .mega-menu__content.header--style-10, .menu-drawer.header--style-10 {
+  background: #181820;
+  color: #f0d080;
+  border-bottom: 3px solid #f0d080;
+  box-shadow: 0 4px 32px 0 rgba(240,208,128,0.14);
+}
+
+/* Responsive adjustments for all styles */
+@media (max-width: 990px) {
+  .header--style-5, .header--style-9 {
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}

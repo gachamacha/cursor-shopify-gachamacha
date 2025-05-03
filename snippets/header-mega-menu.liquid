@@ -8,87 +8,191 @@
 <nav class="header__inline-menu">
   <ul class="list-menu list-menu--inline" role="list">
     {%- for link in section.settings.menu.links -%}
-      <li>
-        {%- if link.links != blank -%}
-          <header-menu>
-            <details id="Details-HeaderMenu-{{ forloop.index }}" class="mega-menu">
-              <summary
-                id="HeaderMenu-{{ link.handle }}"
-                class="header__menu-item list-menu__item link focus-inset"
-              >
-                <span
-                  {%- if link.child_active %}
-                    class="header__active-menu-item"
-                  {% endif %}
+      {%- if link.title != 'Home' and link.title != 'home' -%}
+        <li>
+          {%- if link.links != blank -%}
+            <header-menu>
+              <details id="Details-HeaderMenu-{{ forloop.index }}" class="mega-menu">
+                <summary
+                  id="HeaderMenu-{{ link.handle }}"
+                  class="header__menu-item list-menu__item link focus-inset"
                 >
-                  {{- link.title | escape -}}
-                </span>
-                {{- 'icon-caret.svg' | inline_asset_content -}}
-              </summary>
-              <div
-                id="MegaMenu-Content-{{ forloop.index }}"
-                class="mega-menu__content color-{{ section.settings.menu_color_scheme }} gradient motion-reduce global-settings-popup"
-                tabindex="-1"
-              >
-                <ul
-                  class="mega-menu__list page-width{% if link.levels == 1 %} mega-menu__list--condensed{% endif %}"
-                  role="list"
+                  <span
+                    {%- if link.child_active %}
+                      class="header__active-menu-item"
+                    {% endif %}
+                  >
+                    {{- link.title | escape -}}
+                  </span>
+                  {{- 'icon-caret.svg' | inline_asset_content -}}
+                </summary>
+                <div
+                  id="MegaMenu-Content-{{ forloop.index }}"
+                  class="mega-menu__content color-{{ section.settings.menu_color_scheme }} gradient motion-reduce global-settings-popup header--{{ section.settings.header_design_style }}"
+                  tabindex="-1"
                 >
-                  {%- for childlink in link.links -%}
-                    <li>
-                      <a
-                        id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
-                        href="{{ childlink.url }}"
-                        class="mega-menu__link mega-menu__link--level-2 link{% if childlink.current %} mega-menu__link--active{% endif %}"
-                        {% if childlink.current %}
-                          aria-current="page"
-                        {% endif %}
-                      >
-                        {{ childlink.title | escape }}
-                      </a>
-                      {%- if childlink.links != blank -%}
-                        <ul class="list-unstyled" role="list">
-                          {%- for grandchildlink in childlink.links -%}
-                            <li>
-                              <a
-                                id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
-                                href="{{ grandchildlink.url }}"
-                                class="mega-menu__link link{% if grandchildlink.current %} mega-menu__link--active{% endif %}"
-                                {% if grandchildlink.current %}
-                                  aria-current="page"
-                                {% endif %}
-                              >
-                                {{ grandchildlink.title | escape }}
-                              </a>
-                            </li>
-                          {%- endfor -%}
-                        </ul>
-                      {%- endif -%}
-                    </li>
-                  {%- endfor -%}
-                </ul>
-              </div>
-            </details>
-          </header-menu>
-        {%- else -%}
-          <a
-            id="HeaderMenu-{{ link.handle }}"
-            href="{{ link.url }}"
-            class="header__menu-item list-menu__item link link--text focus-inset"
-            {% if link.current %}
-              aria-current="page"
-            {% endif %}
-          >
-            <span
-              {%- if link.current %}
-                class="header__active-menu-item"
+                  <ul
+                    class="mega-menu__list page-width{% if link.levels == 1 %} mega-menu__list--condensed list-unstyled{% endif %}"
+                    role="list"
+                  >
+                    {%- for childlink in link.links -%}
+                      <li>
+                        <a
+                          id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                          href="{{ childlink.url }}"
+                          class="mega-menu__link mega-menu__link--level-2 link{% if childlink.current %} mega-menu__link--active{% endif %}"
+                          {% if childlink.current %}
+                            aria-current="page"
+                          {% endif %}
+                        >
+                          {{ childlink.title | escape }}
+                        </a>
+                        {%- if childlink.links != blank -%}
+                          <ul class="list-unstyled" role="list">
+                            {%- for grandchildlink in childlink.links -%}
+                              <li>
+                                <a
+                                  id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                  href="{{ grandchildlink.url }}"
+                                  class="mega-menu__link link{% if grandchildlink.current %} mega-menu__link--active{% endif %}"
+                                  {% if grandchildlink.current %}
+                                    aria-current="page"
+                                  {% endif %}
+                                >
+                                  {{ grandchildlink.title | escape }}
+                                </a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              </details>
+            </header-menu>
+          {%- else -%}
+            <a
+              id="HeaderMenu-{{ link.handle }}"
+              href="{{ link.url }}"
+              class="header__menu-item list-menu__item link link--text focus-inset"
+              {% if link.current %}
+                aria-current="page"
               {% endif %}
             >
-              {{- link.title | escape -}}
-            </span>
-          </a>
-        {%- endif -%}
-      </li>
+              <span
+                {%- if link.current %}
+                  class="header__active-menu-item"
+                {% endif %}
+              >
+                {{- link.title | escape -}}
+              </span>
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endif -%}
     {%- endfor -%}
+    
+    {%- comment -%}
+      Add the dynamic Games menu item for desktop, matching the hamburger menu, as a dropdown
+    {%- endcomment -%}
+    {%- assign games_array = '' %}
+    {%- assign handles_array = '' %}
+    {%- for product in collections.all.products -%}
+      {%- if product.metafields.custom.game.value != blank -%}
+        {%- assign game_name = product.metafields.custom.game.value | strip -%}
+        {%- assign game_handle = game_name | handleize -%}
+        {%- unless games_array contains game_name -%}
+          {%- if games_array == '' -%}
+            {%- assign games_array = game_name -%}
+            {%- assign handles_array = game_handle -%}
+          {%- else -%}
+            {%- assign games_array = games_array | append: '|' | append: game_name -%}
+            {%- assign handles_array = handles_array | append: '|' | append: game_handle -%}
+          {%- endif -%}
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- assign games_array = games_array | split: '|' -%}
+    {%- assign handles_array = handles_array | split: '|' -%}
+    {%- if games_array.size > 0 -%}
+      <li>
+        <details id="Details-HeaderMenu-games" class="mega-menu">
+          <summary
+            id="HeaderMenu-games"
+            class="header__menu-item list-menu__item link focus-inset"
+            role="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span>Games</span>
+            {{ 'icon-caret.svg' | inline_asset_content }}
+          </summary>
+          <div
+            id="MegaMenu-Content-games"
+            class="mega-menu__content color-{{ section.settings.menu_color_scheme }} gradient motion-reduce global-settings-popup header--{{ section.settings.header_design_style }}"
+            tabindex="-1"
+          >
+            <ul class="mega-menu__list page-width mega-menu__list--condensed list-unstyled" role="list">
+              {%- for game_title in games_array -%}
+                {%- assign game_index = forloop.index0 -%}
+                {%- assign game_handle = handles_array[game_index] -%}
+                <li>
+                  <a
+                    id="HeaderMenu-games-{{ game_handle }}"
+                    href="/collections/{{ game_handle }}"
+                    class="mega-menu__link mega-menu__link--level-2 link"
+                  >
+                    {%- if collections[game_handle] and collections[game_handle].image -%}
+                      <img src="{{ collections[game_handle].image | image_url: width: 32 }}" alt="{{ game_title }}" class="mega-menu__collection-icon" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle; border-radius: 6px; object-fit: cover;" />
+                    {%- endif -%}
+                    {{ game_title }}
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        </details>
+      </li>
+    {%- endif -%}
   </ul>
 </nav>
+
+<script>
+(function() {
+  // Only run on desktop (not touch devices)
+  if (window.matchMedia('(pointer: fine)').matches) {
+    var details = document.getElementById('Details-HeaderMenu-games');
+    var summary = document.getElementById('HeaderMenu-games');
+    if (details && summary) {
+      summary.addEventListener('mouseenter', function() {
+        details.setAttribute('open', '');
+        summary.setAttribute('aria-expanded', 'true');
+      });
+      summary.addEventListener('mouseleave', function(e) {
+        // Only close if mouse leaves both summary and dropdown
+        var related = e.relatedTarget;
+        if (!details.contains(related)) {
+          details.removeAttribute('open');
+          summary.setAttribute('aria-expanded', 'false');
+        }
+      });
+      var dropdown = document.getElementById('MegaMenu-Content-games');
+      if (dropdown) {
+        dropdown.addEventListener('mouseleave', function(e) {
+          // Only close if mouse leaves both summary and dropdown
+          var related = e.relatedTarget;
+          if (!details.contains(related)) {
+            details.removeAttribute('open');
+            summary.setAttribute('aria-expanded', 'false');
+          }
+        });
+        dropdown.addEventListener('mouseenter', function() {
+          details.setAttribute('open', '');
+          summary.setAttribute('aria-expanded', 'true');
+        });
+      }
+    }
+  }
+})();
+</script>

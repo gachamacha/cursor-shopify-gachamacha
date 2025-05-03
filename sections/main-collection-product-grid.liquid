@@ -1,3 +1,8 @@
+{%- comment -%}
+==============================
+[Stylesheet and Script Includes Start]
+==============================
+{%- endcomment -%}
 {{ 'template-collection.css' | asset_url | stylesheet_tag }}
 {{ 'component-card.css' | asset_url | stylesheet_tag }}
 {{ 'component-price.css' | asset_url | stylesheet_tag }}
@@ -21,11 +26,139 @@
   <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'quick-order-list.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
+{%- comment -%}
+==============================
+[Stylesheet and Script Includes End]
+==============================
+{%- endcomment -%}
 
+{%- comment -%}
+==============================
+[Inline Styles Start]
+==============================
+{%- endcomment -%}
 {%- style -%}
   /* Remove non-functional section padding */
   .section-{{ section.id }}-padding {
     margin: 0;
+  }
+  
+  /* Desktop product grid styles */
+  @media screen and (min-width: 990px) {
+    /* Fix card sizing and layout for desktop */
+    #product-grid {
+      display: grid;
+      grid-template-columns: repeat({{ section.settings.columns_desktop }}, minmax(0, 1fr));
+      gap: 2rem;
+      margin: 1rem 0;
+      width: 100%;
+    }
+    
+    /* Ensure grid items take up full space */
+    #product-grid .grid__item {
+      padding: 0;
+      max-width: 100%;
+      width: 100%;
+      margin: 0;
+    }
+    
+    /* Card wrapper fixes */
+    .product-card-wrapper {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+    
+    /* Card styling */
+    .card {
+      border-radius: var(--product-card-corner-radius);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin: 0;
+    }
+    
+    /* Card inner container */
+    .card__inner {
+      width: 100%;
+      height: auto;
+      margin: 0;
+    }
+    
+    /* Media container for product images */
+    .card__media {
+      border-radius: var(--product-card-corner-radius) var(--product-card-corner-radius) 0 0;
+      overflow: hidden;
+      position: relative;
+      margin: 0;
+      width: 100%;
+    }
+    
+    /* Handle different image ratio options */
+    .card__media.image-ratio-adapt {
+      padding-bottom: 100%;
+      height: 0;
+      overflow: hidden;
+    }
+    
+    .card__media.image-ratio-adapt img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .card__media.image-ratio-square {
+      padding-bottom: 100%;
+      height: 0;
+    }
+    
+    .card__media.image-ratio-square img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .card__media.image-ratio-portrait {
+      padding-bottom: 125%;
+      height: 0;
+    }
+    
+    .card__media.image-ratio-portrait img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* Card content area */
+    .card__content {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      padding: 1.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    /* Smaller padding for medium-sized desktop screens */
+    @media screen and (min-width: 990px) and (max-width: 1200px) {
+      #product-grid {
+        gap: 1.5rem;
+      }
+      
+      .card__content {
+        padding: 1.2rem;
+      }
+    }
   }
   
   /* Custom mobile padding controls */
@@ -44,14 +177,6 @@
     /* Mobile product grid padding control */
     #product-grid {
       padding: {{ section.settings.mobile_product_grid_padding_vertical }}px {{ section.settings.mobile_product_grid_padding_horizontal }}px !important;
-    }
-    
-    /* Ensure padding doesn't conflict with other styles */
-    .page-width #product-grid {
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
     }
     
     /* Override no-spacing classes to respect our padding */
@@ -266,7 +391,17 @@
     }
   }
 {%- endstyle -%}
+{%- comment -%}
+==============================
+[Inline Styles End]
+==============================
+{%- endcomment -%}
 
+{%- comment -%}
+==============================
+[Main Section Container Start]
+==============================
+{%- endcomment -%}
 {% comment %} Main container with dynamic padding based on section settings {% endcomment %}
 <div class="section-{{ section.id }}-padding">
   {% comment %} Split products into pages (e.g., show 12 products per page) {% endcomment %}
@@ -284,19 +419,19 @@
         {% comment %} Filters sidebar container {% endcomment %}
         <h2 id="verticalTitle" class="visually-hidden">Filters & Sorting</h2>
         <aside
-          class="facets__wrapper{% unless section.settings.enable_filtering %} facets-wrapper--no-filters{% endunless %} page-width"
+          class="facets__wrapper page-width"
           aria-labelledby="verticalTitle" 
           id="main-collection-filters"
           data-id="{{ section.id }}"
         >
-          {% comment %} Actual filters content {% endcomment %}
-            {% render 'facets',
-              results: collection,
-              enable_filtering: section.settings.enable_filtering,
-              enable_sorting: section.settings.enable_sorting,
-              filter_type: section.settings.filter_type,
-              paginate: paginate
-            %}
+          {% comment %} Only render the mobile-facets/unified filter everywhere {% endcomment %}
+          {% render 'facets',
+            results: collection,
+            enable_filtering: section.settings.enable_filtering,
+            enable_sorting: section.settings.enable_sorting,
+            filter_type: 'drawer',
+            paginate: paginate
+          %}
         </aside>
       {%- endif -%}
 
@@ -329,17 +464,11 @@
             class="collection{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
           >
             {% comment %} Grid list of products {% endcomment %}
-            <ul
+            <div
               id="product-grid"
               data-id="{{ section.id }}"
-              data-columns-mobile="{{ section.settings.mobile_columns }}"
-              class="
-                grid product-grid grid--{{ section.settings.columns_desktop }}-col-desktop
-                {% if section.settings.collection_card_style != 'standard' %} grid--2-col-tablet-down{% endif %}
-                grid--{{ section.settings.mobile_columns }}-col-tablet-down
-                {% if section.settings.quick_add == 'bulk' %} collection-quick-add-bulk{% endif %}
-                {% if section.settings.mobile_columns == '2' %}no-spacing-mobile-grid{% else %}no-spacing-mobile{% endif %}
-              "
+              data-columns-mobile="{{ section.settings.columns_mobile }}"
+              class="grid grid--{{ section.settings.columns_desktop }}-col-desktop grid--{{ section.settings.columns_mobile }}-col-tablet-down"
             >
               {% comment %} Flag to optimize CSS loading {% endcomment %}
               {% assign skip_card_product_styles = false %}
@@ -351,7 +480,7 @@
                   {%- assign lazy_load = false -%}
                 {%- endif -%}
                 {% comment %} Individual product grid item {% endcomment %}
-                <li
+                <div
                   class="grid__item{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
                   {% if settings.animations_reveal_on_scroll %}
                     data-cascade
@@ -372,11 +501,11 @@
                     section_id: section.id,
                     collection: collection
                   %}
-                </li>
+                </div>
                 {% comment %} Only load card styles once {% endcomment %}
                 {%- assign skip_card_product_styles = true -%}
               {%- endfor -%}
-            </ul>
+            </div>
 
             {% comment %} Show page numbers if needed {% endcomment %}
             {%- if paginate.pages > 1 -%}
@@ -392,7 +521,17 @@
     {{ 'mask-arch.svg' | inline_asset_content }}
   {%- endif -%}
 </div>
+{%- comment -%}
+==============================
+[Main Section Container End]
+==============================
+{%- endcomment -%}
 
+{%- comment -%}
+==============================
+[JavaScript Section Start]
+==============================
+{%- endcomment -%}
 <script>
   // Enhanced lazy loading with Intersection Observer
   if ('IntersectionObserver' in window) {
@@ -442,6 +581,32 @@
       }
     });
   }
+  
+  // Apply image ratio classes based on section settings
+  function applyImageRatioClasses() {
+    const productGrid = document.getElementById('product-grid');
+    if (!productGrid) return;
+    
+    // Get image ratio setting
+    const imageRatio = '{{ section.settings.image_ratio }}';
+    
+    // Apply appropriate class to each card based on image ratio
+    document.querySelectorAll('.card__media').forEach(media => {
+      // First remove any existing ratio classes
+      media.classList.remove('image-ratio-adapt', 'image-ratio-square', 'image-ratio-portrait');
+      
+      // Then add the appropriate class based on section settings
+      media.classList.add(`image-ratio-${imageRatio}`);
+    });
+  }
+  
+  // Run the function on page load, after dynamic content loads, and on resize
+  document.addEventListener('DOMContentLoaded', applyImageRatioClasses);
+  window.addEventListener('load', applyImageRatioClasses);
+  window.addEventListener('resize', applyImageRatioClasses);
+  
+  // Apply again after facet filtering
+  document.addEventListener('facet:update', applyImageRatioClasses);
   
   // Force zero spacing between product grid items
   function enforceZeroSpacing() {
@@ -524,11 +689,7 @@
                 cardContent.style.minWidth = '0'; // Allow content to shrink as needed
                 cardContent.style.overflow = 'hidden'; // Prevent content from overflowing
                 
-                // Adjust text elements for very small screens
-                const isVerySmall = window.innerWidth <= 375;
-                const isExtremelySmall = window.innerWidth <= 320;
-                
-                // Handle title text
+                // Ensure card content text doesn't overflow
                 const heading = cardContent.querySelector('.card__heading');
                 if (heading) {
                   heading.style.width = '100%';
@@ -1083,7 +1244,7 @@
         grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
       }
     }
-  });
+  }
   
   // Run when orientation changes (important for mobile)
   window.addEventListener('orientationchange', function() {
@@ -1115,7 +1276,10 @@
   document.addEventListener('DOMContentLoaded', applyCustomPadding);
   
   // Apply again after facet filtering
-  document.addEventListener('facet:update', applyCustomPadding);
+  document.addEventListener('facet:update', function() {
+    applyCustomPadding();
+    applyImageRatioClasses();
+  });
   
   function applyCustomPadding() {
     // Only apply on mobile
@@ -1160,18 +1324,21 @@
   
   // Also apply on resize
   window.addEventListener('resize', applyCustomPadding);
-});
-</script>
+}
+{%- comment -%}
+==============================
+[JavaScript Section End]
+==============================
+{%- endcomment -%}
 
+{%- comment -%}
+==============================
+[Additional Inline Styles Start]
+==============================
+{%- endcomment -%}
 <style>
   /* Ensure consistent padding between facets and product grid */
   @media screen and (max-width: 749px) {
-    /* Reset outer page-width padding */
-    .section-main-collection-product-grid .page-width {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
-  
     /* Apply proper padding to facets */
     .facets__wrapper.page-width {
       padding-left: 1.25rem !important;
@@ -1199,9 +1366,105 @@
       padding-left: 2rem !important;
       padding-right: 2rem !important;
     }
+    
+    /* Fix for desktop product grid layout */
+    .product-grid-container {
+      max-width: 100%;
+      padding: 0;
+    }
+    
+    /* Ensure product grid properly uses full width */
+    .collection.page-width {
+      max-width: var(--page-width);
+      margin: 0 auto;
+      padding: 0 2rem;
+      box-sizing: border-box;
+    }
+    
+    /* Improve grid spacing for desktop */
+    #product-grid {
+      margin: 1rem 0;
+      row-gap: 2rem;
+      column-gap: 2rem;
+      display: grid;
+      grid-template-columns: repeat({{ section.settings.columns_desktop }}, minmax(0, 1fr));
+      width: 100%;
+    }
+    
+    
+    .card__media {
+      border-radius: var(--product-card-corner-radius) var(--product-card-corner-radius) 0 0;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Ensure consistent image sizing on desktop */
+    .card__media img {
+      width: 100%;
+      height: auto;
+      transition: transform var(--duration-long) ease;
+      object-fit: contain;
+    }
+    
+    /* Handle square or portrait image ratio options */
+    .card__media.image-ratio-adapt {
+      padding-bottom: 100%;
+      height: 0;
+      overflow: hidden;
+    }
+    
+    .card__media.image-ratio-square {
+      padding-bottom: 100%;
+      height: 0;
+    }
+    
+    .card__media.image-ratio-portrait {
+      padding-bottom: 125%;
+      height: 0;
+    }
+    
+    /* Proper image styling for different ratios */
+    .card__media.image-ratio-adapt img,
+    .card__media.image-ratio-square img,
+    .card__media.image-ratio-portrait img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .card__content {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      padding: 1.5rem;
+    }
+    
+    /* Smaller padding for medium-sized desktop screens */
+    @media screen and (min-width: 990px) and (max-width: 1200px) {
+      #product-grid {
+        gap: 1.5rem;
+      }
+      
+      .card__content {
+        padding: 1.2rem;
+      }
+    }
   }
 </style>
+{%- comment -%}
+==============================
+[Additional Inline Styles End]
+==============================
+{%- endcomment -%}
 
+{%- comment -%}
+==============================
+[Section Schema Start]
+==============================
+{%- endcomment -%}
 {% schema %}
 {
   "name": "t:sections.main-collection-product-grid.name",
@@ -1455,3 +1718,8 @@
   ]
 }
 {% endschema %}
+{%- comment -%}
+==============================
+[Section Schema End]
+==============================
+{%- endcomment -%}

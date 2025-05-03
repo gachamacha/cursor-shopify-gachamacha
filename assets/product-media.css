@@ -1,0 +1,171 @@
+/*
+ * product-media.css
+ * Modularised mobile/responsive styles migrated from section-main-product.css
+ * (You may remove these from section-main-product.css after verifying)
+ */
+
+/* =========================
+   Mobile/Responsive Styles
+   ========================= */
+
+/* @media screen and (max-width: 749px) { ... } */
+@media screen and (max-width: 989px) {
+  .product__info-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    padding: clamp(0.5rem, 4vw, 1.5rem);
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
+  }
+  .product-form__buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    gap: 0.7rem;
+  }
+  .product-form__buttons > * {
+    width: 100% !important;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .product__media-wrapper,
+  .product__info-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .product__info-wrapper {
+    text-align: left;
+    align-items: flex-start;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  /* Center align variation selector and its value */
+  .product-form__input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    text-align: left;
+  }
+  .product-form__input select,
+  .product-form__input .select__select {
+    margin: 0 2rem;
+  }
+
+  /* Center align quantity selector */
+  .quantity,
+  .product-form__quantity {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 0.7rem auto;
+  }
+  .quantity__input {
+    text-align: center;
+    margin: 0 0.5rem;
+  }
+}
+
+/* === Mobile Centering for Product Info Panel (screens <990px) === */
+@media (max-width: 989px) {
+  .product__text,
+  .product__metafields {
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .product-form__quantity,
+  .product-form__input {
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .quantity__button {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* === Mobile Centering for Product Form and Buttons (screens <990px) === */
+@media (max-width: 989px) {
+  form.form {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .product-form__buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    text-align: left !important;
+    gap: 0.7rem;
+    margin: 0 !important;
+  }
+}
+
+/* Responsive adjustments for price badges on small screens (migrated from section-main-product.css) */
+@media (max-width: 600px) {
+  .price-badge--gold-luxe .price,
+  .price-badge--plum-glass .price {
+    font-size: 1.1em;
+  }
+  .price-badge--gold-luxe .badge,
+  .price-badge--plum-glass .badge {
+    font-size: 0.92em;
+    padding: 0.15em 0.65em;
+  }
+}
+
+/* Migrated from section-main-product.css */
+@media (max-width: 749px) {
+  .product__info-wrapper {
+    width: 100% !important;
+    max-width: 100vw;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 989px) {
+  .product__info-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+    padding: clamp(0.5rem, 4vw, 1.5rem);
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
+  }
+  .product-form__buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    gap: 0.7rem;
+  }
+  .product__media-wrapper,
+  .product__info-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .product__info-wrapper {
+    text-align: left;
+    align-items: flex-start;
+    margin-left: 0;
+    margin-right: auto;
+  }
+}

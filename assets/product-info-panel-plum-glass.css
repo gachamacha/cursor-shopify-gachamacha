@@ -1,0 +1,197 @@
+/*
+ * Plum Glass Minimal Info Panel Styles
+ * Extracted from section-main-product.css
+ * Use for: .info-panel--plum-glass-minimal.product__info-wrapper and descendants
+ */
+
+/* Panel Container */
+.info-panel--plum-glass-minimal.product__info-wrapper {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: rgba(74,46,74,0.88);
+  border: 1.5px solid #f0d080;
+  border-radius: 22px;
+  box-shadow: 0 10px 40px 0 rgba(74,46,74,0.22), 0 1.5px 6px 0 rgba(0,0,0,0.06);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.info-panel--plum-glass-minimal.product__info-wrapper .product__title {
+  color: #f0d080;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 8px rgba(74,46,74,0.25);
+}
+
+.info-panel--plum-glass-minimal.product__info-wrapper .panel-divider {
+  height: 2px;
+  background: linear-gradient(90deg, #f0d080, #4A2E4A);
+  border: none;
+  margin: 1.2rem 0 1.4rem 0;
+  transition: background 0.4s;
+}
+
+.info-panel--plum-glass-minimal.product__info-wrapper .product-form__submit {
+  background: #4A2E4A;
+  color: #f0d080;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.info-panel--plum-glass-minimal.product__info-wrapper .product-form__submit:active::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 120%; height: 120%;
+  background: rgba(240,208,128,0.22);
+  border-radius: 50%;
+  transform: translate(-50%,-50%) scale(1);
+  animation: ripple 0.45s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  0% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+.info-panel--plum-glass-minimal.product__info-wrapper .product-form__submit:hover,
+.info-panel--plum-glass-minimal.product__info-wrapper .product-form__submit:focus {
+  background: #4A2E4A !important; /* Match default, prevents color change on hover */
+  box-shadow: 0 0 12px 2px #f0d080;
+  transform: scale(1.04);
+}
+
+.info-panel--plum-glass-minimal.product__info-wrapper .shopify-payment-button__button:hover {
+  /* Lit-up (glow) and grow-up (scale) effect only */
+  box-shadow: 0 0 16px 3px #f0d080cc, 0 2px 18px 0 rgba(74,46,74,0.10);
+  transform: scale(1.06);
+  transition: box-shadow 0.18s, transform 0.18s;
+  background: inherit !important;
+  color: inherit !important;
+  border: inherit !important;
+  opacity: 1 !important;
+}
+
+/* Price & Badge Styles */
+.price-badge--plum-glass .price {
+  background: none !important;
+  color: #f0d080;
+  font-weight: 700;
+  font-size: 1.35em;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+}
+.price-badge--plum-glass .badge {
+  background: rgba(74,46,74,0.88);
+  color: #f0d080;
+  border-radius: 16px;
+  padding: 0.2em 0.85em;
+  font-size: 0.97em;
+  font-weight: 700;
+  box-shadow: 0 1px 8px 0 rgba(74,46,74,0.13);
+  border: 1.5px solid #f0d080;
+}
+
+/* Product Info Panel Button Designs (modular) */
+.button-design--plum-glass .product-form__submit,
+.button-design--plum-glass .shopify-payment-button__button,
+.button-design--plum-glass .shopify-payment-button__button--unbranded {
+  background: rgba(74,46,74,0.88) !important;
+  color: #f0d080 !important;
+  border-radius: 8px !important;
+  border: 2px solid #f0d080 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  box-shadow: 0 2px 18px 0 rgba(74,46,74,0.11) !important;
+  padding: 1.1em 0 !important;
+  font-size: 1.1em !important;
+  transition: background 0.18s, box-shadow 0.18s !important;
+}
+.button-design--plum-glass .product-form__submit:hover,
+.button-design--plum-glass .shopify-payment-button__button:hover {
+  color: #4a2e4a !important;
+  box-shadow: 0 6px 32px 0 rgba(74,46,74,0.18) !important;
+  border-color: #f0d080 !important;
+  background: #4A2E4A !important; /* Match default, prevents color change on hover */
+  transition: border-color 0.18s, box-shadow 0.18s;
+  transform: none !important;
+}
+.button-design--plum-glass .product-form__submit:hover {
+  /* Hover effect removed as requested */
+  /* No visual change on hover for Add to cart button */
+  border-color: inherit !important;
+  box-shadow: inherit !important;
+  background: inherit !important;
+  color: inherit !important;
+  transition: none !important;
+  transform: none !important;
+}
+.button-design--plum-glass .product-form__submit:hover {
+  background: inherit !important;
+}
+
+/* Enhanced Gradient Border for Buy It Now Buttons */
+.button-design--plum-glass .shopify-payment-button__button {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+  box-shadow: 0 2px 18px 0 rgba(0,0,0,0.06);
+  border: 2.5px solid transparent;
+  background-clip: padding-box;
+}
+.button-design--plum-glass .shopify-payment-button__button::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: inherit;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    #4A2E4A 0%,
+    #2a1a2a 15%,
+    #d4a84e 30%,
+    #f0d080 45%,
+    #d4a84e 60%,
+    #2a1a2a 75%,
+    #4A2E4A 90%
+  );
+  background-size: 300% 100%;
+  animation: borderBrandShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.9;
+  filter: brightness(1.1);
+  mix-blend-mode: overlay;
+}
+@keyframes borderBrandShimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+.button-design--plum-glass .shopify-payment-button__button:hover::before {
+  filter: brightness(1.1) saturate(1.2);
+}
+.button-design--plum-glass .shopify-payment-button__button:hover {
+  filter: brightness(1.08) saturate(1.18) drop-shadow(0 0 8px #f0d08066);
+  /* Slight glow and color pop, no opacity reduction */
+}
+.button-design--plum-glass .shopify-payment-button__button:hover::before {
+  filter: brightness(1.15) saturate(1.25) drop-shadow(0 0 12px #f0d08099);
+  opacity: 1;
+}

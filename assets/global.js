@@ -1128,9 +1128,9 @@ class VariantSelects extends HTMLElement {
     const { value, tagName } = target;
 
     if (tagName === 'SELECT' && target.selectedOptions.length) {
-      Array.from(target.options)
-        .find((option) => option.getAttribute('selected'))
-        .removeAttribute('selected');
+      // Remove 'selected' from all options
+      Array.from(target.options).forEach((option) => option.removeAttribute('selected'));
+      // Set 'selected' on the chosen option
       target.selectedOptions[0].setAttribute('selected', 'selected');
 
       const swatchValue = target.selectedOptions[0].dataset.optionSwatchValue;
@@ -1161,9 +1161,17 @@ class VariantSelects extends HTMLElement {
   }
 
   get selectedOptionValues() {
-    return Array.from(this.querySelectorAll('select option[selected], fieldset input:checked')).map(
+    // For each <select>, get the selected <option>'s data-option-value-id
+    const selectOptionIds = Array.from(this.querySelectorAll('select')).map(select => {
+      const selectedOption = select.options[select.selectedIndex];
+      return selectedOption && selectedOption.dataset.optionValueId;
+    });
+    // For each radio swatch, get checked input's data-option-value-id
+    const radioOptionIds = Array.from(this.querySelectorAll('fieldset input:checked')).map(
       ({ dataset }) => dataset.optionValueId
     );
+    // Combine and filter out any undefined/null
+    return [...selectOptionIds, ...radioOptionIds].filter(Boolean);
   }
 }
 

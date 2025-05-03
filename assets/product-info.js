@@ -165,7 +165,6 @@ if (!customElements.get('product-info')) {
         return (html) => {
           const variant = this.getSelectedVariant(html);
 
-          this.pickupAvailability?.update(variant);
           this.updateOptionValues(html);
           this.updateURL(productUrl, variant?.id);
           this.updateVariantInputs(variant?.id);
@@ -186,6 +185,11 @@ if (!customElements.get('product-info')) {
             }
           };
 
+          // Diagnostic: Check if price area is found and updated
+          const priceSource = html.getElementById(`price-${this.sectionId}`);
+          const priceDestination = this.querySelector(`#price-${this.dataset.section}`);
+          console.log('[Diagnostic] priceSource:', priceSource);
+          console.log('[Diagnostic] priceDestination:', priceDestination);
           updateSourceFromDestination('price');
           updateSourceFromDestination('Sku', ({ classList }) => classList.contains('hidden'));
           updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');

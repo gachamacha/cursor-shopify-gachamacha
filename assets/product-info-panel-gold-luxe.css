@@ -1,0 +1,86 @@
+/*
+ * Gold Luxe Outline Info Panel Styles
+ * Extracted from section-main-product.css
+ * Use for: .info-panel--gold-luxe-outline.product__info-wrapper and descendants
+ */
+
+/* Add your extracted styles here */
+
+/* Panel Container */
+.info-panel--gold-luxe-outline.product__info-wrapper {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: none;
+  border: 2px solid #f0d080;
+  border-radius: 18px;
+  box-shadow: 0 2px 18px 0 rgba(240,208,128,0.11);
+  color: #fff;
+  padding: 2.2rem;
+  position: relative;
+  overflow: hidden;
+}
+.info-panel--gold-luxe-outline.product__info-wrapper .product__title {
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 6px rgba(240,208,128,0.15);
+}
+.info-panel--gold-luxe-outline.product__info-wrapper .panel-divider {
+  height: 2px;
+  background: linear-gradient(90deg, #f0d080, #e7bfa7 60%, #eec6af);
+  border: none;
+  margin: 1.2rem 0 1.4rem 0;
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+  width: 60%;
+}
+.info-panel--gold-luxe-outline.product__info-wrapper .panel-divider.sale {
+  width: 100%;
+}
+.info-panel--gold-luxe-outline.product__info-wrapper .product-form__submit {
+  background: repeating-linear-gradient(135deg, #f0d080, #e7bfa7 10px, #f0d080 20px);
+  color: #fff;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 0 0 #f0d080;
+  border: none;
+  border-radius: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: 600;
+}
+.info-panel--gold-luxe-outline.product__info-wrapper .product-form__submit:hover,
+.info-panel--gold-luxe-outline.product__info-wrapper .product-form__submit:focus {
+  transform: scale(1.06);
+  box-shadow: 0 0 12px 2px #f0d080;
+  outline: 2px solid #f0d080;
+}
+.info-panel--gold-luxe-outline.product__info-wrapper .shopify-payment-button__button:hover {
+  /* Lit-up (glow) and grow-up (scale) effect only */
+  box-shadow: 0 0 16px 3px #f0d080cc, 0 2px 18px 0 rgba(240,208,128,0.10);
+  transform: scale(1.06);
+  transition: box-shadow 0.18s, transform 0.18s;
+  background: inherit !important;
+  color: inherit !important;
+  border: inherit !important;
+  opacity: 1 !important;
+}
+
+.price-badge--gold-luxe .price {
+  background: none !important;
+  color: #f0d080;
+  font-weight: 700;
+  font-size: 1.35em;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+}
+.price-badge--gold-luxe .badge {
+  background: linear-gradient(90deg, #f0d080 80%, #fffbe9 100%);
+  color: #3d2e1e;
+  font-weight: 700;
+  border-radius: 16px;
+  padding: 0.2em 0.85em;
+  font-size: 0.97em;
+  box-shadow: 0 1px 6px 0 rgba(240,208,128,0.15);
+  border: none;
+}
+
+/* Remove width from design-specific selectors to restore layout control */
+.info-panel--gold-luxe-outline.product__info-wrapper {
+  /* width: 100% !important; -- REMOVED */
+}

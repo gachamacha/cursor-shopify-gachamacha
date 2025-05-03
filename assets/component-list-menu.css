@@ -15,11 +15,8 @@
 
 .list-menu__item--active {
   text-decoration: underline;
-  text-underline-offset: 0.3rem;
-}
-
-.list-menu__item--active:hover {
-  text-decoration-thickness: 0.2rem;
+  text-underline-offset: 0.3em;
+  color: var(--color-foreground, #222);
 }
 
 .list-menu--disclosure.localization-selector {
@@ -27,4 +24,26 @@
   overflow: auto;
   width: 10rem;
   padding: 0.5rem;
+}
+
+/* Minimalistic active state for navigation items */
+.list-menu__item--active,
+.header__active-menu-item {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  color: var(--color-foreground, #222);
+}
+
+/* Minimalistic light-up hover effect */
+.list-menu__item:hover,
+.header__menu-item:hover {
+  color: var(--color-foreground, #222);
+  background: rgba(255, 236, 179, 0.18);
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Remove underline on hover */
+.list-menu__item:hover,
+.header__menu-item:hover {
+  text-decoration: none;
 }

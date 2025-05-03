@@ -1,0 +1,78 @@
+/* === Quantity Input Brand Hover Effect (Unified with Variant Picker) === */
+.product-form__quantity .quantity {
+  border: 1.5px solid var(--brand-outline, #fffbe6);
+  border-radius: 16px;
+  background: rgb(var(--color-background));
+  color: #fffbe6;
+  transition: box-shadow 0.22s cubic-bezier(0.4,0,0.2,1), background-color 0.22s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+
+.product-form__quantity .quantity__input,
+.product-form__quantity .quantity__label,
+.product-form__quantity label.quantity__label,
+.product-form__quantity .form__label {
+  transition: none;
+}
+
+.product-form__quantity .quantity-input__wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  width: max-content;
+  max-width: 100%;
+  align-items: flex-start;
+}
+
+.product-form__quantity .quantity-input__wrapper:hover .quantity,
+.product-form__quantity .quantity-input__wrapper:focus-within .quantity {
+  border-color: var(--brand-accent, #f0d080) !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 0 2px var(--brand-accent, #f0d080), 0 0 8px 2px var(--brand-accent-glow, rgba(240,208,128,0.16)) !important;
+  background-color: rgba(240,208,128,0.06) !important;
+}
+
+.product-form__quantity .quantity-input__wrapper:hover .quantity__label,
+.product-form__quantity .quantity-input__wrapper:focus-within .quantity__label {
+  color: var(--brand-accent, #f0d080) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 2px var(--brand-accent-glow, rgba(240,208,128,0.16));
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  transition: color 0.22s cubic-bezier(0.4,0,0.2,1), text-shadow 0.22s cubic-bezier(0.4,0,0.2,1), font-weight 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+.product-form__quantity .quantity-input__wrapper:hover .quantity__input,
+.product-form__quantity .quantity-input__wrapper:focus-within .quantity__input,
+.product-form__quantity .quantity-input__wrapper:hover .quantity__button,
+.product-form__quantity .quantity-input__wrapper:focus-within .quantity__button {
+  color: var(--brand-accent, #f0d080) !important;
+  transition: color 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Remove border/box-shadow from quantity label (default state) */
+.quantity__label,
+label.quantity__label,
+.form__label,
+label.form__label {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: #fffbe6 !important;
+  font-weight: bold !important;
+}
+
+/* Children: Never light up individually */
+.quantity__button,
+.quantity__input {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: inherit;
+}
+
+.quantity__input {
+  color: #fffbe6;
+}

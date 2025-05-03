@@ -32,25 +32,21 @@
       aria-label="{{ 'products.modal.label' | t }}"
       tabindex="0"
     >
-      {%- liquid
-        if product.selected_or_first_available_variant.featured_media != null
-          assign media = product.selected_or_first_available_variant.featured_media
-          render 'product-media', media: media, loop: section.settings.enable_video_looping, variant_image: section.settings.hide_variants
-        endif
-      -%}
-
+      {%- assign active_media_id = null -%}
+      {%- if request and request.params and request.params.media_id -%}
+        {%- assign active_media_id = request.params.media_id | plus: 0 -%}
+      {%- endif -%}
+      {%- if active_media_id == null and product.selected_or_first_available_variant and product.selected_or_first_available_variant.featured_media -%}
+        {%- assign active_media_id = product.selected_or_first_available_variant.featured_media.id -%}
+      {%- endif -%}
       {%- for media in product.media -%}
-        {%- liquid
-          if section.settings.hide_variants and variant_images contains media.src or variant_images contains media.id
-            assign variant_image = true
-          else
-            assign variant_image = false
-          endif
-
-          unless media.id == product.selected_or_first_available_variant.featured_media.id
-            render 'product-media', media: media, loop: section.settings.enable_video_looping, variant_image: variant_image
-          endunless
-        -%}
+        {%- assign is_active = false -%}
+        {%- if media.id == active_media_id -%}
+          {%- assign is_active = true -%}
+        {%- endif -%}
+        <div class="modal-media-item{% if is_active %} active{% endif %}" data-media-id="{{ media.id }}">
+          {% render 'product-media', media: media %}
+        </div>
       {%- endfor -%}
     </div>
   </div>
